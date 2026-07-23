@@ -13,6 +13,9 @@ import {
   countTools,
 } from "@/lib/data";
 
+// Rebuild in the background every 5 min so tool/logo changes appear without a redeploy.
+export const revalidate = 300;
+
 export default async function HomePage() {
   const [trending, justLaunched, mostSaved, featured, categories, total, strip] =
     await Promise.all([

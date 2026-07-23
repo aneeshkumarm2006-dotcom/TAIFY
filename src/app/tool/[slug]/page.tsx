@@ -11,6 +11,8 @@ import { ButtonLink } from "@/components/ui/button";
 import { ToolGrid } from "@/components/tool-rail";
 import { compactNumber } from "@/lib/utils";
 
+export const revalidate = 300;
+
 export function generateStaticParams() {
   return TOOLS.map((t) => ({ slug: t.slug }));
 }

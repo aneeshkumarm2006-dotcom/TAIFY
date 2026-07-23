@@ -15,7 +15,9 @@ export const CATEGORIES: Category[] = [
   { slug: "marketing", name: "Marketing", emoji: "📣" },
 ];
 
-const lc = (domain: string) => `https://logo.clearbit.com/${domain}`;
+// Google's favicon service — reliable, returns each brand's logo mark.
+const lc = (domain: string) =>
+  `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
 
 type Seed = Omit<Tool, "listingCost"> & { listingCost?: string };
 const T = (s: Seed): Tool => ({ listingCost: "Free · promoted from $49", ...s });
