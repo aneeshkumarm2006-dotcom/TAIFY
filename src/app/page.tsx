@@ -2,6 +2,7 @@ import Link from "next/link";
 import { SearchBar } from "@/components/search-bar";
 import { ToolRail } from "@/components/tool-rail";
 import { LogoStrip } from "@/components/logo-strip";
+import { FloatingLogos } from "@/components/floating-logos";
 import { AnimatedHeadline } from "@/components/animated-headline";
 import { Reveal, HeroStagger } from "@/components/motion/reveal";
 import { categoryIcon } from "@/lib/category-icons";
@@ -32,7 +33,9 @@ export default async function HomePage() {
   return (
     <div className="mx-auto w-full max-w-[1440px] px-6 lg:px-10">
       {/* Hero */}
-      <section className="border-b border-line py-16 text-center sm:py-24">
+      <section className="relative overflow-hidden border-b border-line py-16 text-center sm:py-24">
+        <FloatingLogos tools={strip} />
+        <div className="relative">
         <div className="eyebrow mb-5">The front door · discover AI tools</div>
         <AnimatedHeadline />
         <HeroStagger>
@@ -60,6 +63,7 @@ export default async function HomePage() {
 
         <div className="mt-12">
           <LogoStrip tools={strip} />
+        </div>
         </div>
       </section>
 
