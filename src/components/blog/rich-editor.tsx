@@ -4,6 +4,7 @@ import { useEditor, EditorContent, type Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
+import Youtube from "@tiptap/extension-youtube";
 import { useRef } from "react";
 import {
   Bold,
@@ -15,6 +16,7 @@ import {
   Quote,
   Link2,
   ImagePlus,
+  Video as YoutubeIcon,
   Loader2,
 } from "lucide-react";
 import { useState } from "react";
@@ -33,6 +35,7 @@ export function RichEditor({
       StarterKit.configure({ link: false }),
       Link.configure({ openOnClick: false, HTMLAttributes: { rel: "noopener" } }),
       Image.configure({ HTMLAttributes: { class: "rounded-lg" } }),
+      Youtube.configure({ width: 640, height: 360, HTMLAttributes: { class: "taify-embed" } }),
     ],
     content: value,
     editorProps: {
@@ -106,6 +109,16 @@ function Toolbar({ editor }: { editor: Editor }) {
       <Btn on={editor.isActive("link")} onClick={setLink} title="Link"><Link2 className="h-4 w-4" /></Btn>
       <Btn on={false} onClick={() => fileRef.current?.click()} title="Insert image">
         {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImagePlus className="h-4 w-4" />}
+      </Btn>
+      <Btn
+        on={false}
+        title="Embed YouTube video"
+        onClick={() => {
+          const url = window.prompt("YouTube video URL:");
+          if (url) editor.commands.setYoutubeVideo({ src: url });
+        }}
+      >
+        <YoutubeIcon className="h-4 w-4" />
       </Btn>
       <input
         ref={fileRef}

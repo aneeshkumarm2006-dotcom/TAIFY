@@ -52,6 +52,7 @@ export async function POST(req: Request) {
     description: body.description?.trim() || "",
     mark: (body.mark?.trim() || body.name.trim().slice(0, 2)).slice(0, 2),
     color: body.color || "#3a7ca5",
+    logo: body.logo?.trim() || undefined,
     company: body.company?.trim() || "",
     category: body.category?.trim() || "productivity",
     tags: Array.isArray(body.tags) ? body.tags : [],

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Tool } from "@/lib/types";
-import { LogoTile } from "./logo-tile";
+import { BrandLogo } from "./brand-logo";
 import { PricingBadge, VerifiedBadge } from "./ui/badge";
 import { SaveButton } from "./save-button";
 import { cn } from "@/lib/utils";
@@ -29,9 +29,11 @@ export function ToolCard({
       )}
 
       <div className="flex items-start gap-3">
-        <LogoTile
+        <BrandLogo
+          name={tool.name}
           mark={tool.mark}
           color={tool.color}
+          logo={tool.logo}
           className="transition-transform duration-200 ease-out group-hover:scale-[1.06]"
         />
         <div className="min-w-0">

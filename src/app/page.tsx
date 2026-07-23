@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { SearchBar } from "@/components/search-bar";
 import { ToolRail } from "@/components/tool-rail";
+import { LogoStrip } from "@/components/logo-strip";
 import { Reveal, HeroStagger } from "@/components/motion/reveal";
+import { categoryIcon } from "@/lib/category-icons";
 import {
   getTrending,
   getJustLaunched,
@@ -12,7 +14,7 @@ import {
 } from "@/lib/data";
 
 export default async function HomePage() {
-  const [trending, justLaunched, mostSaved, featured, categories, total] =
+  const [trending, justLaunched, mostSaved, featured, categories, total, strip] =
     await Promise.all([
       getTrending(4),
       getJustLaunched(4),
@@ -20,6 +22,7 @@ export default async function HomePage() {
       getFeatured(4),
       getCategories(),
       countTools(),
+      getMostSaved(9),
     ]);
 
   return (
@@ -53,6 +56,10 @@ export default async function HomePage() {
             </span>
           </div>
         </HeroStagger>
+
+        <div className="mt-12">
+          <LogoStrip tools={strip} />
+        </div>
       </section>
 
       {/* Rails */}
@@ -68,17 +75,22 @@ export default async function HomePage() {
             <h3 className="mb-4 text-[17px] font-bold tracking-tight">
               Browse by task
             </h3>
-            <div className="flex flex-wrap gap-2.5">
-              {categories.map((c) => (
-                <Link
-                  key={c.slug}
-                  href={`/browse?category=${c.slug}`}
-                  className="inline-flex items-center gap-2 rounded-full border border-line bg-card px-4 py-2 text-[13.5px] font-medium transition-all duration-200 hover:-translate-y-0.5 hover:border-accent hover:text-accent hover:shadow-card"
-                >
-                  <span aria-hidden>{c.emoji}</span>
-                  {c.name}
-                </Link>
-              ))}
+            <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
+              {categories.map((c) => {
+                const Icon = categoryIcon(c.slug);
+                return (
+                  <Link
+                    key={c.slug}
+                    href={`/browse?category=${c.slug}`}
+                    className="group flex items-center gap-3 rounded-card border border-line bg-card px-4 py-3 text-[14px] font-medium transition-all duration-200 hover:-translate-y-0.5 hover:border-accent hover:shadow-card"
+                  >
+                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-[10px] bg-accent-wash text-accent-ink transition-colors group-hover:bg-accent group-hover:text-white">
+                      <Icon className="h-[18px] w-[18px]" />
+                    </span>
+                    {c.name}
+                  </Link>
+                );
+              })}
             </div>
           </section>
         </Reveal>

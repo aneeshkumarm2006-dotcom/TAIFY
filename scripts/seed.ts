@@ -25,6 +25,11 @@ async function main() {
   const db = client.db(); // database name from the URI (…/taify)
   const col = db.collection<ToolDoc>("tools");
 
+  // Remove any tools no longer in the catalog (e.g. old placeholder entries).
+  const slugs = TOOLS.map((t) => t.slug);
+  const removed = await col.deleteMany({ slug: { $nin: slugs } });
+  if (removed.deletedCount) console.log(`  removed ${removed.deletedCount} stale tool(s)`);
+
   // Idempotent: upsert each tool by slug so re-running is safe.
   const ops = TOOLS.map((t) => ({
     updateOne: {

@@ -8,10 +8,12 @@ export interface Tool {
   name: string;
   tagline: string;
   description: string;
-  /** short brand mark, 2 letters */
+  /** short brand mark, 2 letters (fallback tile) */
   mark: string;
   /** brand color for the logo tile */
   color: string;
+  /** real brand logo URL (falls back to the letter tile on error) */
+  logo?: string;
   company: string;
   category: string;
   tags: string[];

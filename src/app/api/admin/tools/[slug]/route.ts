@@ -27,6 +27,7 @@ export async function PUT(
   assign("description", body.description?.trim());
   assign("mark", body.mark?.slice(0, 2));
   assign("color", body.color);
+  assign("logo", body.logo?.trim());
   assign("company", body.company?.trim());
   assign("category", body.category?.trim());
   assign("url", body.url?.trim());

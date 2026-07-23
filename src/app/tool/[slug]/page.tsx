@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ArrowUpRight, Check, X } from "lucide-react";
 import { getTool, getRelated } from "@/lib/data";
 import { TOOLS } from "@/data/tools";
-import { LogoTile } from "@/components/logo-tile";
+import { BrandLogo } from "@/components/brand-logo";
 import { PricingBadge, VerifiedBadge } from "@/components/ui/badge";
 import { SaveButton } from "@/components/save-button";
 import { ButtonLink } from "@/components/ui/button";
@@ -53,7 +53,7 @@ export default async function ToolPage({
         {/* Main */}
         <div>
           <div className="flex items-center gap-4">
-            <LogoTile mark={tool.mark} color={tool.color} size="lg" />
+            <BrandLogo name={tool.name} mark={tool.mark} color={tool.color} logo={tool.logo} size="lg" />
             <div>
               <div className="flex flex-wrap items-center gap-2.5">
                 <h1 className="text-[26px] font-extrabold tracking-[-0.03em]">

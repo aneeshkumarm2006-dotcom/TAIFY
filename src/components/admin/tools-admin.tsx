@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { CATEGORIES } from "@/data/tools";
 import type { Pricing, Tool } from "@/lib/types";
-import { LogoTile } from "@/components/logo-tile";
+import { BrandLogo } from "@/components/brand-logo";
 import { PricingBadge } from "@/components/ui/badge";
 import { compactNumber, timeAgo, cn } from "@/lib/utils";
 
@@ -120,7 +120,7 @@ export function ToolsAdmin() {
                 <tr key={t.slug} className="border-t border-line">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2.5">
-                      <LogoTile mark={t.mark} color={t.color} size="sm" />
+                      <BrandLogo name={t.name} mark={t.mark} color={t.color} logo={t.logo} size="sm" />
                       <div>
                         <div className="flex items-center gap-1.5 font-semibold">
                           {t.name}
@@ -330,6 +330,9 @@ function ToolForm({
           </div>
           <Field label="Website URL">
             <input className={inp} value={(f.url as string) ?? ""} onChange={(e) => set("url", e.target.value)} placeholder="https://…" />
+          </Field>
+          <Field label="Logo URL (optional — falls back to letters)">
+            <input className={inp} value={(f.logo as string) ?? ""} onChange={(e) => set("logo", e.target.value)} placeholder="https://logo.clearbit.com/domain.com" />
           </Field>
           <Field label="Tags (comma-separated)">
             <input className={inp} value={asText(f.tags)} onChange={(e) => set("tags", e.target.value)} />

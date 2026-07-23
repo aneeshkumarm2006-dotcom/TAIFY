@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Sparkles } from "lucide-react";
 import type { Tool } from "@/lib/types";
-import { LogoTile } from "./logo-tile";
+import { BrandLogo } from "./brand-logo";
 import { PricingBadge, VerifiedBadge } from "./ui/badge";
 import { cn } from "@/lib/utils";
 
@@ -110,7 +110,7 @@ export function MatchResults({
                       href={`/tool/${t.slug}`}
                       className="flex items-center gap-3 rounded-card border border-line bg-card p-3 transition-colors hover:border-line-strong"
                     >
-                      <LogoTile mark={t.mark} color={t.color} size="sm" />
+                      <BrandLogo name={t.name} mark={t.mark} color={t.color} logo={t.logo} size="sm" />
                       <div className="min-w-0">
                         <div className="truncate text-[13.5px] font-semibold">
                           {t.name}
@@ -166,7 +166,7 @@ function MatchRow({
       <span className="mono w-6 shrink-0 pt-1.5 text-center text-[15px] font-extrabold text-accent">
         {rank}
       </span>
-      <LogoTile mark={tool.mark} color={tool.color} size="lg" />
+      <BrandLogo name={tool.name} mark={tool.mark} color={tool.color} logo={tool.logo} size="lg" />
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2.5">
           <Link
