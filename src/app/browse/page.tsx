@@ -1,12 +1,12 @@
 import { Suspense } from "react";
-import { FilterRail } from "@/components/filter-rail";
-import { SortSelect } from "@/components/sort-select";
+import { FilterBar } from "@/components/filter-bar";
 import { MotionGrid } from "@/components/motion/motion-grid";
 import {
   filterTools,
   getCategories,
   categoryCounts,
   getCategory,
+  countTools,
 } from "@/lib/data";
 import type { Pricing } from "@/lib/types";
 
@@ -30,59 +30,47 @@ export default async function BrowsePage({
   const verifiedOnly = sp.verified === "1";
   const hasFreeTier = sp.free === "1";
 
-  const [tools, categories, counts, activeCat] = await Promise.all([
+  const [tools, categories, counts, activeCat, total] = await Promise.all([
     filterTools({ category, pricing, verifiedOnly, hasFreeTier, sort }),
     getCategories(),
     categoryCounts(),
     category ? getCategory(category) : Promise.resolve(undefined),
+    countTools(),
   ]);
 
   return (
-    <div className="mx-auto max-w-[1440px] px-6 py-10 lg:px-10">
-      <div className="mb-8">
+    <div className="mx-auto max-w-[1440px] px-6 py-8 lg:px-10">
+      <div className="mb-2">
         <div className="eyebrow mb-2">Browse the field guide</div>
         <h1 className="text-[clamp(24px,3.4vw,34px)] font-extrabold tracking-[-0.03em]">
           {activeCat ? activeCat.name : "All AI tools"}
         </h1>
       </div>
 
-      <div className="grid grid-cols-1 gap-8 md:grid-cols-[210px_1fr]">
-        <Suspense>
-          <div className="hidden md:block">
-            <FilterRail categories={categories} counts={counts} />
-          </div>
-        </Suspense>
+      <Suspense>
+        <FilterBar categories={categories} counts={counts} total={total} />
+      </Suspense>
 
-        <div>
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <span className="mono text-[12.5px] text-ink-soft">
-              {tools.length} tools ·{" "}
-              <b className="text-ink">verified daily</b>
-            </span>
-            <Suspense>
-              <SortSelect />
-            </Suspense>
-          </div>
-
-          {tools.length > 0 ? (
-            <MotionGrid
-              tools={tools}
-              columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4"
-            />
-          ) : (
-            <div className="rounded-card border border-line bg-card p-10 text-center">
-              <p className="text-[15px] font-semibold">No tools match those filters.</p>
-              <p className="mt-1 text-[13.5px] text-ink-soft">
-                Try removing a filter, or describe your task on the{" "}
-                <a href="/match" className="text-accent">
-                  AI Match
-                </a>{" "}
-                page.
-              </p>
-            </div>
-          )}
-        </div>
+      <div className="mb-4">
+        <span className="mono text-[12.5px] text-ink-soft">
+          {tools.length} tools · <b className="text-ink">verified daily</b>
+        </span>
       </div>
+
+      {tools.length > 0 ? (
+        <MotionGrid
+          tools={tools}
+          columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+        />
+      ) : (
+        <div className="rounded-card border border-line bg-card p-10 text-center">
+          <p className="text-[15px] font-semibold">No tools match those filters.</p>
+          <p className="mt-1 text-[13.5px] text-ink-soft">
+            Try removing a filter, or describe your task on the{" "}
+            <a href="/match" className="text-accent">AI Match</a> page.
+          </p>
+        </div>
+      )}
     </div>
   );
 }

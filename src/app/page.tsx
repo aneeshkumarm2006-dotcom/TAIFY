@@ -2,6 +2,7 @@ import Link from "next/link";
 import { SearchBar } from "@/components/search-bar";
 import { ToolRail } from "@/components/tool-rail";
 import { LogoStrip } from "@/components/logo-strip";
+import { AnimatedHeadline } from "@/components/animated-headline";
 import { Reveal, HeroStagger } from "@/components/motion/reveal";
 import { categoryIcon } from "@/lib/category-icons";
 import {
@@ -32,12 +33,9 @@ export default async function HomePage() {
     <div className="mx-auto w-full max-w-[1440px] px-6 lg:px-10">
       {/* Hero */}
       <section className="border-b border-line py-16 text-center sm:py-24">
+        <div className="eyebrow mb-5">The front door · discover AI tools</div>
+        <AnimatedHeadline />
         <HeroStagger>
-          <div className="eyebrow mb-5">The front door · discover AI tools</div>
-          <h1 className="mx-auto max-w-4xl text-balance text-[clamp(36px,7vw,72px)] font-extrabold leading-[1.0] tracking-[-0.045em]">
-            There&apos;s an AI for{" "}
-            <span className="border-b-4 border-accent pb-0.5">you</span>.
-          </h1>
           <p className="mx-auto mt-5 max-w-xl text-[17px] text-ink-soft">
             Tell us the job. We&apos;ll find the three tools worth your time — not
             a wall of ten thousand.

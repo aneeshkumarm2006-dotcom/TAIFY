@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { Select } from "@/components/ui/select";
 
 export function ComparePicker({
   options,
@@ -12,10 +13,11 @@ export function ComparePicker({
   b?: string;
 }) {
   const router = useRouter();
+  const opts = options.map((o) => ({ value: o.slug, label: o.name }));
 
   function set(which: "a" | "b", value: string) {
-    const params = new URLSearchParams();
     const next = { a, b, [which]: value };
+    const params = new URLSearchParams();
     if (next.a) params.set("a", next.a);
     if (next.b) params.set("b", next.b);
     router.push(`/compare?${params.toString()}`, { scroll: false });
@@ -23,39 +25,21 @@ export function ComparePicker({
 
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <Select value={a} onChange={(v) => set("a", v)} options={options} label="Tool A" />
+      <Select
+        value={a}
+        onChange={(v) => set("a", v)}
+        options={opts}
+        placeholder="Tool A…"
+        className="w-52"
+      />
       <span className="mono text-[13px] text-ink-soft">vs</span>
-      <Select value={b} onChange={(v) => set("b", v)} options={options} label="Tool B" />
+      <Select
+        value={b}
+        onChange={(v) => set("b", v)}
+        options={opts}
+        placeholder="Tool B…"
+        className="w-52"
+      />
     </div>
-  );
-}
-
-function Select({
-  value,
-  onChange,
-  options,
-  label,
-}: {
-  value?: string;
-  onChange: (v: string) => void;
-  options: { slug: string; name: string }[];
-  label: string;
-}) {
-  return (
-    <select
-      value={value ?? ""}
-      onChange={(e) => onChange(e.target.value)}
-      aria-label={label}
-      className="cursor-pointer rounded-lg border border-line-strong bg-card px-3 py-2 text-[13.5px] font-medium text-ink"
-    >
-      <option value="" disabled>
-        {label}…
-      </option>
-      {options.map((o) => (
-        <option key={o.slug} value={o.slug}>
-          {o.name}
-        </option>
-      ))}
-    </select>
   );
 }
