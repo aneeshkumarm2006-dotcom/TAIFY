@@ -34,7 +34,13 @@ export function SiteFooter() {
         </div>
         <div className="mono mt-10 flex flex-col gap-2 border-t border-line pt-6 text-[11px] text-ink-soft sm:flex-row sm:items-center sm:justify-between">
           <span>© {new Date().getFullYear()} TAIFY · a field guide to AI</span>
-          <span>Built with Next.js · Supabase · Claude</span>
+          <span className="flex items-center gap-3">
+            <Link href="/login" className="transition-colors hover:text-accent">
+              Team login
+            </Link>
+            <span>·</span>
+            <span>Built with Next.js · MongoDB · Claude</span>
+          </span>
         </div>
       </div>
     </footer>

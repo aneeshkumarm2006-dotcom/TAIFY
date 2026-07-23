@@ -28,6 +28,8 @@ export async function PUT(
   assign("mark", body.mark?.slice(0, 2));
   assign("color", body.color);
   assign("logo", body.logo?.trim());
+  assign("video", body.video?.trim());
+  if (Array.isArray(body.images)) set.images = body.images.filter(Boolean);
   assign("company", body.company?.trim());
   assign("category", body.category?.trim());
   assign("url", body.url?.trim());

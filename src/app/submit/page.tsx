@@ -1,4 +1,5 @@
 import { Check } from "lucide-react";
+import { SubmitForm } from "@/components/submit-form";
 
 export const metadata = {
   title: "Submit a tool · TAIFY",
@@ -9,6 +10,7 @@ const PERKS = [
   "Free basic listing — verified & indexed for SEO",
   "Honest pricing shown, including a real cost-to-use estimate",
   "Appear in AI Match results when you fit the task",
+  "Add screenshots and a demo video",
   "Promoted placement from $49 (optional)",
 ];
 
@@ -33,50 +35,7 @@ export default function SubmitPage() {
         ))}
       </ul>
 
-      <form className="mt-10 flex flex-col gap-4 rounded-card border border-line bg-card p-6 shadow-card">
-        <Field label="Tool name" placeholder="e.g. Rewrite Studio" />
-        <Field label="Website" placeholder="https://…" type="url" />
-        <Field label="One-line tagline" placeholder="What it does, in a sentence" />
-        <div className="flex flex-col gap-1.5">
-          <label className="eyebrow">What task does it solve?</label>
-          <textarea
-            rows={3}
-            placeholder="Describe the job your tool is best at…"
-            className="rounded-lg border border-line-strong bg-ground px-3 py-2 text-[14px] outline-none focus:border-accent"
-          />
-        </div>
-        <button
-          type="button"
-          className="mt-1 cursor-pointer self-start rounded-[10px] bg-accent px-5 py-2.5 text-[14px] font-bold text-white transition-colors hover:bg-accent-ink"
-        >
-          Submit for review
-        </button>
-        <p className="mono text-[11px] text-ink-soft">
-          Form is a placeholder — wiring to Supabase comes with the maker
-          dashboard.
-        </p>
-      </form>
-    </div>
-  );
-}
-
-function Field({
-  label,
-  placeholder,
-  type = "text",
-}: {
-  label: string;
-  placeholder: string;
-  type?: string;
-}) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <label className="eyebrow">{label}</label>
-      <input
-        type={type}
-        placeholder={placeholder}
-        className="rounded-lg border border-line-strong bg-ground px-3 py-2 text-[14px] outline-none focus:border-accent"
-      />
+      <SubmitForm />
     </div>
   );
 }

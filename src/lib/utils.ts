@@ -24,6 +24,18 @@ export function slugify(input: string): string {
     .slice(0, 80);
 }
 
+/** Convert a YouTube/Vimeo watch URL to an embeddable URL (null if not video). */
+export function embedUrl(url: string): string | null {
+  if (!url) return null;
+  const yt = url.match(
+    /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/,
+  );
+  if (yt) return `https://www.youtube.com/embed/${yt[1]}`;
+  const vimeo = url.match(/vimeo\.com\/(\d+)/);
+  if (vimeo) return `https://player.vimeo.com/video/${vimeo[1]}`;
+  return null;
+}
+
 /** Estimate reading time in minutes from HTML/text. */
 export function readingTime(html: string): number {
   const words = html.replace(/<[^>]+>/g, " ").trim().split(/\s+/).length;

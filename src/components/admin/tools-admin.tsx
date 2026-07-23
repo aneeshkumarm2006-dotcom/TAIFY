@@ -235,20 +235,19 @@ function ToolForm({
   async function save() {
     setSaving(true);
     setError(null);
+    const lines = (v: unknown) =>
+      typeof v === "string"
+        ? v.split("\n").map((s) => s.trim()).filter(Boolean)
+        : v;
     const payload = {
       ...f,
       tags:
         typeof f.tags === "string"
           ? (f.tags as string).split(",").map((s) => s.trim()).filter(Boolean)
           : f.tags,
-      pros:
-        typeof f.pros === "string"
-          ? (f.pros as string).split("\n").map((s) => s.trim()).filter(Boolean)
-          : f.pros,
-      cons:
-        typeof f.cons === "string"
-          ? (f.cons as string).split("\n").map((s) => s.trim()).filter(Boolean)
-          : f.cons,
+      pros: lines(f.pros),
+      cons: lines(f.cons),
+      images: lines(f.images),
     };
     const res = await fetch(
       isNew ? "/api/admin/tools" : `/api/admin/tools/${initial.slug}`,
@@ -332,7 +331,14 @@ function ToolForm({
             <input className={inp} value={(f.url as string) ?? ""} onChange={(e) => set("url", e.target.value)} placeholder="https://…" />
           </Field>
           <Field label="Logo URL (optional — falls back to letters)">
-            <input className={inp} value={(f.logo as string) ?? ""} onChange={(e) => set("logo", e.target.value)} placeholder="https://logo.clearbit.com/domain.com" />
+            <input className={inp} value={(f.logo as string) ?? ""} onChange={(e) => set("logo", e.target.value)} placeholder="https://www.google.com/s2/favicons?domain=domain.com&sz=128" />
+          </Field>
+          <Field label="Demo video URL (YouTube / Vimeo / mp4)">
+            <input className={inp} value={(f.video as string) ?? ""} onChange={(e) => set("video", e.target.value)} placeholder="https://youtube.com/watch?v=…" />
+          </Field>
+          <Field label="Screenshots (one image URL per line)">
+            <textarea rows={3} className={inp} value={asText(f.images)} onChange={(e) => set("images", e.target.value)} placeholder="https://… image url" />
+            <ImageUpload onUploaded={(url) => set("images", (asText(f.images) ? asText(f.images) + "\n" : "") + url)} />
           </Field>
           <Field label="Tags (comma-separated)">
             <input className={inp} value={asText(f.tags)} onChange={(e) => set("tags", e.target.value)} />
@@ -371,6 +377,32 @@ function ToolForm({
         </div>
       </div>
     </div>
+  );
+}
+
+function ImageUpload({ onUploaded }: { onUploaded: (url: string) => void }) {
+  const [busy, setBusy] = useState(false);
+  return (
+    <label className="mt-1.5 inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-line-strong px-2.5 py-1.5 text-[12px] font-medium text-ink-soft hover:border-accent hover:text-ink">
+      {busy ? "Uploading…" : "＋ Upload image"}
+      <input
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={async (e) => {
+          const file = e.target.files?.[0];
+          if (!file) return;
+          setBusy(true);
+          const fd = new FormData();
+          fd.append("file", file);
+          const res = await fetch("/api/seoteam/upload", { method: "POST", body: fd });
+          setBusy(false);
+          if (res.ok) onUploaded((await res.json()).url);
+          else alert((await res.json()).error ?? "Upload failed");
+          e.target.value = "";
+        }}
+      />
+    </label>
   );
 }
 

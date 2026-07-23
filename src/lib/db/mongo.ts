@@ -55,6 +55,24 @@ export async function settingsCollection(): Promise<Collection | null> {
   return db ? db.collection("settings") : null;
 }
 
+export interface Submission {
+  name: string;
+  url: string;
+  tagline: string;
+  description: string;
+  category: string;
+  images: string[];
+  video: string;
+  submitterEmail: string;
+  status: "pending";
+  createdAt: string;
+}
+
+export async function submissionsCollection(): Promise<Collection<Submission> | null> {
+  const db = await getDb();
+  return db ? db.collection<Submission>("submissions") : null;
+}
+
 export const isDbEnabled = Boolean(uri);
 
 /** Serialize a ToolDoc (Date) back to the app's Tool (ISO string). */

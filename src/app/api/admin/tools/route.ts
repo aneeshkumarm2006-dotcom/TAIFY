@@ -53,6 +53,8 @@ export async function POST(req: Request) {
     mark: (body.mark?.trim() || body.name.trim().slice(0, 2)).slice(0, 2),
     color: body.color || "#3a7ca5",
     logo: body.logo?.trim() || undefined,
+    images: Array.isArray(body.images) ? body.images.filter(Boolean) : [],
+    video: body.video?.trim() || undefined,
     company: body.company?.trim() || "",
     category: body.category?.trim() || "productivity",
     tags: Array.isArray(body.tags) ? body.tags : [],

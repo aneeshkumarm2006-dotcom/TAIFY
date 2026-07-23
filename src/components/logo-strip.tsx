@@ -9,9 +9,11 @@ const SPREAD = 95; // px falloff width of the arch
 
 function BrandImg({
   tool,
+  index,
   innerRef,
 }: {
   tool: Tool;
+  index: number;
   innerRef: (el: HTMLSpanElement | null) => void;
 }) {
   const [ok, setOk] = useState(true);
@@ -19,8 +21,8 @@ function BrandImg({
   return (
     <span
       ref={innerRef}
-      className="inline-flex origin-bottom will-change-transform"
-      style={{ transition: "transform 160ms cubic-bezier(0.22,1,0.36,1)" }}
+      className="logo-float inline-flex origin-bottom will-change-transform"
+      style={{ animationDelay: `${index * 0.22}s` }}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
@@ -58,6 +60,10 @@ export function LogoStrip({ tools }: { tools: Tool[] }) {
     return () => window.removeEventListener("resize", measure);
   }, []);
 
+  function onEnter() {
+    // Pause the idle float so the cursor-arc transforms take over cleanly.
+    wrapRef.current?.classList.add("no-float");
+  }
   function onMove(e: React.MouseEvent) {
     if (!enabled.current) return;
     const wrap = wrapRef.current;
@@ -67,16 +73,20 @@ export function LogoStrip({ tools }: { tools: Tool[] }) {
       if (!el) return;
       const d = mx - (centers.current[i] ?? 0);
       const f = Math.exp(-(d * d) / (2 * SPREAD * SPREAD));
+      el.style.transition = "transform 160ms cubic-bezier(0.22,1,0.36,1)";
       el.style.transform = `translateY(${-AMP * f}px) scale(${1 + MAG * f})`;
       el.style.zIndex = String(Math.round(f * 10));
     });
   }
   function onLeave() {
+    const wrap = wrapRef.current;
     items.current.forEach((el) => {
       if (!el) return;
-      el.style.transform = "translateY(0) scale(1)";
+      el.style.transform = "";
       el.style.zIndex = "0";
     });
+    // Resume the idle float.
+    wrap?.classList.remove("no-float");
   }
 
   return (
@@ -86,6 +96,7 @@ export function LogoStrip({ tools }: { tools: Tool[] }) {
       </span>
       <div
         ref={wrapRef}
+        onMouseEnter={onEnter}
         onMouseMove={onMove}
         onMouseLeave={onLeave}
         className="flex flex-wrap items-end justify-center gap-6 px-4 py-4 sm:flex-nowrap sm:gap-8"
@@ -94,6 +105,7 @@ export function LogoStrip({ tools }: { tools: Tool[] }) {
           <BrandImg
             key={t.slug}
             tool={t}
+            index={i}
             innerRef={(el) => {
               items.current[i] = el;
             }}

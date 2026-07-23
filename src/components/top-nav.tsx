@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Sparkles } from "lucide-react";
 import { ThemeToggle } from "./theme-toggle";
 import { ButtonLink } from "./ui/button";
+import { MobileMenu } from "./mobile-menu";
 
 const LINKS = [
   { href: "/", label: "Discover" },
@@ -47,10 +48,16 @@ export function TopNav() {
             <Sparkles className="h-4 w-4 text-accent" />
             Find my AI
           </ButtonLink>
-          <ButtonLink href="/submit" variant="primary" size="sm">
+          <ButtonLink
+            href="/submit"
+            variant="primary"
+            size="sm"
+            className="hidden sm:inline-flex"
+          >
             Submit a tool
           </ButtonLink>
           <ThemeToggle />
+          <MobileMenu />
         </div>
       </div>
     </header>

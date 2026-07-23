@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutGrid, FileText, LogOut, Settings } from "lucide-react";
+import { LayoutGrid, FileText, LogOut, Settings, Inbox } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const LINKS = [
   { href: "/admin", label: "Tools", icon: LayoutGrid },
+  { href: "/admin/submissions", label: "Submissions", icon: Inbox },
   { href: "/seoteam", label: "Blog", icon: FileText },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ];

@@ -63,14 +63,14 @@ export function AnimatedHeadline() {
     <h1 className="mx-auto max-w-4xl text-balance text-[clamp(36px,7vw,72px)] font-extrabold leading-[1.06] tracking-[-0.045em]">
       <Chars text={LEAD} />{" "}
       <span className="relative inline-block whitespace-nowrap align-bottom">
-        <AnimatePresence mode="wait" initial={false}>
+        <AnimatePresence mode="popLayout" initial={false}>
           <motion.span
             key={WORDS[i]}
             className="inline-block whitespace-nowrap text-accent"
-            initial={reduce ? false : { opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={reduce ? undefined : { opacity: 0, filter: "blur(4px)" }}
-            transition={{ duration: 0.22, ease: EASE }}
+            initial={reduce ? false : { opacity: 0, x: 6 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={reduce ? undefined : { opacity: 0, x: -6, filter: "blur(4px)" }}
+            transition={{ duration: 0.3, ease: EASE }}
           >
             <Chars text={WORDS[i]} />
           </motion.span>

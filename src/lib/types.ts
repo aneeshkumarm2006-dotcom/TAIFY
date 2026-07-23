@@ -14,6 +14,10 @@ export interface Tool {
   color: string;
   /** real brand logo URL (falls back to the letter tile on error) */
   logo?: string;
+  /** screenshot / gallery image URLs */
+  images?: string[];
+  /** demo video — a YouTube/Vimeo URL or an mp4 URL */
+  video?: string;
   company: string;
   category: string;
   tags: string[];

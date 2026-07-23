@@ -191,6 +191,21 @@ body {
   padding: 0;
 }
 
+/* Idle float for the hero logo strip (plays on mobile; paused on desktop hover) */
+@keyframes logo-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.logo-float {
+  animation: logo-float 3.6s ease-in-out infinite;
+}
+.no-float .logo-float {
+  animation: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .logo-float { animation: none; }
+}
+
 /* Announcement ticker marquee */
 @keyframes ticker-scroll {
   from { transform: translateX(0); }

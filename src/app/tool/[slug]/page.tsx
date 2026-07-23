@@ -9,7 +9,7 @@ import { PricingBadge, VerifiedBadge } from "@/components/ui/badge";
 import { SaveButton } from "@/components/save-button";
 import { ButtonLink } from "@/components/ui/button";
 import { ToolGrid } from "@/components/tool-rail";
-import { compactNumber } from "@/lib/utils";
+import { compactNumber, embedUrl } from "@/lib/utils";
 
 export const revalidate = 300;
 
@@ -76,6 +76,42 @@ export default async function ToolPage({
               <strong>Best for:</strong> {tool.bestFor}
             </p>
           </div>
+
+          {/* Media: demo video + screenshots */}
+          {(tool.video || (tool.images && tool.images.length > 0)) && (
+            <div className="mt-8 space-y-4">
+              {tool.video &&
+                (embedUrl(tool.video) ? (
+                  <iframe
+                    src={embedUrl(tool.video)!}
+                    title={`${tool.name} demo`}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="aspect-video w-full rounded-card border border-line"
+                  />
+                ) : (
+                  <video
+                    src={tool.video}
+                    controls
+                    className="aspect-video w-full rounded-card border border-line"
+                  />
+                ))}
+              {tool.images && tool.images.length > 0 && (
+                <div className="flex snap-x gap-3 overflow-x-auto pb-2">
+                  {tool.images.map((src, i) => (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      key={i}
+                      src={src}
+                      alt={`${tool.name} screenshot ${i + 1}`}
+                      loading="lazy"
+                      className="h-56 shrink-0 snap-start rounded-card border border-line object-cover"
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Pros / cons */}
           <div className="mt-8 grid grid-cols-1 gap-3.5 sm:grid-cols-2">
