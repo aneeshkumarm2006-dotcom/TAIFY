@@ -191,7 +191,24 @@ body {
   padding: 0;
 }
 
+/* Announcement ticker marquee */
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.ticker-track {
+  animation-name: ticker-scroll;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+.ticker:hover .ticker-track {
+  animation-play-state: paused;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .ticker-track {
+    animation: none;
+  }
   *,
   *::before,
   *::after {

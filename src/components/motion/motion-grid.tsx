@@ -14,12 +14,26 @@ export function MotionGrid({
   tools,
   columns = DEFAULT_COLS,
   rank,
+  stagger = true,
 }: {
   tools: Tool[];
   columns?: string;
   rank?: (t: Tool, i: number) => string | undefined;
+  /** When false, cards render solid (no entrance fade) — best for large grids. */
+  stagger?: boolean;
 }) {
   const reduce = useReducedMotion();
+
+  if (!stagger) {
+    return (
+      <div className={cn("grid gap-3.5", columns)}>
+        {tools.map((t, i) => (
+          <ToolCard key={t.slug} tool={t} rank={rank?.(t, i)} className="h-full" />
+        ))}
+      </div>
+    );
+  }
+
   return (
     <motion.div
       className={cn("grid gap-3.5", columns)}

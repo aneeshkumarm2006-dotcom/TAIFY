@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutGrid, FileText, LogOut } from "lucide-react";
+import { LayoutGrid, FileText, LogOut, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const LINKS = [
   { href: "/admin", label: "Tools", icon: LayoutGrid },
   { href: "/seoteam", label: "Blog", icon: FileText },
+  { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
 
 export function DashboardNav() {
@@ -31,7 +32,10 @@ export function DashboardNav() {
         </Link>
         <nav className="ml-4 flex items-center gap-1">
           {LINKS.map((l) => {
-            const active = pathname === l.href || pathname.startsWith(l.href + "/");
+            const active =
+              l.href === "/admin"
+                ? pathname === "/admin"
+                : pathname === l.href || pathname.startsWith(l.href + "/");
             const Icon = l.icon;
             return (
               <Link

@@ -4,6 +4,8 @@ import "./globals.css";
 import { TopNav } from "@/components/top-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { ChromeGate } from "@/components/chrome-gate";
+import { Ticker } from "@/components/ticker";
+import { getSiteSettings } from "@/lib/settings";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
@@ -23,9 +25,10 @@ const themeScript = `
 }catch(e){}})();
 `;
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const settings = await getSiteSettings();
   return (
     <html
       lang="en"
@@ -36,7 +39,15 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body className="min-h-full flex flex-col">
-        <ChromeGate top={<TopNav />} footer={<SiteFooter />}>
+        <ChromeGate
+          top={
+            <>
+              <Ticker settings={settings} />
+              <TopNav />
+            </>
+          }
+          footer={<SiteFooter />}
+        >
           {children}
         </ChromeGate>
       </body>

@@ -50,6 +50,11 @@ export async function postsCollection(): Promise<Collection<PostDoc> | null> {
   return db ? db.collection<PostDoc>("posts") : null;
 }
 
+export async function settingsCollection(): Promise<Collection | null> {
+  const db = await getDb();
+  return db ? db.collection("settings") : null;
+}
+
 export const isDbEnabled = Boolean(uri);
 
 /** Serialize a ToolDoc (Date) back to the app's Tool (ISO string). */
