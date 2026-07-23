@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { TopNav } from "@/components/top-nav";
 import { SiteFooter } from "@/components/site-footer";
+import { ChromeGate } from "@/components/chrome-gate";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
@@ -35,9 +36,9 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body className="min-h-full flex flex-col">
-        <TopNav />
-        <main className="flex-1">{children}</main>
-        <SiteFooter />
+        <ChromeGate top={<TopNav />} footer={<SiteFooter />}>
+          {children}
+        </ChromeGate>
       </body>
     </html>
   );

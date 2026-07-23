@@ -13,6 +13,23 @@ export function compactNumber(n: number): string {
   return `${(n / 1_000_000).toFixed(1)}m`;
 }
 
+/** URL-safe slug from a title: "Top 10 AI Tools!" -> "top-10-ai-tools". */
+export function slugify(input: string): string {
+  return input
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/[\s_-]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80);
+}
+
+/** Estimate reading time in minutes from HTML/text. */
+export function readingTime(html: string): number {
+  const words = html.replace(/<[^>]+>/g, " ").trim().split(/\s+/).length;
+  return Math.max(1, Math.round(words / 200));
+}
+
 /** Relative "verified" label: a Date -> "2d ago". */
 export function timeAgo(date: Date | string): string {
   const d = typeof date === "string" ? new Date(date) : date;

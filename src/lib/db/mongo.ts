@@ -1,6 +1,6 @@
 import "server-only";
 import { MongoClient, type Db, type Collection } from "mongodb";
-import type { Tool } from "@/lib/types";
+import type { Post, Tool } from "@/lib/types";
 
 /**
  * MongoDB connection. Returns null when MONGODB_URI is unset so the app runs
@@ -41,6 +41,13 @@ export async function getDb(): Promise<Db | null> {
 export async function toolsCollection(): Promise<Collection<ToolDoc> | null> {
   const db = await getDb();
   return db ? db.collection<ToolDoc>("tools") : null;
+}
+
+export type PostDoc = Post;
+
+export async function postsCollection(): Promise<Collection<PostDoc> | null> {
+  const db = await getDb();
+  return db ? db.collection<PostDoc>("posts") : null;
 }
 
 export const isDbEnabled = Boolean(uri);

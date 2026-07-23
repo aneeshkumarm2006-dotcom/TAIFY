@@ -37,3 +37,39 @@ export interface Category {
   name: string;
   emoji?: string;
 }
+
+// ---------- Blog / SEO ----------
+
+export type LinkRel = "dofollow" | "nofollow" | "sponsored";
+export type PostStatus = "draft" | "published";
+export type PostTemplate =
+  | "how-to"
+  | "listicle"
+  | "comparison"
+  | "review"
+  | "news"
+  | "generic";
+
+export interface KeywordLink {
+  keyword: string;
+  url: string;
+  rel: LinkRel;
+}
+
+export interface Post {
+  slug: string;
+  title: string;
+  template: PostTemplate;
+  body: string; // HTML
+  excerpt: string; // also meta description
+  metaTitle: string;
+  coverImage: string;
+  keywords: KeywordLink[];
+  linkFirstOnly: boolean;
+  status: PostStatus;
+  author: string;
+  views: number;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string | null;
+}

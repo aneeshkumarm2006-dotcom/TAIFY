@@ -8,6 +8,7 @@ const LINKS = [
   { href: "/browse", label: "Browse" },
   { href: "/match", label: "AI Match" },
   { href: "/compare", label: "Compare" },
+  { href: "/blog", label: "Blog" },
 ];
 
 export function TopNav() {
