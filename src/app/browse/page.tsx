@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { FilterRail } from "@/components/filter-rail";
 import { SortSelect } from "@/components/sort-select";
-import { ToolGrid } from "@/components/tool-rail";
+import { MotionGrid } from "@/components/motion/motion-grid";
 import {
   filterTools,
   getCategories,
@@ -38,7 +38,7 @@ export default async function BrowsePage({
   ]);
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-10">
+    <div className="mx-auto max-w-[1440px] px-6 py-10 lg:px-10">
       <div className="mb-8">
         <div className="eyebrow mb-2">Browse the field guide</div>
         <h1 className="text-[clamp(24px,3.4vw,34px)] font-extrabold tracking-[-0.03em]">
@@ -46,7 +46,7 @@ export default async function BrowsePage({
         </h1>
       </div>
 
-      <div className="grid grid-cols-1 gap-8 md:grid-cols-[190px_1fr]">
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-[210px_1fr]">
         <Suspense>
           <div className="hidden md:block">
             <FilterRail categories={categories} counts={counts} />
@@ -65,7 +65,10 @@ export default async function BrowsePage({
           </div>
 
           {tools.length > 0 ? (
-            <ToolGrid tools={tools} />
+            <MotionGrid
+              tools={tools}
+              columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4"
+            />
           ) : (
             <div className="rounded-card border border-line bg-card p-10 text-center">
               <p className="text-[15px] font-semibold">No tools match those filters.</p>

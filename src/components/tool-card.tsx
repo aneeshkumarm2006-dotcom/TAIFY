@@ -18,7 +18,7 @@ export function ToolCard({
     <Link
       href={`/tool/${tool.slug}`}
       className={cn(
-        "group relative flex flex-col gap-3 rounded-card border border-line bg-card p-4 transition-all hover:border-line-strong hover:shadow-card",
+        "group relative flex flex-col gap-3 rounded-card border border-line bg-card p-4 transition-all duration-200 ease-out hover:-translate-y-1 hover:border-line-strong hover:shadow-card-lg",
         className,
       )}
     >
@@ -29,7 +29,11 @@ export function ToolCard({
       )}
 
       <div className="flex items-start gap-3">
-        <LogoTile mark={tool.mark} color={tool.color} />
+        <LogoTile
+          mark={tool.mark}
+          color={tool.color}
+          className="transition-transform duration-200 ease-out group-hover:scale-[1.06]"
+        />
         <div className="min-w-0">
           <div className="truncate text-[15px] font-bold tracking-tight">
             {tool.name}

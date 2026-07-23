@@ -13,7 +13,7 @@ const LINKS = [
 export function TopNav() {
   return (
     <header className="sticky top-0 z-50 border-b border-line bg-[color-mix(in_srgb,var(--ground)_86%,transparent)] backdrop-blur-md backdrop-saturate-150">
-      <div className="mx-auto flex h-15 max-w-6xl items-center gap-5 px-6 py-3">
+      <div className="mx-auto flex h-15 max-w-[1440px] items-center gap-5 px-6 py-3 lg:px-10">
         <Link
           href="/"
           className="flex items-baseline gap-[2px] text-[20px] font-extrabold tracking-tight"
