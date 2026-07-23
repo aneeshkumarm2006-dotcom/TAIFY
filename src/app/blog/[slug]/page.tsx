@@ -104,7 +104,7 @@ export default async function PostPage({
 
       <div className="mx-auto max-w-[1180px] px-6 py-10 lg:px-10">
         <div className="grid gap-10 lg:grid-cols-[210px_minmax(0,1fr)_250px]">
-          {/* Left rail — TOC */}
+          {/* Left rail - TOC */}
           <aside className="hidden lg:block">
             <div className="sticky top-24">
               <Toc items={toc} />
@@ -150,7 +150,7 @@ export default async function PostPage({
             </div>
           </article>
 
-          {/* Right rail — related tools + CTA */}
+          {/* Right rail - related tools + CTA */}
           <aside className="hidden lg:block">
             <div className="sticky top-24 flex flex-col gap-5">
               {related.length > 0 && <RelatedTools related={related} />}

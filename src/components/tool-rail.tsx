@@ -4,7 +4,7 @@ import { ToolCard } from "./tool-card";
 import { MotionGrid } from "./motion/motion-grid";
 import { Reveal } from "./motion/reveal";
 
-/** Plain (non-animated) grid — used for small related lists. */
+/** Plain (non-animated) grid - used for small related lists. */
 export function ToolGrid({ tools }: { tools: Tool[] }) {
   return (
     <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3">

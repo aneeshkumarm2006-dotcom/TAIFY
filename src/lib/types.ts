@@ -1,7 +1,7 @@
 export type Pricing = "free" | "freemium" | "trial" | "paid";
 
 export interface Tool {
-  /** slug — URL id, e.g. "rewrite-studio" */
+  /** slug - URL id, e.g. "rewrite-studio" */
   slug: string;
   /** catalog id shown in mono, e.g. "AI·0417" */
   code: string;
@@ -16,13 +16,13 @@ export interface Tool {
   logo?: string;
   /** screenshot / gallery image URLs */
   images?: string[];
-  /** demo video — a YouTube/Vimeo URL or an mp4 URL */
+  /** demo video - a YouTube/Vimeo URL or an mp4 URL */
   video?: string;
   company: string;
   category: string;
   tags: string[];
   pricing: Pricing;
-  /** real "~$/mo to actually use" — 0 means free */
+  /** real "~$/mo to actually use" - 0 means free */
   costPerMonth: number;
   /** owner-facing: what it costs to be listed/promoted here */
   listingCost: string;

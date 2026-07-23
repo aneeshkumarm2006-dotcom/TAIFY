@@ -139,7 +139,7 @@ export function PostsDashboard() {
                     </span>
                   </td>
                   <td className="mono px-4 py-3 text-[12px] text-ink-soft">
-                    {p.publishedAt ? p.publishedAt.slice(0, 10) : "—"}
+                    {p.publishedAt ? p.publishedAt.slice(0, 10) : "-"}
                   </td>
                   <td className="tnum px-4 py-3 text-right">
                     <span className="inline-flex items-center gap-1 text-ink-soft">

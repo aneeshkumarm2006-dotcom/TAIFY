@@ -75,7 +75,7 @@ export function MatchResults({
         <>
           {!data.usedAI && (
             <p className="mono mt-4 text-[11.5px] text-ink-soft">
-              (ranked by keyword match — add ANTHROPIC_API_KEY for AI reasoning)
+              (ranked by keyword match - add ANTHROPIC_API_KEY for AI reasoning)
             </p>
           )}
 

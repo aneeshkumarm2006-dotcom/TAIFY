@@ -10,10 +10,10 @@ export interface SiteSettings {
 export const DEFAULT_SETTINGS: SiteSettings = {
   tickerEnabled: true,
   tickerMessages: [
-    "🚀 New — AI Match finds your perfect tool in seconds",
+    "🚀 New - AI Match finds your perfect tool in seconds",
     "✅ 31+ AI tools, verified daily with honest pricing",
     "📈 Read the blog: Best AI Tools for Maths, Science & Coding",
-    "🛠️ Submit your AI tool — free basic listing",
+    "🛠️ Submit your AI tool - free basic listing",
   ],
   tickerSpeed: 30,
 };

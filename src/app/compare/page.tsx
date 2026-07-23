@@ -130,7 +130,7 @@ function buildRows(a: Tool, b: Tool): Row[] {
       aWins: freeTier(a) && !freeTier(b),
       bWins: freeTier(b) && !freeTier(a),
     },
-    { label: "Best strength", a: a.pros[0] ?? "—", b: b.pros[0] ?? "—" },
+    { label: "Best strength", a: a.pros[0] ?? "-", b: b.pros[0] ?? "-" },
     {
       label: "Verified",
       a: a.verifiedAt.slice(5),
@@ -160,5 +160,5 @@ function buildVerdict(a: Tool, b: Tool): string {
   const cheaper = a.costPerMonth <= b.costPerMonth ? a : b;
   const pricier = cheaper === a ? b : a;
   const cheaperFree = cheaper.pricing === "free" || cheaper.pricing === "freemium";
-  return `Pick ${cheaper.name} if budget matters — it's ${cheaper.costPerMonth === 0 ? "free" : `cheaper at ~$${cheaper.costPerMonth}/mo`}${cheaperFree ? " with a real free tier" : ""}, and it's strong at ${cheaper.pros[0]?.toLowerCase() ?? "the core job"}. Choose ${pricier.name} only if you specifically need ${pricier.pros[0]?.toLowerCase() ?? "its edge"} and can justify the higher cost.`;
+  return `Pick ${cheaper.name} if budget matters - it's ${cheaper.costPerMonth === 0 ? "free" : `cheaper at ~$${cheaper.costPerMonth}/mo`}${cheaperFree ? " with a real free tier" : ""}, and it's strong at ${cheaper.pros[0]?.toLowerCase() ?? "the core job"}. Choose ${pricier.name} only if you specifically need ${pricier.pros[0]?.toLowerCase() ?? "its edge"} and can justify the higher cost.`;
 }

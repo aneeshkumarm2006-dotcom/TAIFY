@@ -8,7 +8,7 @@ import { SITE_NAME } from "@/lib/site";
 export const metadata: Metadata = {
   title: `Blog · ${SITE_NAME}`,
   description:
-    "Guides, comparisons, and news on AI tools — how to pick the right one for any task.",
+    "Guides, comparisons, and news on AI tools - how to pick the right one for any task.",
 };
 
 export const dynamic = "force-dynamic";
@@ -24,7 +24,7 @@ export default async function BlogIndex() {
           Guides &amp; comparisons
         </h1>
         <p className="mt-3 max-w-xl text-[16px] text-ink-soft">
-          Deep dives on AI tools — how to choose, compare, and get the most from them.
+          Deep dives on AI tools - how to choose, compare, and get the most from them.
         </p>
       </div>
 

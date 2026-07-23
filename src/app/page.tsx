@@ -40,7 +40,7 @@ export default async function HomePage() {
         <AnimatedHeadline />
         <HeroStagger>
           <p className="mx-auto mt-5 max-w-xl text-[17px] text-ink-soft">
-            Tell us the job. We&apos;ll find the three tools worth your time — not
+            Tell us the job. We&apos;ll find the three tools worth your time - not
             a wall of ten thousand.
           </p>
           <div className="mt-9">

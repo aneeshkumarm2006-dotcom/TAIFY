@@ -19,7 +19,7 @@ function relAttr(rel: KeywordLink["rel"]): string {
 }
 
 /**
- * Turn occurrences of a keyword in the body into a link — case-insensitive,
+ * Turn occurrences of a keyword in the body into a link - case-insensitive,
  * word-boundary aware, never touching text already inside protected elements
  * (existing links, headings, code). `firstOnly` links just the first hit.
  */

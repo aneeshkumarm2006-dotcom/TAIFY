@@ -267,13 +267,36 @@ function ToolForm({
 
   const asText = (v: unknown) => (Array.isArray(v) ? v.join(v === f.tags ? ", " : "\n") : (v ?? "") as string);
 
+  async function pasteImage(e: React.ClipboardEvent) {
+    const item = Array.from(e.clipboardData.items).find((it) =>
+      it.type.startsWith("image/"),
+    );
+    if (!item) return; // let normal text paste happen
+    e.preventDefault();
+    const file = item.getAsFile();
+    if (!file) return;
+    const fd = new FormData();
+    fd.append("file", file);
+    const res = await fetch("/api/seoteam/upload", { method: "POST", body: fd });
+    if (res.ok) {
+      const { url } = await res.json();
+      const cur = asText(f.images);
+      set("images", (cur ? cur + "\n" : "") + url);
+    } else {
+      alert((await res.json().catch(() => ({})))?.error ?? "Upload failed");
+    }
+  }
+
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-black/40" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4 py-8 sm:items-center"
+      onClick={onClose}
+    >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="h-full w-full max-w-lg overflow-y-auto bg-card p-6 shadow-card-lg"
+        className="my-auto w-full max-w-2xl rounded-card bg-card p-6 shadow-card-lg sm:p-8"
       >
-        <h2 className="text-[19px] font-bold tracking-tight">
+        <h2 className="mb-1 text-[20px] font-bold tracking-tight">
           {isNew ? "Add tool" : `Edit ${initial.name}`}
         </h2>
 
@@ -319,25 +342,20 @@ function ToolForm({
               <input type="color" className="h-[38px] w-full rounded-lg border border-line-strong bg-card" value={(f.color as string) ?? "#3a7ca5"} onChange={(e) => set("color", e.target.value)} />
             </Field>
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="Company">
-              <input className={inp} value={(f.company as string) ?? ""} onChange={(e) => set("company", e.target.value)} />
-            </Field>
-            <Field label="Saves">
-              <input type="number" className={inp} value={(f.saves as number) ?? 0} onChange={(e) => set("saves", e.target.value)} />
-            </Field>
-          </div>
+          <Field label="Company">
+            <input className={inp} value={(f.company as string) ?? ""} onChange={(e) => set("company", e.target.value)} />
+          </Field>
           <Field label="Website URL">
             <input className={inp} value={(f.url as string) ?? ""} onChange={(e) => set("url", e.target.value)} placeholder="https://…" />
           </Field>
-          <Field label="Logo URL (optional — falls back to letters)">
+          <Field label="Logo URL (optional - falls back to letters)">
             <input className={inp} value={(f.logo as string) ?? ""} onChange={(e) => set("logo", e.target.value)} placeholder="https://www.google.com/s2/favicons?domain=domain.com&sz=128" />
           </Field>
           <Field label="Demo video URL (YouTube / Vimeo / mp4)">
             <input className={inp} value={(f.video as string) ?? ""} onChange={(e) => set("video", e.target.value)} placeholder="https://youtube.com/watch?v=…" />
           </Field>
-          <Field label="Screenshots (one image URL per line)">
-            <textarea rows={3} className={inp} value={asText(f.images)} onChange={(e) => set("images", e.target.value)} placeholder="https://… image url" />
+          <Field label="Screenshots (one image URL per line - or paste an image)">
+            <textarea rows={3} className={inp} value={asText(f.images)} onChange={(e) => set("images", e.target.value)} onPaste={pasteImage} placeholder="Paste an image, upload, or paste an image URL" />
             <ImageUpload onUploaded={(url) => set("images", (asText(f.images) ? asText(f.images) + "\n" : "") + url)} />
           </Field>
           <Field label="Tags (comma-separated)">

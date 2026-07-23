@@ -10,7 +10,7 @@ export function SiteFooter() {
               TAIFY<span className="text-accent">.</span>
             </div>
             <p className="mt-2 text-[13px] text-ink-soft">
-              The field guide to AI. Describe your task — we find the right tool.
+              The field guide to AI. Describe your task - we find the right tool.
               Verified daily, honest pricing.
             </p>
           </div>

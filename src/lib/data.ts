@@ -6,7 +6,7 @@ import { toolsCollection, isDbEnabled, docToTool } from "@/lib/db/mongo";
 /**
  * Data-access layer. Uses MongoDB when MONGODB_URI is set; otherwise falls back
  * to the local seed catalog so the app runs with zero config. Pages never
- * change — only these functions decide where data comes from.
+ * change - only these functions decide where data comes from.
  */
 
 export interface ToolFilters {

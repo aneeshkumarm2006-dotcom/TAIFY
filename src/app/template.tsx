@@ -4,7 +4,7 @@ import { motion, useReducedMotion } from "motion/react";
 
 /**
  * Re-mounts on every route change, so this enter animation plays on each
- * navigation — page→page, page→product, product→page, etc.
+ * navigation - page→page, page→product, product→page, etc.
  */
 export default function Template({ children }: { children: React.ReactNode }) {
   const reduce = useReducedMotion();

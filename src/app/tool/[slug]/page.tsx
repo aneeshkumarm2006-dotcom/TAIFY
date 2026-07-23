@@ -9,7 +9,7 @@ import { PricingBadge, VerifiedBadge } from "@/components/ui/badge";
 import { SaveButton } from "@/components/save-button";
 import { ButtonLink } from "@/components/ui/button";
 import { ToolGrid } from "@/components/tool-rail";
-import { compactNumber, embedUrl } from "@/lib/utils";
+import { compactNumber, embedUrl, timeAgo } from "@/lib/utils";
 
 export const revalidate = 300;
 
@@ -26,7 +26,7 @@ export async function generateMetadata({
   const tool = await getTool(slug);
   if (!tool) return { title: "Tool not found · TAIFY" };
   return {
-    title: `${tool.name} — ${tool.tagline} · TAIFY`,
+    title: `${tool.name} - ${tool.tagline} · TAIFY`,
     description: tool.description,
   };
 }
@@ -181,17 +181,26 @@ export default async function ToolPage({
               <SaveButton slug={tool.slug} saves={tool.saves} />
             </div>
 
-            <div className="mt-4 flex flex-col border-t border-line pt-3">
-              <Row k="last check">
-                <span className="text-verified">
-                  {tool.verifiedAt.slice(5)}
-                </span>
-              </Row>
-              <Row k="tags">
-                <span className="mono max-w-[140px] truncate text-right text-[11.5px] text-ink-soft">
-                  {tool.tags.join(", ")}
-                </span>
-              </Row>
+            <div className="mt-4 flex flex-col gap-3 border-t border-line pt-4">
+              <div className="flex items-center justify-between text-[13px]">
+                <span className="mono text-[12px] text-ink-soft">Last verified</span>
+                <span className="font-medium text-verified">{timeAgo(tool.verifiedAt)}</span>
+              </div>
+              {tool.tags.length > 0 && (
+                <div>
+                  <div className="mono mb-2 text-[12px] text-ink-soft">Tags</div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {tool.tags.map((t) => (
+                      <span
+                        key={t}
+                        className="mono rounded-full bg-ground px-2 py-0.5 text-[11px] text-ink-soft"
+                      >
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </aside>

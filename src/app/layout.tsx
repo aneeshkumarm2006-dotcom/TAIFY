@@ -11,9 +11,9 @@ const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "TAIFY — There's An AI For You",
+  title: "TAIFY - There's An AI For You",
   description:
-    "The field guide to AI tools. Describe your task, get the right tool — verified daily, honest pricing.",
+    "The field guide to AI tools. Describe your task, get the right tool - verified daily, honest pricing.",
 };
 
 // Prevent a light/dark flash by setting the theme class before paint.

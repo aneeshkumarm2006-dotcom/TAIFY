@@ -17,7 +17,7 @@ export interface PostLike {
   keywords?: Post["keywords"];
 }
 
-/** On-page SEO checks — no external APIs. Returns pass/warn per rule. */
+/** On-page SEO checks - no external APIs. Returns pass/warn per rule. */
 export function runSeoChecks(post: PostLike): SeoCheck[] {
   const checks: SeoCheck[] = [];
   const metaTitle = (post.metaTitle || post.title || "").trim();
@@ -44,7 +44,7 @@ export function runSeoChecks(post: PostLike): SeoCheck[] {
   checks.push({
     label: "Content length",
     status: words >= 300 ? "pass" : "warn",
-    detail: `${words} words${words < 300 ? " (thin — aim 300+)" : ""}`,
+    detail: `${words} words${words < 300 ? " (thin - aim 300+)" : ""}`,
   });
 
   // Keyword presence in body

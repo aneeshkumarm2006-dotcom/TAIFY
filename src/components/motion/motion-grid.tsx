@@ -19,7 +19,7 @@ export function MotionGrid({
   tools: Tool[];
   columns?: string;
   rank?: (t: Tool, i: number) => string | undefined;
-  /** When false, cards render solid (no entrance fade) — best for large grids. */
+  /** When false, cards render solid (no entrance fade) - best for large grids. */
   stagger?: boolean;
 }) {
   const reduce = useReducedMotion();

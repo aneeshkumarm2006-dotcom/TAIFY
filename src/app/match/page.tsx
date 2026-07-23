@@ -3,7 +3,7 @@ import { MatchResults } from "@/components/match-results";
 import { TOOLS } from "@/data/tools";
 
 export const metadata = {
-  title: "AI Match — describe your task · TAIFY",
+  title: "AI Match - describe your task · TAIFY",
   description:
     "Describe what you're trying to do and get the best 3 AI tools with reasoning.",
 };
@@ -26,7 +26,7 @@ export default async function MatchPage({
         {!query && (
           <p className="mx-auto mt-3 max-w-md text-[15px] text-ink-soft">
             One sentence about the job you&apos;re doing. We read the whole
-            catalog and return the three tools worth your time — with reasons.
+            catalog and return the three tools worth your time - with reasons.
           </p>
         )}
       </div>

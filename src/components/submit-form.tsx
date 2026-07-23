@@ -47,7 +47,7 @@ export function SubmitForm() {
     return (
       <div className="mt-10 rounded-card border border-verified/40 bg-verified-wash p-8 text-center">
         <CheckCircle2 className="mx-auto h-8 w-8 text-verified" />
-        <h2 className="mt-3 text-[18px] font-bold">Thanks — submission received!</h2>
+        <h2 className="mt-3 text-[18px] font-bold">Thanks - submission received!</h2>
         <p className="mt-1 text-[14px] text-ink-soft">
           Our team will review <b>{f.name}</b> and publish it if it&apos;s a fit.
         </p>
@@ -87,7 +87,7 @@ export function SubmitForm() {
       <Field label="Demo video URL (YouTube / Vimeo)">
         <input className={inp} value={f.video} onChange={(e) => set("video", e.target.value)} placeholder="https://youtube.com/watch?v=…" />
       </Field>
-      <Field label="Your email (optional — for updates)">
+      <Field label="Your email (optional - for updates)">
         <input className={inp} value={f.submitterEmail} onChange={(e) => set("submitterEmail", e.target.value)} placeholder="you@company.com" type="email" />
       </Field>
 

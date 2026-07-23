@@ -89,14 +89,14 @@ async function aiMatch(
     model,
     max_tokens: 1024,
     system:
-      "You are TAIFY's tool-matching engine. Given a user's task and a candidate list of AI tools, pick the best 3 and rank the rest. For each pick, write one plain, specific sentence starting with why it fits THIS user's task (mention budget/bulk/quality tradeoffs when relevant), and a short cost note. Only use slugs from the candidate list. Be honest — if a cheaper option covers the need, rank it first.",
+      "You are TAIFY's tool-matching engine. Given a user's task and a candidate list of AI tools, pick the best 3 and rank the rest. For each pick, write one plain, specific sentence starting with why it fits THIS user's task (mention budget/bulk/quality tradeoffs when relevant), and a short cost note. Only use slugs from the candidate list. Be honest - if a cheaper option covers the need, rank it first.",
     messages: [
       {
         role: "user",
         content: `Task: "${query}"\n\nCandidates:\n${catalog}\n\nReturn the best 3 picks (most-fitting first) and the slugs of the remaining candidates ordered by relevance.`,
       },
     ],
-    // Structured output — guarantees parseable JSON.
+    // Structured output - guarantees parseable JSON.
     output_config: { format: { type: "json_schema", schema } },
   });
 
@@ -126,8 +126,8 @@ function mockMatch(query: string, candidates: Tool[]): MatchResponse {
     slug: t.slug,
     reason:
       i === 0
-        ? `Strong keyword match for "${query}", and ${t.pricing === "free" ? "it's free" : `runs about $${t.costPerMonth}/mo`} — the closest fit in the catalog.`
-        : `Also fits "${query}" — ${t.tagline.toLowerCase()}`,
+        ? `Strong keyword match for "${query}", and ${t.pricing === "free" ? "it's free" : `runs about $${t.costPerMonth}/mo`} - the closest fit in the catalog.`
+        : `Also fits "${query}" - ${t.tagline.toLowerCase()}`,
     costNote:
       t.costPerMonth === 0 ? "free" : `~$${t.costPerMonth}/mo typical`,
   }));

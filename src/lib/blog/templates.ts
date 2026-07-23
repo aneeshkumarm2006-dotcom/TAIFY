@@ -18,7 +18,7 @@ export const POST_TEMPLATES: TemplateDef[] = [
   {
     id: "listicle",
     name: "Listicle (Top N …)",
-    description: "Ranked list post — great for 'best X' searches.",
+    description: "Ranked list post - great for 'best X' searches.",
     body: `<h2>Introduction</h2><p>Set up the list and why it matters.</p><h2>1. First item</h2><p>Why it's on the list.</p><h2>2. Second item</h2><p>Why it's on the list.</p><h2>3. Third item</h2><p>Why it's on the list.</p><h2>Conclusion</h2><p>Wrap up and recommend a pick.</p>`,
   },
   {

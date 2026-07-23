@@ -27,7 +27,7 @@ export function SeoPanel({ post }: { post: PostLike }) {
             <span>
               <span className="font-medium">{c.label}</span>
               <span className={cn("ml-1", c.status === "warn" ? "text-paid" : "text-ink-soft")}>
-                — {c.detail}
+                - {c.detail}
               </span>
             </span>
           </li>

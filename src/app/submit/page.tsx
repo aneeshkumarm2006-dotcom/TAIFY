@@ -7,7 +7,7 @@ export const metadata = {
 };
 
 const PERKS = [
-  "Free basic listing — verified & indexed for SEO",
+  "Free basic listing - verified & indexed for SEO",
   "Honest pricing shown, including a real cost-to-use estimate",
   "Appear in AI Match results when you fit the task",
   "Add screenshots and a demo video",
@@ -22,7 +22,7 @@ export default function SubmitPage() {
         List your AI tool.
       </h1>
       <p className="mt-3 max-w-lg text-[16px] text-ink-soft">
-        TAIFY is transparent about cost — for users <em>and</em> for you. Basic
+        TAIFY is transparent about cost - for users <em>and</em> for you. Basic
         listing is free; promotion is optional and clearly labeled.
       </p>
 
