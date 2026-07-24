@@ -1,6 +1,7 @@
 import "server-only";
 import { MongoClient, type Db, type Collection } from "mongodb";
 import type { Post, Tool } from "@/lib/types";
+import type { Page } from "@/lib/pages/types";
 
 /**
  * MongoDB connection. Returns null when MONGODB_URI is unset so the app runs
@@ -53,6 +54,11 @@ export async function postsCollection(): Promise<Collection<PostDoc> | null> {
 export async function settingsCollection(): Promise<Collection | null> {
   const db = await getDb();
   return db ? db.collection("settings") : null;
+}
+
+export async function pagesCollection(): Promise<Collection<Page> | null> {
+  const db = await getDb();
+  return db ? db.collection<Page>("pages") : null;
 }
 
 export interface Submission {

@@ -5,8 +5,8 @@ import { ButtonLink } from "./ui/button";
 import { MobileMenu } from "./mobile-menu";
 
 const LINKS = [
-  { href: "/", label: "Discover" },
   { href: "/browse", label: "Browse" },
+  { href: "/categories", label: "Categories" },
   { href: "/match", label: "AI Match" },
   { href: "/compare", label: "Compare" },
   { href: "/blog", label: "Blog" },

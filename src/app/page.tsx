@@ -86,7 +86,7 @@ export default async function HomePage() {
                 return (
                   <Link
                     key={c.slug}
-                    href={`/browse?category=${c.slug}`}
+                    href={`/category/${c.slug}`}
                     className="group flex items-center gap-3 rounded-card border border-line bg-card px-4 py-3 text-[14px] font-medium transition-all duration-200 hover:-translate-y-0.5 hover:border-accent hover:shadow-card"
                   >
                     <span className="grid h-9 w-9 shrink-0 place-items-center rounded-[10px] bg-accent-wash text-accent-ink transition-colors group-hover:bg-accent group-hover:text-white">

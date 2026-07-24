@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/lib/site";
 import { getPublishedPosts } from "@/lib/blog/data";
+import { getPublishedCustomSlugs } from "@/lib/pages/data";
 import { filterTools, getCategories } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
@@ -11,6 +12,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
     "",
     "/browse",
+    "/categories",
     "/match",
     "/compare",
     "/blog",
@@ -22,10 +24,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: p === "" ? 1 : 0.7,
   }));
 
-  const [tools, categories, posts] = await Promise.all([
+  const [tools, categories, posts, customSlugs] = await Promise.all([
     filterTools({}),
     getCategories(),
     getPublishedPosts(),
+    getPublishedCustomSlugs(),
   ]);
 
   const toolRoutes: MetadataRoute.Sitemap = tools.map((t) => ({
@@ -36,9 +39,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   const categoryRoutes: MetadataRoute.Sitemap = categories.map((c) => ({
-    url: `${SITE_URL}/browse?category=${c.slug}`,
+    url: `${SITE_URL}/category/${c.slug}`,
     changeFrequency: "weekly",
-    priority: 0.5,
+    priority: 0.7,
+  }));
+
+  const customRoutes: MetadataRoute.Sitemap = customSlugs.map((s) => ({
+    url: `${SITE_URL}/${s}`,
+    changeFrequency: "weekly",
+    priority: 0.6,
   }));
 
   const postRoutes: MetadataRoute.Sitemap = posts.map((p) => ({
@@ -48,5 +57,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  return [...staticRoutes, ...toolRoutes, ...categoryRoutes, ...postRoutes];
+  return [...staticRoutes, ...toolRoutes, ...categoryRoutes, ...customRoutes, ...postRoutes];
 }
