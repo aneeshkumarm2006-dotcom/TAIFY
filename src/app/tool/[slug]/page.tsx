@@ -1,9 +1,9 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { ArrowUpRight, Check, X } from "lucide-react";
 import { getTool, getRelated } from "@/lib/data";
-import { TOOLS } from "@/data/tools";
+import { TOOLS, CATEGORIES } from "@/data/tools";
+import { ToolBackLink } from "@/components/tool-back-link";
 import { BrandLogo } from "@/components/brand-logo";
 import { PricingBadge, VerifiedBadge } from "@/components/ui/badge";
 import { SaveButton } from "@/components/save-button";
@@ -41,15 +41,14 @@ export default async function ToolPage({
   if (!tool) notFound();
 
   const related = await getRelated(tool, 3);
+  const category = CATEGORIES.find((c) => c.slug === tool.category);
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-10">
-      <Link
-        href="/browse"
-        className="mono text-[12px] text-ink-soft transition-colors hover:text-accent"
-      >
-        ← all tools
-      </Link>
+      <ToolBackLink
+        categorySlug={category?.slug ?? tool.category}
+        categoryName={category?.name ?? tool.category}
+      />
 
       <div className="mt-5 grid grid-cols-1 gap-8 md:grid-cols-[1fr_270px]">
         {/* Main */}
