@@ -4,6 +4,7 @@ import { ArrowUpRight, Check, X } from "lucide-react";
 import { getTool, getRelated } from "@/lib/data";
 import { TOOLS, CATEGORIES } from "@/data/tools";
 import { ToolBackLink } from "@/components/tool-back-link";
+import { ToolGallery } from "@/components/tool-gallery";
 import { BrandLogo } from "@/components/brand-logo";
 import { PricingBadge, VerifiedBadge } from "@/components/ui/badge";
 import { SaveButton } from "@/components/save-button";
@@ -96,18 +97,7 @@ export default async function ToolPage({
                   />
                 ))}
               {tool.images && tool.images.length > 0 && (
-                <div className="flex snap-x gap-3 overflow-x-auto pb-2">
-                  {tool.images.map((src, i) => (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      key={i}
-                      src={src}
-                      alt={`${tool.name} screenshot ${i + 1}`}
-                      loading="lazy"
-                      className="h-56 shrink-0 snap-start rounded-card border border-line object-cover"
-                    />
-                  ))}
-                </div>
+                <ToolGallery images={tool.images} name={tool.name} />
               )}
             </div>
           )}
