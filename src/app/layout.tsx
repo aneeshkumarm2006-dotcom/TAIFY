@@ -14,6 +14,9 @@ export const metadata: Metadata = {
   title: "TAIFY - There's An AI For You",
   description:
     "The field guide to AI tools. Describe your task, get the right tool - verified daily, honest pricing.",
+  verification: {
+    google: "6q35g2vs3BxT_r0unwXwwuz1gMUVnfqhsCXs1VuyOsU",
+  },
 };
 
 // Prevent a light/dark flash by setting the theme class before paint.
