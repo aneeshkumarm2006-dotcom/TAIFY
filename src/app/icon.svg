@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="taify">
+  <style>
+    .tile { fill: #14161C }
+    .stem { fill: #F8F5EF }
+    @media (prefers-color-scheme: dark) {
+      .tile { fill: #F8F5EF }
+      .stem { fill: #14161C }
+    }
+  </style>
+  <rect width="512" height="512" rx="114" class="tile"/>
+  <path d="M256 95Q256 153 314 153Q256 153 256 211Q256 153 198 153Q256 153 256 95Z" fill="#E8623C"/>
+  <rect x="222" y="233" width="68" height="180" rx="8" class="stem"/>
+</svg>
