@@ -1,5 +1,5 @@
 import "server-only";
-import { MongoClient, type Db, type Collection } from "mongodb";
+import { MongoClient, type Db, type Collection, type WithId } from "mongodb";
 import type { Post, Tool } from "@/lib/types";
 import type { Page } from "@/lib/pages/types";
 
@@ -81,9 +81,14 @@ export async function submissionsCollection(): Promise<Collection<Submission> | 
 
 export const isDbEnabled = Boolean(uri);
 
-/** Serialize a ToolDoc (Date) back to the app's Tool (ISO string). */
-export function docToTool(doc: ToolDoc): Tool {
-  const { embedding, verifiedAt, ...rest } = doc;
+/**
+ * Serialize a ToolDoc back to the app's Tool: Date to ISO string, and drop
+ * `_id`/`embedding` so the result is a plain object safe to hand to a client
+ * component (an ObjectId prop throws at the server/client boundary).
+ */
+export function docToTool(doc: WithId<ToolDoc> | ToolDoc): Tool {
+  const { _id, embedding, verifiedAt, ...rest } = doc as WithId<ToolDoc>;
+  void _id;
   void embedding;
   return { ...rest, verifiedAt: new Date(verifiedAt).toISOString() };
 }

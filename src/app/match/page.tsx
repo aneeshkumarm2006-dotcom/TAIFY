@@ -1,6 +1,6 @@
 import { SearchBar } from "@/components/search-bar";
 import { MatchResults } from "@/components/match-results";
-import { TOOLS } from "@/data/tools";
+import { filterTools } from "@/lib/data";
 
 export const metadata = {
   title: "AI Match - describe your task · TAIFY",
@@ -15,6 +15,11 @@ export default async function MatchPage({
 }) {
   const { q } = await searchParams;
   const query = q?.trim();
+
+  // Must come from the same source /api/match ranks over. Reading the static
+  // seed here instead would silently drop any pick whose slug only exists in
+  // the database (see MatchResults: an unknown slug renders nothing).
+  const tools = query ? await filterTools({}) : [];
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-10">
@@ -32,7 +37,7 @@ export default async function MatchPage({
       </div>
 
       {query ? (
-        <MatchResults query={query} tools={TOOLS} />
+        <MatchResults query={query} tools={tools} />
       ) : (
         <SearchBar autoFocus />
       )}

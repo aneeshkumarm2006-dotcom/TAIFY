@@ -189,7 +189,7 @@ function mockMatch(query: string, catalog: Tool[]): MatchResponse {
     slug: t.slug,
     reason:
       i === 0
-        ? `Closest fit for "${query}" - ${t.bestFor.toLowerCase()}${t.pricing === "free" ? ", and it's free" : ""}.`
+        ? `Closest fit for "${query}" - ${t.bestFor.toLowerCase().replace(/\.$/, "")}${t.pricing === "free" ? ", and it's free" : ""}.`
         : `Also worth a look: ${t.tagline.toLowerCase()}`,
     costNote: t.costPerMonth === 0 ? "free" : `~$${t.costPerMonth}/mo typical`,
   }));

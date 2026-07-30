@@ -58,7 +58,7 @@ export function MatchResults({
       <div className="mb-2 flex items-start gap-3 rounded-[12px] border border-dashed border-accent bg-card p-3.5">
         <Sparkles className="mt-0.5 h-5 w-5 shrink-0 text-accent" />
         <p className="text-[16px] font-semibold">
-          <span className="text-ink-soft">I need to </span>
+          <span className="text-ink-soft">Your task: </span>
           {query}
         </p>
       </div>
