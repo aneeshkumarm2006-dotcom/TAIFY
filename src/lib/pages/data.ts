@@ -2,6 +2,7 @@ import "server-only";
 import { pagesCollection } from "@/lib/db/mongo";
 import { CATEGORIES } from "@/data/tools";
 import type { Category } from "@/lib/types";
+import { CATEGORY_SEO } from "./category-seo";
 import type { Page } from "./types";
 
 function strip(p: Page & { _id?: unknown }): Page {
@@ -10,16 +11,21 @@ function strip(p: Page & { _id?: unknown }): Page {
   return rest;
 }
 
-/** Default (unedited) category page derived from the category. */
+/** Default (unedited) category page derived from the category. Meta title and
+ *  description come from the hand-written CATEGORY_SEO copy where we have it,
+ *  otherwise they're generated from the category name. */
 function defaultCategoryPage(cat: Category): Page {
   const now = new Date().toISOString();
+  const seo = CATEGORY_SEO[cat.slug];
   return {
     key: `category:${cat.slug}`,
     type: "category",
     slug: cat.slug,
     title: `Best ${cat.name} AI Tools`,
-    metaTitle: `Best ${cat.name} AI Tools (2026) · TAIFY`,
-    excerpt: `The best ${cat.name.toLowerCase()} AI tools, compared by real cost, features, and use case. Verified daily.`,
+    metaTitle: seo?.metaTitle ?? `Best ${cat.name} AI Tools (2026) · TAIFY`,
+    excerpt:
+      seo?.excerpt ??
+      `The best ${cat.name.toLowerCase()} AI tools, compared by real cost, features, and use case. Verified daily.`,
     intro: `Explore the best ${cat.name.toLowerCase()} AI tools below, each with honest pricing and a real cost-to-use estimate.`,
     blocks: [],
     customSchema: "",

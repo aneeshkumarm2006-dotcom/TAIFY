@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { SearchBar } from "@/components/search-bar";
 import { ToolRail } from "@/components/tool-rail";
@@ -14,9 +15,27 @@ import {
   getCategories,
   countTools,
 } from "@/lib/data";
+import { absoluteUrl, SITE_NAME } from "@/lib/site";
 
 // Rebuild in the background every 5 min so tool/logo changes appear without a redeploy.
 export const revalidate = 300;
+
+const TITLE = "Best AI Tools Like ChatGPT | Submit AI Tool | TAIFY";
+const DESCRIPTION =
+  "Discover the best AI tools like ChatGPT across every category. Compare top AI tools, find the right solution for your needs, and submit AI tool listings to reach more users.";
+
+// Overrides the generic title/description set on the root layout.
+export const metadata: Metadata = {
+  title: TITLE,
+  description: DESCRIPTION,
+  alternates: { canonical: absoluteUrl("/") },
+  openGraph: {
+    title: TITLE,
+    description: DESCRIPTION,
+    url: absoluteUrl("/"),
+    siteName: SITE_NAME,
+  },
+};
 
 export default async function HomePage() {
   const [trending, justLaunched, mostSaved, featured, categories, total, strip] =
