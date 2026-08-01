@@ -14,20 +14,30 @@ export function SiteFooter() {
               Verified daily, honest pricing.
             </p>
           </div>
-          <div className="flex gap-12">
+          <div className="flex flex-wrap gap-12">
             <FooterCol
               title="Discover"
               links={[
-                ["Browse all", "/browse"],
+                ["Browse all tools", "/browse"],
+                ["Categories", "/categories"],
                 ["AI Match", "/match"],
-                ["Compare", "/compare"],
+                ["Compare tools", "/compare"],
+              ]}
+            />
+            <FooterCol
+              title="Read"
+              links={[
+                ["Guides & comparisons", "/blog"],
+                ["Best AI tools for students", "/category/education"],
+                ["Best AI coding tools", "/category/coding"],
+                ["Best AI writing tools", "/category/writing"],
               ]}
             />
             <FooterCol
               title="For makers"
               links={[
                 ["Submit a tool", "/submit"],
-                ["Pricing", "/submit"],
+                ["Listing & pricing", "/submit"],
               ]}
             />
           </div>
@@ -35,7 +45,14 @@ export function SiteFooter() {
         <div className="mono mt-10 flex flex-col gap-2 border-t border-line pt-6 text-[11px] text-ink-soft sm:flex-row sm:items-center sm:justify-between">
           <span>© {new Date().getFullYear()} TAIFY · a field guide to AI</span>
           <span className="flex items-center gap-3">
-            <Link href="/login" className="transition-colors hover:text-accent">
+            {/* nofollow: /login is Disallowed in robots.txt, so a followed
+                site-wide link just burns crawl budget on a page crawlers are
+                told not to fetch (Semrush: "blocked from crawling"). */}
+            <Link
+              href="/login"
+              rel="nofollow"
+              className="transition-colors hover:text-accent"
+            >
               Team login
             </Link>
             <span>·</span>

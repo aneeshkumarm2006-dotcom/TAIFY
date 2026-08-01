@@ -9,7 +9,7 @@ import {
   useReducedMotion,
   type MotionValue,
 } from "motion/react";
-import type { Tool } from "@/lib/types";
+import type { LogoTool } from "@/lib/types";
 import { BrandLogo } from "./brand-logo";
 
 type Depth = 0 | 1 | 2; // 0 = far/back, 2 = near/front
@@ -32,7 +32,7 @@ const LAYER: Record<Depth, { scale: number; blur: string; opacity: number; range
 };
 
 /** Depth-parallax floating logos on the hero sides (desktop only). */
-export function FloatingLogos({ tools }: { tools: Tool[] }) {
+export function FloatingLogos({ tools }: { tools: LogoTool[] }) {
   const reduce = useReducedMotion();
   const mx = useMotionValue(0);
   const my = useMotionValue(0);
@@ -68,7 +68,7 @@ function FloatingLogo({
   sy,
   reduce,
 }: {
-  tool: Tool;
+  tool: LogoTool;
   spot: Spot;
   idx: number;
   sx: MotionValue<number>;

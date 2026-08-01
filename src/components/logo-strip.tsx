@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { Tool } from "@/lib/types";
+import Image from "next/image";
+import type { LogoTool } from "@/lib/types";
 
 const AMP = 26; // px lift at the cursor
 const MAG = 0.7; // extra scale at the cursor
@@ -12,7 +13,7 @@ function BrandImg({
   index,
   innerRef,
 }: {
-  tool: Tool;
+  tool: LogoTool;
   index: number;
   innerRef: (el: HTMLSpanElement | null) => void;
 }) {
@@ -24,11 +25,14 @@ function BrandImg({
       className="logo-float inline-flex origin-bottom will-change-transform"
       style={{ animationDelay: `${index * 0.22}s` }}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+      {/* Proxied through /_next/image for the same reason as BrandLogo: the
+          logo hosts block crawling of the original URLs. */}
+      <Image
         src={tool.logo}
-        alt={tool.name}
+        alt={`${tool.name} logo`}
         title={tool.name}
+        width={36}
+        height={36}
         loading="lazy"
         onError={() => setOk(false)}
         className="h-8 w-8 shrink-0 object-contain opacity-60 grayscale transition-[filter,opacity] duration-300 hover:opacity-100 hover:grayscale-0 sm:h-9 sm:w-9"
@@ -37,7 +41,7 @@ function BrandImg({
   );
 }
 
-export function LogoStrip({ tools }: { tools: Tool[] }) {
+export function LogoStrip({ tools }: { tools: LogoTool[] }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const items = useRef<(HTMLSpanElement | null)[]>([]);
   const centers = useRef<number[]>([]);

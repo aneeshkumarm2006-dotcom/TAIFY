@@ -1,11 +1,11 @@
 import Link from "next/link";
-import type { Tool } from "@/lib/types";
+import type { CardTool } from "@/lib/types";
 import { ToolCard } from "./tool-card";
 import { MotionGrid } from "./motion/motion-grid";
 import { Reveal } from "./motion/reveal";
 
 /** Plain (non-animated) grid - used for small related lists. */
-export function ToolGrid({ tools }: { tools: Tool[] }) {
+export function ToolGrid({ tools }: { tools: CardTool[] }) {
   return (
     <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
       {tools.map((t) => (
@@ -21,7 +21,7 @@ export function ToolRail({
   href,
 }: {
   title: string;
-  tools: Tool[];
+  tools: CardTool[];
   href?: string;
 }) {
   return (

@@ -1,18 +1,44 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { Sparkles, ArrowRight } from "lucide-react";
-import { getPublishedPost, incrementViews } from "@/lib/blog/data";
+import { getPublishedPost, getPublishedPosts, incrementViews } from "@/lib/blog/data";
 import { getTool } from "@/lib/data";
 import { applyBacklinks } from "@/lib/blog/backlinks";
 import { addHeadingIds } from "@/lib/blog/toc";
 import { readingTime } from "@/lib/utils";
-import { SITE_NAME, absoluteUrl } from "@/lib/site";
+import { SITE_NAME, SITE_URL, absoluteUrl, metaDescription, withBrand } from "@/lib/site";
 import { BrandLogo } from "@/components/brand-logo";
 import { ReadingProgress, Toc, ShareButtons } from "@/components/blog/reading-aids";
-import type { Tool } from "@/lib/types";
+import type { Post, Tool } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
+
+/**
+ * A post's <title> and description both fall back rather than going missing:
+ *
+ * - Title: `metaTitle` when the author set one, otherwise the headline with the
+ *   brand appended. Without the suffix the <title> is character-for-character
+ *   the H1, which Semrush flags as "duplicate content in h1 and title".
+ * - Description: `excerpt` when present, otherwise the opening of the body —
+ *   two published posts had shipped with no meta description at all.
+ */
+function postTitle(post: Pick<Post, "metaTitle" | "title">): string {
+  const meta = post.metaTitle?.trim();
+  // A metaTitle copied verbatim from the headline is the same problem as having
+  // none — two published posts had exactly that — so brand those too.
+  if (meta && meta !== post.title.trim()) return meta;
+  return withBrand(post.title);
+}
+
+function postDescription(post: Pick<Post, "excerpt" | "body" | "title">): string {
+  return (
+    post.excerpt?.trim() ||
+    metaDescription(post.body) ||
+    `${post.title} — a TAIFY guide with real costs, strengths and watch-outs for every tool mentioned.`
+  );
+}
 
 export async function generateMetadata({
   params,
@@ -21,28 +47,33 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const post = await getPublishedPost(slug);
-  if (!post) return { title: "Not found · TAIFY" };
+  if (!post) {
+    return { title: `Not found · ${SITE_NAME}`, robots: { index: false, follow: true } };
+  }
   const url = absoluteUrl(`/blog/${post.slug}`);
-  const images = post.coverImage ? [post.coverImage] : [];
+  const images = post.coverImage ? [post.coverImage] : undefined;
+  const title = postTitle(post);
+  const description = postDescription(post);
   return {
-    title: post.metaTitle || post.title,
-    description: post.excerpt,
+    title,
+    description,
     alternates: { canonical: url },
     openGraph: {
       type: "article",
-      title: post.metaTitle || post.title,
-      description: post.excerpt,
+      title,
+      description,
       url,
       siteName: SITE_NAME,
-      images,
+      ...(images ? { images } : {}),
       publishedTime: post.publishedAt ?? undefined,
       modifiedTime: post.updatedAt,
+      authors: post.author ? [post.author] : undefined,
     },
     twitter: {
       card: "summary_large_image",
-      title: post.metaTitle || post.title,
-      description: post.excerpt,
-      images,
+      title,
+      description,
+      ...(images ? { images } : {}),
     },
   };
 }
@@ -74,16 +105,25 @@ export default async function PostPage({
     Boolean,
   ) as Tool[];
 
+  // Other posts, so each article carries more than the single inbound link from
+  // /blog — Semrush flagged all four posts as having only one internal link.
+  const morePosts = (await getPublishedPosts())
+    .filter((p) => p.slug !== post.slug)
+    .slice(0, 3);
+
+  const description = postDescription(post);
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     headline: post.title,
-    description: post.excerpt,
+    description,
     image: post.coverImage ? [post.coverImage] : undefined,
     datePublished: post.publishedAt,
     dateModified: post.updatedAt,
+    wordCount: post.body.replace(/<[^>]+>/g, " ").split(/\s+/).filter(Boolean).length,
     author: { "@type": post.author ? "Person" : "Organization", name: post.author || SITE_NAME },
-    publisher: { "@type": "Organization", name: SITE_NAME, url: absoluteUrl("/") },
+    publisher: { "@id": `${SITE_URL}/#organization` },
+    isPartOf: { "@id": `${SITE_URL}/#website` },
     mainEntityOfPage: { "@type": "WebPage", "@id": url },
   };
   const breadcrumb = {
@@ -130,11 +170,60 @@ export default async function PostPage({
             </div>
 
             {post.coverImage && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={post.coverImage} alt={post.title} className="mt-6 aspect-video w-full rounded-card object-cover" />
+              <Image
+                src={post.coverImage}
+                alt={`Cover image for ${post.title}`}
+                width={1200}
+                height={675}
+                sizes="(max-width: 1024px) 100vw, 760px"
+                priority
+                className="mt-6 aspect-video w-full rounded-card object-cover"
+              />
             )}
 
             <div className="prose-taify mt-8" dangerouslySetInnerHTML={{ __html: html }} />
+
+            {morePosts.length > 0 && (
+              <section className="mt-12 border-t border-line pt-8">
+                <h2 className="text-[19px] font-bold tracking-[-0.02em]">
+                  Keep reading
+                </h2>
+                <ul className="mt-4 flex flex-col gap-3">
+                  {morePosts.map((p) => (
+                    <li key={p.slug}>
+                      <Link
+                        href={`/blog/${p.slug}`}
+                        className="group flex flex-col rounded-card border border-line bg-card p-4 transition-colors hover:border-accent"
+                      >
+                        <span className="text-[15px] font-semibold group-hover:text-accent">
+                          {p.title}
+                        </span>
+                        {p.excerpt && (
+                          <span className="mt-1 line-clamp-2 text-[13.5px] text-ink-soft">
+                            {p.excerpt}
+                          </span>
+                        )}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-4 text-[14px] text-ink-soft">
+                  Or jump straight to the catalog:{" "}
+                  <Link href="/browse" className="text-accent underline-offset-2 hover:underline">
+                    browse every AI tool
+                  </Link>
+                  ,{" "}
+                  <Link href="/categories" className="text-accent underline-offset-2 hover:underline">
+                    pick a category
+                  </Link>
+                  , or{" "}
+                  <Link href="/compare" className="text-accent underline-offset-2 hover:underline">
+                    compare two tools head to head
+                  </Link>
+                  .
+                </p>
+              </section>
+            )}
 
             {/* Mobile related + share */}
             <div className="mt-10 border-t border-line pt-6 lg:hidden">

@@ -14,8 +14,11 @@ import {
   getFeatured,
   getCategories,
   countTools,
+  toCardTools,
+  toLogoTools,
 } from "@/lib/data";
-import { absoluteUrl, SITE_NAME } from "@/lib/site";
+import { getPublishedPosts } from "@/lib/blog/data";
+import { absoluteUrl, SITE_NAME, SITE_URL } from "@/lib/site";
 
 // Rebuild in the background every 5 min so tool/logo changes appear without a redeploy.
 export const revalidate = 300;
@@ -30,15 +33,17 @@ export const metadata: Metadata = {
   description: DESCRIPTION,
   alternates: { canonical: absoluteUrl("/") },
   openGraph: {
+    type: "website",
     title: TITLE,
     description: DESCRIPTION,
     url: absoluteUrl("/"),
     siteName: SITE_NAME,
   },
+  twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
 };
 
 export default async function HomePage() {
-  const [trending, justLaunched, mostSaved, featured, categories, total, strip] =
+  const [trending, justLaunched, mostSaved, featured, categories, total, strip, posts] =
     await Promise.all([
       getTrending(4),
       getJustLaunched(4),
@@ -47,13 +52,42 @@ export default async function HomePage() {
       getCategories(),
       countTools(),
       getMostSaved(9),
+      getPublishedPosts(),
     ]);
+
+  const latestPosts = posts.slice(0, 3);
+
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "@id": `${SITE_URL}/#webpage`,
+    name: TITLE,
+    description: DESCRIPTION,
+    url: absoluteUrl("/"),
+    isPartOf: { "@id": `${SITE_URL}/#website` },
+    about: { "@id": `${SITE_URL}/#organization` },
+    mainEntity: {
+      "@type": "ItemList",
+      name: "Trending AI tools",
+      numberOfItems: trending.length,
+      itemListElement: trending.map((t, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        name: t.name,
+        url: absoluteUrl(`/tool/${t.slug}`),
+      })),
+    },
+  };
 
   return (
     <div className="mx-auto w-full max-w-[1440px] px-6 lg:px-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      />
       {/* Hero */}
       <section className="relative overflow-hidden border-b border-line py-16 text-center sm:py-24">
-        <FloatingLogos tools={strip} />
+        <FloatingLogos tools={toLogoTools(strip)} />
         <div className="relative">
         <div className="eyebrow mb-5">The front door · discover AI tools</div>
         <AnimatedHeadline />
@@ -81,17 +115,17 @@ export default async function HomePage() {
         </HeroStagger>
 
         <div className="mt-12">
-          <LogoStrip tools={strip} />
+          <LogoStrip tools={toLogoTools(strip)} />
         </div>
         </div>
       </section>
 
       {/* Rails */}
       <div className="flex flex-col gap-16 py-16">
-        <ToolRail title="Trending this week" tools={trending} href="/browse?sort=trending" />
-        <ToolRail title="Just launched" tools={justLaunched} href="/browse?sort=newest" />
-        <ToolRail title="Most saved" tools={mostSaved} href="/browse?sort=most-saved" />
-        <ToolRail title="Editor's picks" tools={featured} href="/browse" />
+        <ToolRail title="Trending this week" tools={toCardTools(trending)} href="/browse?sort=trending" />
+        <ToolRail title="Just launched" tools={toCardTools(justLaunched)} href="/browse?sort=newest" />
+        <ToolRail title="Most saved" tools={toCardTools(mostSaved)} href="/browse?sort=most-saved" />
+        <ToolRail title="Editor's picks" tools={toCardTools(featured)} href="/browse" />
 
         {/* Browse by task */}
         <Reveal>
@@ -118,6 +152,44 @@ export default async function HomePage() {
             </div>
           </section>
         </Reveal>
+
+        {/* Latest guides — also the second inbound link every post needs; the
+            audit found all four posts reachable only from /blog. */}
+        {latestPosts.length > 0 && (
+          <Reveal>
+            <section>
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="text-[17px] font-bold tracking-tight">
+                  Latest guides
+                </h3>
+                <Link
+                  href="/blog"
+                  className="mono text-[12px] text-accent transition-opacity hover:opacity-70"
+                >
+                  view all →
+                </Link>
+              </div>
+              <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
+                {latestPosts.map((p) => (
+                  <Link
+                    key={p.slug}
+                    href={`/blog/${p.slug}`}
+                    className="group flex h-full flex-col rounded-card border border-line bg-card p-4 transition-all duration-200 hover:-translate-y-1 hover:border-accent hover:shadow-card"
+                  >
+                    <span className="text-[15px] font-bold leading-snug tracking-tight group-hover:text-accent">
+                      {p.title}
+                    </span>
+                    {p.excerpt && (
+                      <span className="mt-2 line-clamp-3 text-[13.5px] leading-relaxed text-ink-soft">
+                        {p.excerpt}
+                      </span>
+                    )}
+                  </Link>
+                ))}
+              </div>
+            </section>
+          </Reveal>
+        )}
       </div>
     </div>
   );

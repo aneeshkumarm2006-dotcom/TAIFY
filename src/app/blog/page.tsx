@@ -1,14 +1,27 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Metadata } from "next";
 import { getPublishedPosts } from "@/lib/blog/data";
 import { readingTime } from "@/lib/utils";
 import { Reveal } from "@/components/motion/reveal";
-import { SITE_NAME } from "@/lib/site";
+import { SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
+
+const TITLE = `AI Tool Guides &amp; Comparisons · ${SITE_NAME}`.replace("&amp;", "&");
+const DESCRIPTION =
+  "Guides, comparisons and news on AI tools — how to pick the right one for any task, what each one really costs, and where each falls short.";
 
 export const metadata: Metadata = {
-  title: `Blog · ${SITE_NAME}`,
-  description:
-    "Guides, comparisons, and news on AI tools - how to pick the right one for any task.",
+  title: TITLE,
+  description: DESCRIPTION,
+  alternates: { canonical: absoluteUrl("/blog") },
+  openGraph: {
+    type: "website",
+    title: TITLE,
+    description: DESCRIPTION,
+    url: absoluteUrl("/blog"),
+    siteName: SITE_NAME,
+  },
+  twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
 };
 
 export const dynamic = "force-dynamic";
@@ -16,15 +29,64 @@ export const dynamic = "force-dynamic";
 export default async function BlogIndex() {
   const posts = await getPublishedPosts();
 
+  const schema = [
+    {
+      "@context": "https://schema.org",
+      "@type": "Blog",
+      "@id": `${absoluteUrl("/blog")}#blog`,
+      name: `${SITE_NAME} blog`,
+      description: DESCRIPTION,
+      url: absoluteUrl("/blog"),
+      isPartOf: { "@id": `${SITE_URL}/#website` },
+      publisher: { "@id": `${SITE_URL}/#organization` },
+      blogPost: posts.map((p) => ({
+        "@type": "BlogPosting",
+        headline: p.title,
+        description: p.excerpt,
+        url: absoluteUrl(`/blog/${p.slug}`),
+        datePublished: p.publishedAt,
+        dateModified: p.updatedAt,
+        ...(p.author ? { author: { "@type": "Person", name: p.author } } : {}),
+      })),
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: absoluteUrl("/") },
+        { "@type": "ListItem", position: 2, name: "Blog", item: absoluteUrl("/blog") },
+      ],
+    },
+  ];
+
   return (
     <div className="mx-auto max-w-[1200px] px-6 py-12 lg:px-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      />
+
+      <nav className="mono mb-5 flex items-center gap-1.5 text-[12px] text-ink-soft">
+        <Link href="/" className="hover:text-accent">Home</Link>
+        <span>/</span>
+        <span className="text-ink">Blog</span>
+      </nav>
+
       <div className="mb-10">
         <div className="eyebrow mb-2">The TAIFY blog</div>
         <h1 className="text-[clamp(30px,5vw,48px)] font-extrabold tracking-[-0.04em]">
           Guides &amp; comparisons
         </h1>
-        <p className="mt-3 max-w-xl text-[16px] text-ink-soft">
-          Deep dives on AI tools - how to choose, compare, and get the most from them.
+        <p className="mt-3 max-w-2xl text-[16px] leading-relaxed text-ink-soft">
+          Deep dives on AI tools — how to choose between them, what each one
+          actually costs once you are past the free tier, and where each one
+          falls down. Every tool we mention links through to its listing, with
+          the same real-cost estimate and last-verified date you get everywhere
+          else on{" "}
+          <Link href="/browse" className="text-accent underline-offset-2 hover:underline">
+            the catalog
+          </Link>
+          .
         </p>
       </div>
 
@@ -42,10 +104,13 @@ export default async function BlogIndex() {
                 className="group flex h-full flex-col overflow-hidden rounded-card border border-line bg-card transition-all duration-200 hover:-translate-y-1 hover:shadow-card-lg"
               >
                 {p.coverImage ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
+                  <Image
                     src={p.coverImage}
-                    alt={p.title}
+                    alt={`Cover image for ${p.title}`}
+                    width={640}
+                    height={360}
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 380px"
+                    priority={i === 0}
                     className="aspect-video w-full object-cover"
                   />
                 ) : (

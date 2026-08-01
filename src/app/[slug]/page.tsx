@@ -4,7 +4,7 @@ import { getCustomPage } from "@/lib/pages/data";
 import { getTool } from "@/lib/data";
 import { buildPageSchema } from "@/lib/pages/schema";
 import { Blocks } from "@/components/pages/block-render";
-import { absoluteUrl, SITE_NAME } from "@/lib/site";
+import { absoluteUrl, metaDescription, SITE_NAME, withBrand } from "@/lib/site";
 import type { Tool } from "@/lib/types";
 import { RESERVED } from "@/lib/pages/reserved";
 
@@ -18,12 +18,18 @@ export async function generateMetadata({
   const { slug } = await params;
   if (RESERVED.has(slug)) return {};
   const page = await getCustomPage(slug);
-  if (!page) return { title: `Not found · ${SITE_NAME}` };
+  if (!page) {
+    return { title: `Not found · ${SITE_NAME}`, robots: { index: false, follow: true } };
+  }
+  const title = page.metaTitle || withBrand(page.title);
+  const description = page.excerpt || metaDescription(page.intro);
+  const url = absoluteUrl(`/${slug}`);
   return {
-    title: page.metaTitle || page.title,
-    description: page.excerpt,
-    alternates: { canonical: absoluteUrl(`/${slug}`) },
-    openGraph: { title: page.metaTitle || page.title, description: page.excerpt, url: absoluteUrl(`/${slug}`), siteName: SITE_NAME },
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: { type: "website", title, description, url, siteName: SITE_NAME },
+    twitter: { card: "summary_large_image", title, description },
   };
 }
 

@@ -2,12 +2,12 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getCategoryPage } from "@/lib/pages/data";
-import { filterTools, getTool } from "@/lib/data";
+import { filterTools, getTool, toCardTools } from "@/lib/data";
 import { CATEGORIES } from "@/data/tools";
 import { buildPageSchema } from "@/lib/pages/schema";
 import { Blocks } from "@/components/pages/block-render";
 import { MotionGrid } from "@/components/motion/motion-grid";
-import { absoluteUrl, SITE_NAME } from "@/lib/site";
+import { absoluteUrl, SITE_NAME, TITLE_MAX, withBrand } from "@/lib/site";
 import type { Tool } from "@/lib/types";
 
 export const revalidate = 300;
@@ -23,12 +23,28 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const page = await getCategoryPage(slug);
-  if (!page) return { title: `Not found · ${SITE_NAME}` };
+  if (!page) {
+    return { title: `Not found · ${SITE_NAME}`, robots: { index: false, follow: true } };
+  }
+  // Guard against an over-long title typed into the admin: anything past the
+  // 70-character limit falls back to the generated short form rather than
+  // shipping a title Google will truncate.
+  const stored = page.metaTitle?.trim();
+  const title =
+    stored && stored.length <= TITLE_MAX ? stored : withBrand(page.title, TITLE_MAX);
+  const url = absoluteUrl(`/category/${slug}`);
   return {
-    title: page.metaTitle || page.title,
+    title,
     description: page.excerpt,
-    alternates: { canonical: absoluteUrl(`/category/${slug}`) },
-    openGraph: { title: page.metaTitle || page.title, description: page.excerpt, url: absoluteUrl(`/category/${slug}`), siteName: SITE_NAME },
+    alternates: { canonical: url },
+    openGraph: {
+      type: "website",
+      title,
+      description: page.excerpt,
+      url,
+      siteName: SITE_NAME,
+    },
+    twitter: { card: "summary_large_image", title, description: page.excerpt },
   };
 }
 
@@ -83,7 +99,11 @@ export default async function CategoryPage({
 
       {tools.length > 0 && (
         <div className="mt-8">
-          <MotionGrid tools={tools} columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" stagger={false} />
+          <MotionGrid
+            tools={toCardTools(tools)}
+            columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+            stagger={false}
+          />
         </div>
       )}
 

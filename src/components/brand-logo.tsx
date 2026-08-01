@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 const DIMS = {
@@ -10,6 +11,8 @@ const DIMS = {
 } as const;
 
 const IMG = { sm: "h-9 w-9", md: "h-11 w-11", lg: "h-14 w-14" } as const;
+/** Rendered pixel size per tile, so next/image can request the right srcset. */
+const PX = { sm: 36, md: 44, lg: 56 } as const;
 
 /**
  * Brand logo tile. Shows the real logo on a clean white tile; if the image
@@ -42,10 +45,15 @@ export function BrandLogo({
           className,
         )}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        {/* next/image, not a bare <img>: logos are hotlinked from hosts whose
+            robots.txt blocks crawling, so proxying them through /_next/image
+            serves them from our own domain. The monogram fallback still fires
+            on error. */}
+        <Image
           src={logo}
           alt={`${name} logo`}
+          width={PX[size]}
+          height={PX[size]}
           loading="lazy"
           onError={() => setFailed(true)}
           className={cn("object-contain p-1.5", IMG[size])}

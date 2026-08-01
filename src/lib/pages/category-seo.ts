@@ -36,7 +36,7 @@ export const CATEGORY_SEO: Record<string, CategorySeo> = {
   },
   research: {
     metaTitle:
-      "Knowledge Assistant | Scientific Assistant | Academic Assistant | TAIFY",
+      "Knowledge, Scientific & Academic Assistant | TAIFY",
     excerpt:
       "Compare the best knowledge assistant, scientific assistant, and academic assistant AI tools for research, literature reviews, citations, papers, and fact-based answers.",
   },
@@ -46,13 +46,13 @@ export const CATEGORY_SEO: Record<string, CategorySeo> = {
       "Discover the best design assistant and creative assistant AI tools for presentations, graphics, UI design, websites, branding, and visual content creation.",
   },
   education: {
-    metaTitle: "Learning Assistant | Academic Helper | Learning Helper | TAIFY",
+    metaTitle: "Learning Assistant & Academic Helper AI | TAIFY",
     excerpt:
       "Explore AI learning assistant, academic helper, and learning helper tools for studying, homework, tutoring, flashcards, math, and exam preparation.",
   },
   productivity: {
     metaTitle:
-      "Workplace Assistant | Office Assistant | Business Assistant | TAIFY",
+      "Workplace, Office & Business Assistant AI | TAIFY",
     excerpt:
       "Compare AI workplace assistant, office assistant, and business assistant tools to automate meetings, notes, scheduling, workflows, and everyday productivity.",
   },
@@ -62,7 +62,7 @@ export const CATEGORY_SEO: Record<string, CategorySeo> = {
       "Find the best data analyst assistant and data assistant AI tools for data analysis, spreadsheets, dashboards, reporting, charts, and business insights.",
   },
   marketing: {
-    metaTitle: "Marketing Assistant | SEO Assistant | Campaign Assistant | TAIFY",
+    metaTitle: "Marketing, SEO & Campaign Assistant AI | TAIFY",
     excerpt:
       "Compare AI marketing assistant, SEO assistant, and campaign assistant tools for content marketing, SEO, ads, social media, analytics, and business growth.",
   },

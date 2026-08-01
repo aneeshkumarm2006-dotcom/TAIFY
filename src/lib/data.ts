@@ -1,6 +1,6 @@
 import "server-only";
 import { TOOLS, CATEGORIES, toolBySlug } from "@/data/tools";
-import type { Category, Pricing, Tool } from "@/lib/types";
+import type { CardTool, Category, LogoTool, Pricing, Tool } from "@/lib/types";
 import { toolsCollection, isDbEnabled, docToTool } from "@/lib/db/mongo";
 
 /**
@@ -120,6 +120,47 @@ export async function categoryCounts(): Promise<Record<string, number>> {
   const counts: Record<string, number> = {};
   for (const t of all) counts[t.category] = (counts[t.category] ?? 0) + 1;
   return counts;
+}
+
+// ---------- payload trimming ----------
+
+/**
+ * Drop everything a tool card doesn't render before handing tools to a client
+ * component. Grids are client components, so every field survives into the RSC
+ * payload inlined in the HTML — on /browse that meant ~95 descriptions, pros,
+ * cons and image arrays of dead weight, which is what dragged the text-to-HTML
+ * ratio down site-wide.
+ */
+export function toCardTool(t: Tool): CardTool {
+  return {
+    slug: t.slug,
+    name: t.name,
+    mark: t.mark,
+    color: t.color,
+    logo: t.logo,
+    code: t.code,
+    category: t.category,
+    tagline: t.tagline,
+    pricing: t.pricing,
+    verifiedAt: t.verifiedAt,
+    costPerMonth: t.costPerMonth,
+    saves: t.saves,
+  };
+}
+
+export function toCardTools(tools: Tool[]): CardTool[] {
+  return tools.map(toCardTool);
+}
+
+/** Smaller still — for the hero logo strip and floating logos. */
+export function toLogoTools(tools: Tool[]): LogoTool[] {
+  return tools.map((t) => ({
+    slug: t.slug,
+    name: t.name,
+    mark: t.mark,
+    color: t.color,
+    logo: t.logo,
+  }));
 }
 
 // ---------- source (DB or seed) ----------

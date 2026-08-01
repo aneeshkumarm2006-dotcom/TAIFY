@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { Tool } from "@/lib/types";
+import type { CardTool } from "@/lib/types";
 import { BrandLogo } from "./brand-logo";
 import { PricingBadge, VerifiedBadge } from "./ui/badge";
 import { SaveButton } from "./save-button";
@@ -10,7 +10,7 @@ export function ToolCard({
   rank,
   className,
 }: {
-  tool: Tool;
+  tool: CardTool;
   rank?: string;
   className?: string;
 }) {

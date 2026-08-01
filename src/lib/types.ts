@@ -38,6 +38,35 @@ export interface Tool {
   bestFor: string;
 }
 
+/**
+ * The subset of a Tool that a card actually renders.
+ *
+ * Grids and logo strips are client components, so whatever they receive is
+ * serialised into the RSC payload embedded in the HTML. Passing whole Tool
+ * objects shipped description/pros/cons/images for every tool on /browse and
+ * was the main driver behind the "low text to HTML ratio" warning across all
+ * 95 pages. `Tool` is assignable to these, so `toCardTool` is opt-in per call
+ * site.
+ */
+export type CardTool = Pick<
+  Tool,
+  | "slug"
+  | "name"
+  | "mark"
+  | "color"
+  | "logo"
+  | "code"
+  | "category"
+  | "tagline"
+  | "pricing"
+  | "verifiedAt"
+  | "costPerMonth"
+  | "saves"
+>;
+
+/** Even smaller: what a bare logo tile needs. */
+export type LogoTool = Pick<Tool, "slug" | "name" | "mark" | "color" | "logo">;
+
 export interface Category {
   slug: string;
   name: string;

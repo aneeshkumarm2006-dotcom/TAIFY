@@ -6,11 +6,44 @@ import type { Tool } from "@/lib/types";
 import { ComparePicker } from "@/components/compare-picker";
 import { PricingBadge } from "@/components/ui/badge";
 import { compactNumber, cn } from "@/lib/utils";
+import { SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
+import type { Metadata } from "next";
 
-export const metadata = {
-  title: "Compare AI tools · TAIFY",
-  description: "Side-by-side comparison of AI tools with an honest verdict.",
-};
+const TITLE = `Compare AI Tools Side by Side · ${SITE_NAME}`;
+const DESCRIPTION =
+  "Put any two AI tools head to head on real monthly cost, free tier, strengths and last-verified date — with a plain-English verdict on which to pick.";
+
+/**
+ * Comparison URLs are ?a=&b= permutations of one page. Each pairing gets its own
+ * title and description, and every variant canonicalises to /compare so the
+ * combinatorial URL space can't fragment into duplicate-title pages.
+ */
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ a?: string; b?: string }>;
+}): Promise<Metadata> {
+  const sp = await searchParams;
+  const [a, b] = await Promise.all([
+    sp.a ? getTool(sp.a) : Promise.resolve(undefined),
+    sp.b ? getTool(sp.b) : Promise.resolve(undefined),
+  ]);
+
+  const title =
+    a && b ? `${a.name} vs ${b.name}: Which Should You Use? · ${SITE_NAME}` : TITLE;
+  const description =
+    a && b
+      ? `${a.name} vs ${b.name} compared on real monthly cost, free tier, strengths and freshness — with a verdict on which one fits your budget and your job.`
+      : DESCRIPTION;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: absoluteUrl("/compare") },
+    openGraph: { type: "website", title, description, url: absoluteUrl("/compare"), siteName: SITE_NAME },
+    twitter: { card: "summary_large_image", title, description },
+  };
+}
 
 export default async function ComparePage({
   searchParams,
@@ -22,13 +55,51 @@ export default async function ComparePage({
   const a = sp.a ? await getTool(sp.a) : undefined;
   const b = sp.b ? await getTool(sp.b) : undefined;
 
+  const schema = [
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      name: a && b ? `${a.name} vs ${b.name}` : TITLE,
+      description: DESCRIPTION,
+      url: absoluteUrl("/compare"),
+      isPartOf: { "@id": `${SITE_URL}/#website` },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: absoluteUrl("/") },
+        { "@type": "ListItem", position: 2, name: "Compare", item: absoluteUrl("/compare") },
+      ],
+    },
+  ];
+
   return (
     <div className="mx-auto max-w-4xl px-6 py-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      />
+
+      <nav className="mono mb-4 flex items-center gap-1.5 text-[12px] text-ink-soft">
+        <Link href="/" className="hover:text-accent">Home</Link>
+        <span>/</span>
+        <span className="text-ink">Compare</span>
+      </nav>
+
       <div className="mb-6">
         <div className="eyebrow mb-2">Compare · A vs B, decided</div>
-        <h1 className="mb-5 text-[clamp(24px,3.4vw,34px)] font-extrabold tracking-[-0.03em]">
+        <h1 className="mb-3 text-[clamp(24px,3.4vw,34px)] font-extrabold tracking-[-0.03em]">
           Head-to-head
         </h1>
+        <p className="mb-5 max-w-2xl text-[15px] leading-relaxed text-ink-soft">
+          Pick any two tools from the catalog and see them on the same six rows:
+          pricing model, real cost per month, whether there is a usable free tier,
+          the single strongest thing each does, when we last verified the listing,
+          and how many people have saved it. The winning cell in each row is
+          highlighted, and the verdict underneath says which one to pick and what
+          would justify paying more for the other.
+        </p>
         <ComparePicker options={options} a={sp.a} b={sp.b} />
       </div>
 
@@ -42,6 +113,43 @@ export default async function ComparePage({
           </p>
         </div>
       )}
+
+      <section className="mt-14 border-t border-line pt-10">
+        <h2 className="text-[20px] font-bold tracking-[-0.02em]">
+          What the verdict is actually weighing
+        </h2>
+        <div className="mt-4 space-y-4 text-[14.5px] leading-relaxed text-ink-soft">
+          <p>
+            Cost comes first, because it is the row people get wrong most often.
+            The figure shown is what the tool costs per month for typical use —
+            the plan you realistically end up on, converted to a monthly rate if
+            it is billed annually — rather than the cheapest advertised tier. A
+            tool that is technically free but useless below the $20 plan is
+            compared at $20.
+          </p>
+          <p>
+            A genuine free tier breaks near-ties, because it lets you test the
+            tool on your own work before committing. Time-limited trials are
+            marked separately: useful, but not the same thing.
+          </p>
+          <p>
+            Freshness matters more here than in most categories. AI pricing and
+            feature sets change month to month, so the verified date tells you how
+            recently a human confirmed the listing still matches reality.
+          </p>
+          <p>
+            Not sure which two to line up?{" "}
+            <Link href="/match" className="text-accent underline-offset-2 hover:underline">
+              Describe your task
+            </Link>{" "}
+            and AI Match will shortlist three, or{" "}
+            <Link href="/browse" className="text-accent underline-offset-2 hover:underline">
+              browse the full catalog
+            </Link>{" "}
+            by category and price.
+          </p>
+        </div>
+      </section>
     </div>
   );
 }

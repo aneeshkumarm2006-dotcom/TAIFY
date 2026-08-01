@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "motion/react";
-import type { Tool } from "@/lib/types";
+import type { CardTool } from "@/lib/types";
 import { ToolCard } from "@/components/tool-card";
 import { cn } from "@/lib/utils";
 
@@ -16,9 +16,9 @@ export function MotionGrid({
   rank,
   stagger = true,
 }: {
-  tools: Tool[];
+  tools: CardTool[];
   columns?: string;
-  rank?: (t: Tool, i: number) => string | undefined;
+  rank?: (t: CardTool, i: number) => string | undefined;
   /** When false, cards render solid (no entrance fade) - best for large grids. */
   stagger?: boolean;
 }) {
