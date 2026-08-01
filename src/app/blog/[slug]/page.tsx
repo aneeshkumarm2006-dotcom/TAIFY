@@ -208,7 +208,7 @@ export default async function PostPage({
                   ))}
                 </ul>
                 <p className="mt-4 text-[14px] text-ink-soft">
-                  Or jump straight to the catalog:{" "}
+                  Or skip the reading:{" "}
                   <Link href="/browse" className="text-accent underline-offset-2 hover:underline">
                     browse every AI tool
                   </Link>
@@ -218,7 +218,7 @@ export default async function PostPage({
                   </Link>
                   , or{" "}
                   <Link href="/compare" className="text-accent underline-offset-2 hover:underline">
-                    compare two tools head to head
+                    put two head to head
                   </Link>
                   .
                 </p>

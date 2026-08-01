@@ -24,28 +24,28 @@ const SORTS = {
     titleWord: "All",
     blurb: "in our default order",
     sentence:
-      "Filter the full TAIFY catalog of AI tools by category, pricing and free tier. Every listing shows a real cost-to-use estimate and the date we last verified it.",
+      "The whole TAIFY catalog, filterable by category, price and free tier. Every tool shows what it really costs a month and when we last checked.",
   },
   trending: {
     heading: "Trending AI tools",
     titleWord: "Trending",
-    blurb: "ordered by momentum this week",
+    blurb: "sorted by momentum this week",
     sentence:
-      "The AI tools gaining the most ground this week, ranked by saves and recency. Every listing shows a real monthly cost and the date we last verified it.",
+      "What's picking up speed this week, by saves and how recently things moved. Prices are what you'd really pay, not the headline tier.",
   },
   newest: {
     heading: "Just launched AI tools",
     titleWord: "Newest",
-    blurb: "newest releases first",
+    blurb: "newest first",
     sentence:
-      "The most recently launched AI tools in the catalog, newest first. Every listing shows a real monthly cost, its watch-outs, and the date we last verified it.",
+      "The latest arrivals in the catalog. New doesn't mean good, so each one still lists what it's bad at and what it costs a month.",
   },
   "most-saved": {
     heading: "Most saved AI tools",
     titleWord: "Most Saved",
-    blurb: "ordered by how many people saved them",
+    blurb: "ranked by saves",
     sentence:
-      "The AI tools the most people have saved, ranked by save count. Every listing shows a real monthly cost, its watch-outs, and the date we last verified it.",
+      "Ranked by how many people saved them. Popularity isn't quality, but it's a decent place to start when you don't know the space yet.",
   },
 } as const;
 
@@ -91,7 +91,7 @@ export async function generateMetadata({
     : `Browse ${s.titleWord} AI Tools · ${SITE_NAME}`;
 
   const description = cat
-    ? `Every ${cat.name.toLowerCase()} AI tool in the TAIFY catalog, filterable by pricing, free tier and verification date. Each listing shows a real monthly cost, not the sticker price.`
+    ? `Every ${cat.name.toLowerCase()} AI tool in the TAIFY catalog, filterable by price, free tier and how recently we checked. Prices are what you'd really pay a month.`
     : s.sentence;
 
   return {
@@ -174,10 +174,9 @@ export default async function BrowsePage({
           {heading}
         </h1>
         <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-ink-soft">
-          {total} AI tools, {SORTS[sort].blurb}. Every listing shows what the tool
-          actually costs per month for typical use — not the headline price — plus
-          the date we last checked that the pricing and features still match.
-          Filter by category, pricing model, or free tier to narrow it down, or{" "}
+          {total} tools, {SORTS[sort].blurb}. Each one lists what you&apos;d really
+          pay a month, what it&apos;s bad at, and when we last checked that the
+          price was still true. Narrow it down with the filters, or{" "}
           <Link href="/match" className="text-accent underline-offset-2 hover:underline">
             describe your task
           </Link>{" "}
@@ -217,28 +216,26 @@ export default async function BrowsePage({
         </h2>
         <div className="mt-4 space-y-4 text-[14.5px] leading-relaxed text-ink-soft">
           <p>
-            <b className="text-ink">Real cost</b> is what the tool costs per month
-            for the way most people actually use it. A tool advertised as
-            &ldquo;free&rdquo; that gates the useful features behind a $20 plan is
-            listed at $20, not $0, and a tool billed annually is shown as its
-            monthly equivalent.
+            The real cost is the number we lead with. It&apos;s what you&apos;d pay
+            a month using the tool the way most people use it. If something is
+            advertised as free but the useful half sits behind a $20 plan, we list
+            it at $20. Annual billing gets divided down to a monthly figure so
+            everything on the page compares like for like.
           </p>
           <p>
-            <b className="text-ink">Pricing model</b> separates genuinely free
-            tools from freemium ones with a workable free tier, time-limited
-            trials, and paid-only products. Use the free-tier filter when you want
-            to try something before spending anything.
+            The pricing badge tells you the shape of that number. Free means free,
+            with nothing to upgrade into. Freemium means there&apos;s a tier you can
+            do real work on without paying. Trial means you&apos;re on a clock.
           </p>
           <p>
-            <b className="text-ink">Verified</b> is the date we last confirmed the
-            pricing, feature list, and destination URL. AI tooling changes fast, so
-            anything unverified for more than a week loses its badge until it is
-            re-checked.
+            Verified is the date a person last opened the pricing page and confirmed
+            it still says what we say it says. This space moves fast. Leave a tool
+            unchecked for a week and it loses the badge until someone looks again.
           </p>
           <p>
-            <b className="text-ink">Watch-outs</b> appear on every tool page. If a
-            tool is weak at something people commonly expect it to do, it is stated
-            there rather than buried.
+            Then there&apos;s the watch-outs list on every tool page. If a tool is
+            bad at something people assume it handles, that&apos;s where we say so.
+            It&apos;s the part most directories leave out.
           </p>
         </div>
 

@@ -10,7 +10,7 @@ export const revalidate = 300;
 
 const TITLE = `Browse AI Tools by Category · ${SITE_NAME}`;
 const DESCRIPTION =
-  "Browse the best AI tools by category — coding, image, video, research, study, and more. Verified daily with honest pricing.";
+  "Browse the best AI tools by category: coding, image, video, research, study and more. Verified daily, priced honestly.";
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -82,11 +82,9 @@ export default async function CategoriesPage() {
           Browse AI tools by category
         </h1>
         <p className="mt-3 max-w-2xl text-[16px] leading-relaxed text-ink-soft">
-          {total} AI tools sorted into {categories.length} categories by the job
-          they do, not by the company that makes them. Pick a category to see
-          everything in it ranked by how many people saved it, each with a real
-          monthly cost, its strengths, its watch-outs, and the date we last
-          checked the listing was still accurate.
+          {total} tools in {categories.length} categories, sorted by the job they
+          do rather than who makes them. Pick one and you get everything in it,
+          ranked by saves, with real prices and honest watch-outs.
         </p>
       </div>
 
@@ -123,31 +121,29 @@ export default async function CategoriesPage() {
         </h2>
         <div className="mt-4 space-y-4 text-[14.5px] leading-relaxed text-ink-soft">
           <p>
-            Categories here describe the <b className="text-ink">task</b>, not the
-            technology. A general assistant that happens to write code sits under
-            the category matching what you would hire it for, so if you are
-            shopping for a coding tool you see purpose-built editors alongside the
-            generalists that are genuinely good at it — rather than a list padded
-            with everything that mentions &ldquo;code&rdquo; in its marketing.
+            Categories here are about the job, not the technology. A general
+            assistant that happens to write code gets filed under whatever
+            you&apos;d hire it for. So the coding page has purpose-built editors
+            sitting next to the generalists that are genuinely good at it, and
+            nothing that only mentions &ldquo;code&rdquo; in its marketing copy.
           </p>
           <p>
-            Plenty of tools legitimately fit more than one job. When that happens
-            the tool is filed under its strongest use case and surfaces in the
-            others through search and{" "}
+            Some tools honestly belong in three places at once. Those go under
+            whatever they&apos;re strongest at and turn up in the rest through
+            search and{" "}
             <Link href="/match" className="text-accent underline-offset-2 hover:underline">
               AI Match
             </Link>
-            , which reads the whole catalog rather than one category at a time.
+            , which reads the whole catalog instead of one shelf.
           </p>
           <p>
-            If you already know roughly what you want, the faster route is{" "}
+            Already know roughly what you want?{" "}
             <Link href="/browse" className="text-accent underline-offset-2 hover:underline">
-              the full catalog
+              The full catalog
             </Link>{" "}
-            with filters for pricing and free tier. If you are choosing between
-            two specific tools,{" "}
+            and its price filters will be faster. Down to two candidates?{" "}
             <Link href="/compare" className="text-accent underline-offset-2 hover:underline">
-              put them head to head
+              Put them head to head
             </Link>{" "}
             and read the verdict.
           </p>

@@ -56,7 +56,7 @@ export async function generateMetadata({
   const title = toolTitle(tool);
   const description = metaDescription(
     tool.description ||
-      `${tool.name} — ${tool.tagline} Real cost, strengths, watch-outs and alternatives.`,
+      `${tool.name}: ${tool.tagline} What it really costs a month, what it's good at, what it's not, and what to use instead.`,
   );
   const url = absoluteUrl(`/tool/${tool.slug}`);
   const images = tool.images?.length ? [tool.images[0]] : undefined;
@@ -80,6 +80,45 @@ export async function generateMetadata({
       ...(images ? { images } : {}),
     },
   };
+}
+
+/**
+ * Lowercase the first letter and drop a trailing period, so a stored sentence
+ * can be spliced mid-sentence. Must stay one string: rendering it as two
+ * adjacent JSX expressions makes JSX insert a space and splits the word
+ * ("s tudents and researchers").
+ */
+function lcFirst(s: string): string {
+  return (s.charAt(0).toLowerCase() + s.slice(1)).replace(/\.$/, "");
+}
+
+const MONTHS = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+
+/**
+ * True when the maker's name is really the product name, so we don't write
+ * "Leonardo AI comes from Leonardo". Compares with branding suffixes and
+ * punctuation stripped off both sides.
+ */
+function sameEntity(name: string, company: string): boolean {
+  const core = (s: string) =>
+    s
+      .toLowerCase()
+      .replace(/\.(ai|new|com|io|co)\b/g, "")
+      .replace(/\b(ai|inc|ltd|labs|llc|technologies|the)\b/g, "")
+      .replace(/[^a-z0-9]/g, "");
+  const a = core(name);
+  const b = core(company);
+  return a === b || (!!a && !!b && (a.startsWith(b) || b.startsWith(a)));
+}
+
+/** "2024·03" reads as "March 2024" in prose, not "2024 03". */
+function launchedLabel(v: string): string {
+  const [year, month] = v.split(/[·./-]/);
+  const name = MONTHS[Number(month) - 1];
+  return name ? `in ${name} ${year}` : `in ${year}`;
 }
 
 /** SoftwareApplication + Breadcrumb for the tool. */
@@ -150,6 +189,11 @@ export default async function ToolPage({
   const category = CATEGORIES.find((c) => c.slug === tool.category);
   const categoryName = category?.name ?? tool.category;
   const faqs = buildFaqs(tool, categoryName, related.map((r) => r.name));
+  // The sentence before this already covers the pricing model, so a watch-out
+  // that only restates it ("no free tier") would read twice in a row.
+  const catch_ =
+    tool.cons.find((c) => !/free tier|no free|paid only|paid-only/i.test(c)) ??
+    (tool.pricing === "paid" ? undefined : tool.cons[0]);
   const schema = [
     ...buildToolSchema(tool, categoryName),
     {
@@ -264,43 +308,41 @@ export default async function ToolPage({
             </h2>
             <div className="mt-4 max-w-[68ch] space-y-3.5 text-[14.5px] leading-relaxed text-ink-soft">
               <p>
-                {tool.name} is a {categoryName.toLowerCase()} tool from{" "}
-                {tool.company}, launched {tool.launched.replace("·", " ")}. It is
-                the right pick when {tool.bestFor.charAt(0).toLowerCase()}
-                {tool.bestFor.slice(1).replace(/\.$/, "")}.{" "}
-                {tool.pros[0] ? `Its strongest card is ${tool.pros[0].charAt(0).toLowerCase()}${tool.pros[0].slice(1).replace(/\.$/, "")}.` : ""}
+                {/* bestFor is a noun phrase ("Working developers who want…"),
+                    so it needs "built for", not "the right call when". */}
+                {sameEntity(tool.name, tool.company)
+                  ? `${tool.name} launched ${launchedLabel(tool.launched)}.`
+                  : `${tool.name} comes from ${tool.company} and launched ${launchedLabel(tool.launched)}.`}
+                {` It's built for ${lcFirst(tool.bestFor)}.`}
+                {tool.pros[0] ? ` What it does best: ${lcFirst(tool.pros[0])}.` : ""}
               </p>
               <p>
-                Budget for{" "}
+                {tool.costPerMonth === 0 ? "Costs you " : "Budget "}
                 <b className="text-ink">
                   {tool.costPerMonth === 0
-                    ? "nothing — it is genuinely free"
+                    ? "nothing"
                     : `about $${tool.costPerMonth} a month`}
-                </b>{" "}
-                if you use it the way most people do.{" "}
+                </b>
+                {" if you use it like most people do. "}
                 {tool.pricing === "free"
-                  ? "There is no paid tier to upgrade into."
+                  ? "There's no paid tier waiting behind it."
                   : tool.pricing === "freemium"
-                    ? "There is a free tier that is workable for light use, so you can test it before paying."
+                    ? "The free tier is real, so you can try it on your own work first."
                     : tool.pricing === "trial"
-                      ? "There is a time-limited trial rather than a lasting free tier, so plan to decide before it expires."
-                      : "There is no free tier, so the first month is the trial."}{" "}
-                {tool.cons[0]
-                  ? `The main thing to weigh against it: ${tool.cons[0].charAt(0).toLowerCase()}${tool.cons[0].slice(1).replace(/\.$/, "")}.`
-                  : ""}
+                      ? "The free window is time-limited, so make your mind up before it closes."
+                      : "No free tier, so month one is your trial."}
+                {catch_ ? ` The catch: ${lcFirst(catch_)}.` : ""}
               </p>
               <p>
-                We last verified this listing {timeAgo(tool.verifiedAt)} — pricing,
-                features and the destination link were all checked then. If you
-                want a second opinion before committing,{" "}
+                {`We checked this listing ${timeAgo(tool.verifiedAt)}. Still weighing it up? `}
                 <Link href={`/compare?a=${tool.slug}`} className="text-accent underline-offset-2 hover:underline">
-                  compare {tool.name} against another tool
+                  Put {tool.name} head to head
                 </Link>{" "}
-                or{" "}
+                with something else, or{" "}
                 <Link href="/match" className="text-accent underline-offset-2 hover:underline">
                   describe your task
                 </Link>{" "}
-                and let AI Match narrow the field to three.
+                and let AI Match cut the field to three.
               </p>
             </div>
 
@@ -394,27 +436,26 @@ function buildFaqs(
   categoryName: string,
   alternatives: string[],
 ): { q: string; a: string }[] {
-  const lower = (s: string) => s.charAt(0).toLowerCase() + s.slice(1).replace(/\.$/, "");
   const out: { q: string; a: string }[] = [];
 
   out.push({
     q: `How much does ${tool.name} cost?`,
     a:
       tool.costPerMonth === 0
-        ? `${tool.name} is free for the way most people use it, so the realistic monthly cost is $0. Listing it here costs ${tool.listingCost.toLowerCase()}.`
-        : `Typical use runs to about $${tool.costPerMonth} a month. That is the real cost of the plan most people end up on, not the cheapest advertised tier.`,
+        ? `Nothing, for the way most people use it. There's no paid tier waiting behind the free one.`
+        : `About $${tool.costPerMonth} a month in practice. That's the plan people actually land on, not the cheapest one on the pricing page.`,
   });
 
   out.push({
     q: `Does ${tool.name} have a free tier?`,
     a:
       tool.pricing === "free"
-        ? `Yes — ${tool.name} is free to use, with no paid tier to upgrade into.`
+        ? `Yes, and there's nothing to upgrade into. ${tool.name} is free to use.`
         : tool.pricing === "freemium"
-          ? `Yes. ${tool.name} has a free tier that is workable for light use, so you can test it properly before paying for the ~$${tool.costPerMonth}/mo plan.`
+          ? `Yes, and it's a real one. You can do proper work on it before deciding whether the ~$${tool.costPerMonth}/mo plan earns its keep.`
           : tool.pricing === "trial"
-            ? `Not a lasting one. ${tool.name} offers a time-limited trial rather than a permanent free tier, so plan to evaluate it inside that window.`
-            : `No. ${tool.name} is paid-only, at roughly $${tool.costPerMonth} a month for typical use.`,
+            ? `Not a permanent one. You get a time-limited trial, so plan to make your mind up inside it.`
+            : `No. ${tool.name} is paid-only, at roughly $${tool.costPerMonth} a month for normal use.`,
   });
 
   out.push({
@@ -425,20 +466,20 @@ function buildFaqs(
   if (tool.cons.length) {
     out.push({
       q: `What are the downsides of ${tool.name}?`,
-      a: `The watch-outs we list are: ${tool.cons.map(lower).join("; ")}. None of these are dealbreakers on their own, but they are the things people most often hit after signing up.`,
+      a: `The ones we list: ${tool.cons.map(lcFirst).join("; ")}. None of them are dealbreakers by themselves. They're what people tend to run into a week or two after signing up.`,
     });
   }
 
   if (alternatives.length) {
     out.push({
       q: `What are the best alternatives to ${tool.name}?`,
-      a: `The closest ${categoryName.toLowerCase()} alternatives in our catalog are ${alternatives.slice(0, 3).join(", ")}. Each is listed with the same real-cost estimate so you can compare them on what they actually cost rather than sticker price.`,
+      a: `Closest matches in the catalog: ${alternatives.slice(0, 3).join(", ")}. All priced the same way, so you can compare what they really cost rather than what they advertise.`,
     });
   }
 
   out.push({
     q: `Is the ${tool.name} listing up to date?`,
-    a: `Yes — pricing, features and the destination link were last verified on ${tool.verifiedAt.slice(0, 10)}. Listings that go more than a week without a check lose their verified badge until they are re-confirmed.`,
+    a: `Last checked on ${tool.verifiedAt.slice(0, 10)}: price, features and the link out. Leave a listing longer than a week and it loses its verified badge until someone looks again.`,
   });
 
   return out;

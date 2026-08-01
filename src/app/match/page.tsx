@@ -7,7 +7,7 @@ import { SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
 
 const TITLE = `AI Match - Describe Your Task, Get 3 Tools · ${SITE_NAME}`;
 const DESCRIPTION =
-  "Describe what you're trying to do in one sentence and get the three best-fitting AI tools, with the reasoning, the real monthly cost, and what each one is bad at.";
+  "Describe what you're trying to do in one sentence and get three AI tools that fit, with reasons, real monthly costs, and what each one is bad at.";
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -27,20 +27,20 @@ export const metadata: Metadata = {
 
 const FAQS = [
   {
-    q: "How does AI Match pick the tools?",
-    a: "Your description is read against the whole catalog — every tool's tagline, description, category and tags — not just keyword-matched against names. The three that fit best come back with a short reason each, so you can tell whether the match is actually right for your situation before clicking through.",
+    q: "How does AI Match pick?",
+    a: "It reads your description against the whole catalog, taglines and tags included, instead of keyword-matching names. Each of the three comes back with a reason, so you can tell whether it understood you before you click through.",
   },
   {
-    q: "Why only three results?",
-    a: "A list of forty tools is the problem, not the answer. Three is enough to give you a cheap option, a strong option, and something you probably had not considered, while still being short enough to actually evaluate.",
+    q: "Why only three?",
+    a: "Because a list of forty is the problem, not the answer. Three fits a cheap option, a strong option, and one you hadn't thought of, and you can still hold all three in your head.",
   },
   {
-    q: "What should I write in the box?",
-    a: "One plain sentence about the job, not the tool category. \"Turn hour-long webinars into short clips for social\" works far better than \"video AI\", because it tells the matcher about the input, the output and the constraint.",
+    q: "What should I type?",
+    a: "One sentence about the job. \"Turn hour-long webinars into clips for social\" beats \"video AI\" every time, because it tells the matcher your input, your output and your constraint. Name the tool category and you'll just get the category back.",
   },
   {
     q: "Does it cost anything?",
-    a: "No. AI Match is free and needs no account. Tool listings are free too — promoted placement exists but is always labelled.",
+    a: "No, and there's no account to make. Listings are free for makers too. Promoted placement exists and always carries a label.",
   },
 ];
 
@@ -133,8 +133,7 @@ export default async function MatchPage({
           Or start from a category
         </h2>
         <p className="mt-3 text-[14.5px] leading-relaxed text-ink-soft">
-          If you would rather browse than describe, every tool is filed by the job
-          it does:
+          Rather browse than describe? Everything&apos;s filed by the job it does:
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           {categories.map((c) => (

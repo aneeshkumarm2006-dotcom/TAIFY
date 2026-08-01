@@ -11,7 +11,7 @@ import type { Metadata } from "next";
 
 const TITLE = `Compare AI Tools Side by Side · ${SITE_NAME}`;
 const DESCRIPTION =
-  "Put any two AI tools head to head on real monthly cost, free tier, strengths and last-verified date — with a plain-English verdict on which to pick.";
+  "Put any two AI tools head to head on real monthly cost, free tier, strengths and freshness, and get a verdict that names one instead of hedging.";
 
 /**
  * Comparison URLs are ?a=&b= permutations of one page. Each pairing gets its own
@@ -33,7 +33,7 @@ export async function generateMetadata({
     a && b ? `${a.name} vs ${b.name}: Which Should You Use? · ${SITE_NAME}` : TITLE;
   const description =
     a && b
-      ? `${a.name} vs ${b.name} compared on real monthly cost, free tier, strengths and freshness — with a verdict on which one fits your budget and your job.`
+      ? `${a.name} vs ${b.name} on real monthly cost, free tier, strengths and freshness, with a verdict on which one fits your budget and your job.`
       : DESCRIPTION;
 
   return {
@@ -93,12 +93,10 @@ export default async function ComparePage({
           Head-to-head
         </h1>
         <p className="mb-5 max-w-2xl text-[15px] leading-relaxed text-ink-soft">
-          Pick any two tools from the catalog and see them on the same six rows:
-          pricing model, real cost per month, whether there is a usable free tier,
-          the single strongest thing each does, when we last verified the listing,
-          and how many people have saved it. The winning cell in each row is
-          highlighted, and the verdict underneath says which one to pick and what
-          would justify paying more for the other.
+          Pick two and they go on the same six rows: pricing, real monthly cost,
+          free tier, biggest strength, last verified, saves. The better cell in
+          each row gets highlighted. Underneath, a verdict that names one and
+          tells you what it would take to justify the other.
         </p>
         <ComparePicker options={options} a={sp.a} b={sp.b} />
       </div>
@@ -116,35 +114,33 @@ export default async function ComparePage({
 
       <section className="mt-14 border-t border-line pt-10">
         <h2 className="text-[20px] font-bold tracking-[-0.02em]">
-          What the verdict is actually weighing
+          How the verdict gets decided
         </h2>
         <div className="mt-4 space-y-4 text-[14.5px] leading-relaxed text-ink-soft">
           <p>
-            Cost comes first, because it is the row people get wrong most often.
-            The figure shown is what the tool costs per month for typical use —
-            the plan you realistically end up on, converted to a monthly rate if
-            it is billed annually — rather than the cheapest advertised tier. A
-            tool that is technically free but useless below the $20 plan is
-            compared at $20.
+            Cost carries the most weight, because it&apos;s the row people get
+            wrong. We use the plan you&apos;ll realistically end up on, divided
+            down to a month if it bills annually. A tool that&apos;s technically
+            free but useless below the $20 tier gets compared at $20.
           </p>
           <p>
-            A genuine free tier breaks near-ties, because it lets you test the
-            tool on your own work before committing. Time-limited trials are
-            marked separately: useful, but not the same thing.
+            A real free tier breaks close calls. Being able to try something on
+            your own work before paying is worth more than a marginal feature win.
+            Trials sit in their own bucket: handy, but you&apos;re on a clock.
           </p>
           <p>
-            Freshness matters more here than in most categories. AI pricing and
-            feature sets change month to month, so the verified date tells you how
-            recently a human confirmed the listing still matches reality.
+            Then the verified date. Pricing here changes month to month, and a
+            comparison built on last year&apos;s numbers is worse than no
+            comparison at all.
           </p>
           <p>
             Not sure which two to line up?{" "}
             <Link href="/match" className="text-accent underline-offset-2 hover:underline">
-              Describe your task
+              Describe the job
             </Link>{" "}
             and AI Match will shortlist three, or{" "}
             <Link href="/browse" className="text-accent underline-offset-2 hover:underline">
-              browse the full catalog
+              browse the catalog
             </Link>{" "}
             by category and price.
           </p>

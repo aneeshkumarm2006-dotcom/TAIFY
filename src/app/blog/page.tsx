@@ -8,7 +8,7 @@ import { SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
 
 const TITLE = `AI Tool Guides &amp; Comparisons · ${SITE_NAME}`.replace("&amp;", "&");
 const DESCRIPTION =
-  "Guides, comparisons and news on AI tools — how to pick the right one for any task, what each one really costs, and where each falls short.";
+  "Guides and comparisons on AI tools: how to pick one for the job, what it really costs once the free tier runs out, and where it falls over.";
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -78,15 +78,13 @@ export default async function BlogIndex() {
           Guides &amp; comparisons
         </h1>
         <p className="mt-3 max-w-2xl text-[16px] leading-relaxed text-ink-soft">
-          Deep dives on AI tools — how to choose between them, what each one
-          actually costs once you are past the free tier, and where each one
-          falls down. Every tool we mention links through to its listing, with
-          the same real-cost estimate and last-verified date you get everywhere
-          else on{" "}
+          How to choose between AI tools, what they cost once the free tier runs
+          out, and where each one falls over. Every tool we mention links back to
+          its listing in{" "}
           <Link href="/browse" className="text-accent underline-offset-2 hover:underline">
             the catalog
           </Link>
-          .
+          , priced the same way as everything else.
         </p>
       </div>
 

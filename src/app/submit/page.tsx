@@ -6,7 +6,7 @@ import { SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
 
 const TITLE = `Submit Your AI Tool - Free Listing · ${SITE_NAME}`;
 const DESCRIPTION =
-  "List your AI tool in the TAIFY field guide for free. Verified, indexed for SEO, surfaced in AI Match results, with honest pricing shown and optional promoted placement from $49.";
+  "List your AI tool in the TAIFY field guide for free. Verified by a person, indexed, and shown in AI Match results. Honest pricing throughout, with optional promoted placement from $49.";
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -33,27 +33,27 @@ const PERKS = [
 const FAQS = [
   {
     q: "How much does a listing cost?",
-    a: "Nothing. A basic listing is free and stays free — it is verified, indexed, and eligible to appear in AI Match results and category pages like any other tool. Promoted placement starts at $49 and is always visibly labelled, so readers can tell the difference.",
+    a: "Nothing, and it stays nothing. A basic listing gets verified, indexed, and shown in AI Match and category pages like everything else. Promoted placement starts at $49 and always carries a label, so readers can tell which is which.",
   },
   {
     q: "What do you need from me?",
-    a: "A name, a one-line tagline, a link, and an honest answer on pricing — specifically what the tool costs per month for the way most people actually use it, not the cheapest advertised tier. Screenshots and a demo video are optional but make a listing noticeably more convincing.",
+    a: "A name, a one-line tagline, a link, and a straight answer on price: what people really pay per month, not your cheapest tier. Screenshots and a demo video are optional. They also make a listing far more convincing, so send them if you have them.",
   },
   {
     q: "How long does review take?",
-    a: "Submissions are reviewed by hand rather than auto-published. We check the link resolves, the pricing claim matches the pricing page, and the tool does what the tagline says. Anything that fails those checks comes back to you rather than going live wrong.",
+    a: "Every submission is read by a person rather than auto-published. We check the link works, the price matches your own pricing page, and the tool does what the tagline claims. If something doesn't line up we come back to you instead of publishing it wrong.",
   },
   {
     q: "Will you list the downsides of my tool?",
-    a: "Yes. Every listing carries a watch-outs section alongside its strengths, because that is the reason readers trust the catalog enough to click through. Being honest about what a tool is not for tends to bring better-qualified traffic, not less of it.",
+    a: "Yes. Every listing has a watch-outs section next to its strengths, and that's the whole reason readers trust the catalog enough to click anything. Saying plainly what a tool isn't for tends to send you better-qualified traffic, not less of it.",
   },
   {
     q: "What does 'verified' mean on a listing?",
-    a: "It means a human confirmed the pricing, the feature list, and the destination URL on the date shown. Listings that go more than a week without a re-check lose the badge until they are confirmed again, so the freshness signal stays meaningful.",
+    a: "A person opened your pricing page on the date shown and confirmed it still says what we say it says. Go a week without a re-check and the badge drops off until someone looks again. That's what keeps it worth anything.",
   },
   {
     q: "Can I update my listing later?",
-    a: "Yes — send the change and it is applied at the next verification pass. Pricing changes in particular are worth flagging, since the real-cost figure is the number readers compare on.",
+    a: "Yes. Send the change and it goes in at the next verification pass. Flag price changes especially, since that figure is the one readers compare on.",
   },
 ];
 
@@ -134,13 +134,13 @@ export default function SubmitPage() {
           ))}
         </dl>
         <p className="mt-8 text-[14.5px] leading-relaxed text-ink-soft">
-          Want to see what a finished listing looks like first? Have a look at{" "}
+          Want to see a finished listing first? Look through{" "}
           <Link href="/browse" className="text-accent underline-offset-2 hover:underline">
             the catalog
-          </Link>{" "}
-          or{" "}
+          </Link>
+          , or go straight to{" "}
           <Link href="/categories" className="text-accent underline-offset-2 hover:underline">
-            pick the category
+            the category
           </Link>{" "}
           your tool would sit in.
         </p>

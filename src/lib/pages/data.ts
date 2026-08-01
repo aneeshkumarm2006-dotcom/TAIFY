@@ -27,7 +27,7 @@ function defaultCategoryBlocks(cat: Category): Page["blocks"] {
     {
       id: "default-buying-guide",
       type: "richtext",
-      html: `<h2>How to choose a ${lower} AI tool</h2><p>Start from the job, not the feature list. Most ${lower} tools overlap heavily on what they can technically do, and differ on the things that decide whether you keep using them: what they cost once you are past the free tier, how much setup they need before they are useful, and what they quietly refuse to do well.</p><p>Three checks separate the shortlist from the rest:</p><ul><li><strong>Real cost, not sticker price.</strong> Every listing below shows what the tool costs per month for typical use, converted to a monthly figure where billing is annual. A tool advertised as free that gates the useful part behind a paid plan is priced at the paid plan.</li><li><strong>A free tier you can actually test on.</strong> A workable free tier lets you try the tool on your own work before committing. Time-limited trials are marked separately — useful, but you are on a clock.</li><li><strong>Freshness.</strong> ${name} tooling changes fast. The verified date on each card is when a human last confirmed the pricing, features and destination link. Anything unverified for more than a week loses its badge until it is re-checked.</li></ul><p>Every listing also carries a watch-outs section. If a tool is weak at something people commonly expect it to handle, it is stated there rather than left for you to discover after paying.</p>`,
+      html: `<h2>How to choose a ${lower} AI tool</h2><p>Start from the job, not the feature list. Most ${lower} tools can technically do the same things. Where they differ is what they cost once the free tier runs out, how much setup they need before they're useful, and what they're quietly bad at.</p><p>Price is where people get caught. Every listing below shows what the tool costs a month for normal use, divided down if it bills annually. If the useful half sits behind a paid plan, we price it at the paid plan.</p><p>A free tier you can do real work on is worth more than it looks, because it lets you test on your own material before paying anything. Trials sit in their own bucket: handy, but you're on a clock.</p><p>Then check the date. ${name} tooling moves fast, and the verified date is when a person last opened the pricing page and confirmed it. Leave a tool unchecked for a week and it loses the badge until someone looks again.</p><p>Every listing also carries watch-outs. If a tool is bad at something people assume it handles, that's where it says so, rather than leaving you to find out after paying.</p>`,
     },
     {
       id: "default-faq",
@@ -36,19 +36,19 @@ function defaultCategoryBlocks(cat: Category): Page["blocks"] {
       items: [
         {
           q: `What is the best ${lower} AI tool?`,
-          a: `There is no single answer, which is why the tools below are ranked by how many people have saved them rather than by an editorial pick. The right choice depends on your budget and the specific job — a tool that is excellent for occasional light use is often the wrong call for daily professional work, and vice versa. If you would rather not compare them yourself, describe your task on <a href="/match">AI Match</a> and you will get three with reasoning.`,
+          a: `There isn't one, and anyone handing you a single name is guessing about your budget. That's why the list below is ranked by how many people saved each tool rather than by an editorial pick. Something perfect for occasional use is often the wrong call for daily work. If you'd rather not weigh it up yourself, describe the job on <a href="/match">AI Match</a> and you'll get three with reasons.`,
         },
         {
           q: `Are there free ${lower} AI tools?`,
-          a: `Yes. Filter the catalog by free tier to see only tools you can use without paying, and check the pricing badge on each card: <em>free</em> means there is no paid tier at all, while <em>freemium</em> means there is a workable free tier alongside a paid plan. Trials are labelled separately because they expire.`,
+          a: `Yes. Filter by free tier to see only the ones you can use without paying. The badge on each card tells you which kind: <em>free</em> means there's nothing to upgrade into, <em>freemium</em> means there's a tier you can do real work on. Trials sit in their own bucket because they run out.`,
         },
         {
           q: `How much do ${lower} AI tools cost?`,
-          a: `Most land between $0 and $30 a month for individual use, with team plans running higher. Each listing shows a real cost-to-use figure rather than the lowest advertised tier, so the numbers on this page are directly comparable with each other.`,
+          a: `Most sit between $0 and $30 a month for one person, and climb from there for team plans. Every figure on this page is what you'd really pay rather than the cheapest advertised tier, so they compare directly against each other.`,
         },
         {
           q: `How often is this list updated?`,
-          a: `Listings are re-verified on a rolling basis and each card shows the date it was last checked. Pricing and feature changes are the most common reason a listing changes, so the verified date is the signal worth trusting over the publication date.`,
+          a: `Continuously, and each card shows its own last-checked date. Price changes are the usual reason a listing moves, which makes the verified date a better signal than when the page was published.`,
         },
       ],
     },
@@ -56,7 +56,7 @@ function defaultCategoryBlocks(cat: Category): Page["blocks"] {
       id: "default-cta",
       type: "cta",
       title: `Not sure which ${lower} tool fits?`,
-      body: "Describe the job in one sentence and get the three best matches, with the reasoning and the real monthly cost for each.",
+      body: "One sentence about the job. You get three matches back, with reasons and real prices.",
       buttonLabel: "Find my AI",
       buttonHref: "/match",
     },
@@ -77,8 +77,8 @@ function defaultCategoryPage(cat: Category): Page {
     metaTitle: seo?.metaTitle ?? `Best ${cat.name} AI Tools (2026) · TAIFY`,
     excerpt:
       seo?.excerpt ??
-      `The best ${cat.name.toLowerCase()} AI tools, compared by real cost, features, and use case. Verified daily.`,
-    intro: `Explore the best ${cat.name.toLowerCase()} AI tools below, each with honest pricing and a real cost-to-use estimate — what the tool actually costs per month for typical use, not the cheapest advertised tier.`,
+      `The best ${cat.name.toLowerCase()} AI tools, compared on what they really cost, what they do, and who they suit. Verified daily.`,
+    intro: `The best ${cat.name.toLowerCase()} AI tools below, each priced at what you'd really pay a month rather than the cheapest tier on their pricing page.`,
     blocks: defaultCategoryBlocks(cat),
     customSchema: "",
     status: "published",
