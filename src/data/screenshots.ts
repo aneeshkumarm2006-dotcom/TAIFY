@@ -107,5 +107,15 @@ export const SCREENSHOTS: Record<string, string> = {
   "ocoya": "/shots/ocoya.jpg",
   "publer": "/shots/publer.jpg",
   "vista-social": "/shots/vista-social.jpg",
-  "flick": "/shots/flick.jpg"
+  "flick": "/shots/flick.jpg",
+  "yardi": "/shots/yardi.jpg",
+  "appfolio": "/shots/appfolio.jpg",
+  "mri-software": "/shots/mri-software.jpg",
+  "ylopo": "/shots/ylopo.jpg",
+  "roof-ai": "/shots/roof-ai.jpg",
+  "top-producer": "/shots/top-producer.jpg",
+  "fello": "/shots/fello.jpg",
+  "housecanary": "/shots/housecanary.jpg",
+  "reonomy": "/shots/reonomy.jpg",
+  "write-homes": "/shots/write-homes.jpg"
 };
