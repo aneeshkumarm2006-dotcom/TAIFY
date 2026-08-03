@@ -112,7 +112,7 @@ const post: Omit<Post, "views" | "createdAt"> = {
   excerpt:
     "The best AI tools for real estate in 2026: virtual staging, listing descriptions, lead generation, property management, and valuation. Compared on real monthly cost, honestly.",
   metaTitle: "Best AI Tools for Real Estate Agents (2026) | TAIFY",
-  coverImage: "https://picsum.photos/seed/taify-real-estate/1200/675",
+  coverImage: "/blog/real-estate-cover.jpg",
   keywords,
   linkFirstOnly: true,
   status: "published",
