@@ -35,9 +35,13 @@ export function FaqAccordion({ items }: { items: { q: string; a: string }[] }) {
                   transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
                   className="overflow-hidden"
                 >
-                  <p className="whitespace-pre-line px-4 pb-4 text-[14px] leading-relaxed text-ink-soft">
-                    {it.a}
-                  </p>
+                  {/* Answers are team-authored and may contain links/emphasis
+                      (e.g. a link to AI Match), so render as HTML rather than
+                      escaping it into visible <a>/<em> tags. */}
+                  <div
+                    className="prose-taify whitespace-pre-line px-4 pb-4 text-[14px] leading-relaxed text-ink-soft"
+                    dangerouslySetInnerHTML={{ __html: it.a }}
+                  />
                 </motion.div>
               )}
             </AnimatePresence>
