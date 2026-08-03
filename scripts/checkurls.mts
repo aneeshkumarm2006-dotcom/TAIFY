@@ -16,7 +16,10 @@ function host(u: string) {
   }
 }
 
-for (const t of TOOLS) {
+const only = new Set(process.argv.slice(2));
+const targets = TOOLS.filter((t) => only.size === 0 || only.has(t.slug));
+
+for (const t of targets) {
   const page = await ctx.newPage();
   let final = "";
   try {

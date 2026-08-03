@@ -11,6 +11,14 @@ import {
   BarChart3,
   PenLine,
   Megaphone,
+  Building2,
+  ShoppingBag,
+  TrendingUp,
+  Headphones,
+  Scale,
+  Landmark,
+  UserCheck,
+  Share2,
   Sparkles,
   type LucideIcon,
 } from "lucide-react";
@@ -28,6 +36,14 @@ const MAP: Record<string, LucideIcon> = {
   data: BarChart3,
   writing: PenLine,
   marketing: Megaphone,
+  "real-estate": Building2,
+  ecommerce: ShoppingBag,
+  sales: TrendingUp,
+  support: Headphones,
+  legal: Scale,
+  finance: Landmark,
+  hr: UserCheck,
+  social: Share2,
 };
 
 export function categoryIcon(slug: string): LucideIcon {

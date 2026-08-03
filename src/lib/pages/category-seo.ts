@@ -66,4 +66,44 @@ export const CATEGORY_SEO: Record<string, CategorySeo> = {
     excerpt:
       "Compare AI marketing assistant, SEO assistant, and campaign assistant tools for content marketing, SEO, ads, social media, analytics, and business growth.",
   },
+  "real-estate": {
+    metaTitle: "Best AI Tools for Real Estate Agents | TAIFY",
+    excerpt:
+      "Discover the best AI tools for real estate: virtual staging, AI listing descriptions, interior design, floor plans, and agent assistants. Compare features, pricing, and reviews.",
+  },
+  ecommerce: {
+    metaTitle: "Best AI Tools for E-Commerce & Online Stores | TAIFY",
+    excerpt:
+      "Compare the best AI tools for e-commerce: product photography, store chatbots, upsells, and personalization for Shopify and online stores. Honest pricing and reviews.",
+  },
+  sales: {
+    metaTitle: "Best AI Sales Tools & AI SDRs | TAIFY",
+    excerpt:
+      "Find the best AI sales tools: AI SDRs, prospecting, data enrichment, cold email, and revenue intelligence. Compare sales and CRM AI with real pricing.",
+  },
+  support: {
+    metaTitle: "Best AI Customer Support Tools | TAIFY",
+    excerpt:
+      "Compare the best AI customer support tools: AI support agents, chatbots, and helpdesk automation that resolve tickets. Features, pricing, and reviews.",
+  },
+  legal: {
+    metaTitle: "Best AI Tools for Lawyers & Legal Work | TAIFY",
+    excerpt:
+      "Discover the best legal AI tools for contract review, drafting, and legal research. Compare AI for lawyers and law firms with honest pricing and reviews.",
+  },
+  finance: {
+    metaTitle: "Best AI Tools for Finance & Accounting | TAIFY",
+    excerpt:
+      "The best AI finance and accounting tools: bookkeeping, spend management, financial analysis, and accounts payable automation. Compare pricing and reviews.",
+  },
+  hr: {
+    metaTitle: "Best AI Tools for HR & Recruiting | TAIFY",
+    excerpt:
+      "Compare the best AI recruiting and HR tools: candidate sourcing, screening, interviews, and inclusive job posts. Find the right hiring AI with real pricing.",
+  },
+  social: {
+    metaTitle: "Best AI Social Media Tools | TAIFY",
+    excerpt:
+      "The best AI social media tools for content creation, captions, scheduling, and analytics. Compare AI social media managers and assistants with honest pricing.",
+  },
 };
