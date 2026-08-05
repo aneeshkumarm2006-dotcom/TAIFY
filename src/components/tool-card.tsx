@@ -2,7 +2,6 @@ import Link from "next/link";
 import type { CardTool } from "@/lib/types";
 import { BrandLogo } from "./brand-logo";
 import { PricingBadge, VerifiedBadge } from "./ui/badge";
-import { SaveButton } from "./save-button";
 import { cn } from "@/lib/utils";
 
 export function ToolCard({
@@ -62,7 +61,6 @@ export function ToolCard({
             {tool.costPerMonth === 0 ? "$0" : `~$${tool.costPerMonth}/mo`}
           </b>
         </span>
-        <SaveButton slug={tool.slug} saves={tool.saves} className="ml-auto" />
       </div>
     </Link>
   );

@@ -14,7 +14,7 @@ import { CATEGORIES } from "@/data/tools";
 import type { Pricing, Tool } from "@/lib/types";
 import { BrandLogo } from "@/components/brand-logo";
 import { PricingBadge } from "@/components/ui/badge";
-import { compactNumber, timeAgo, cn } from "@/lib/utils";
+import { timeAgo, cn } from "@/lib/utils";
 
 const PRICINGS: Pricing[] = ["free", "freemium", "trial", "paid"];
 
@@ -110,7 +110,6 @@ export function ToolsAdmin() {
                 <th className="px-4 py-3 text-left">Tool</th>
                 <th className="px-4 py-3 text-left">Category</th>
                 <th className="px-4 py-3 text-left">Pricing</th>
-                <th className="px-4 py-3 text-right">Saves</th>
                 <th className="px-4 py-3 text-left">Verified</th>
                 <th className="px-4 py-3 text-right">Actions</th>
               </tr>
@@ -136,7 +135,6 @@ export function ToolsAdmin() {
                   <td className="px-4 py-3">
                     <PricingBadge pricing={t.pricing} />
                   </td>
-                  <td className="tnum px-4 py-3 text-right">{compactNumber(t.saves)}</td>
                   <td className="mono px-4 py-3 text-[12px] text-ink-soft">
                     {timeAgo(t.verifiedAt)}
                   </td>

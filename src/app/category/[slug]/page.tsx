@@ -58,7 +58,7 @@ export default async function CategoryPage({
   const cat = CATEGORIES.find((c) => c.slug === slug);
   if (!page || !cat) notFound();
 
-  const tools = await filterTools({ category: slug, sort: "most-saved" });
+  const tools = await filterTools({ category: slug, sort: "editors" });
 
   // Tool map for any tool-list blocks.
   const extraSlugs = page.blocks.flatMap((b) => (b.type === "toollist" ? b.slugs : []));

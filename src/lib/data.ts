@@ -15,7 +15,7 @@ export interface ToolFilters {
   verifiedOnly?: boolean;
   hasFreeTier?: boolean;
   query?: string;
-  sort?: "relevance" | "trending" | "newest" | "most-saved";
+  sort?: "relevance" | "trending" | "newest" | "editors";
 }
 
 // ---------- reads ----------
@@ -47,9 +47,9 @@ export async function getTrending(limit = 6): Promise<Tool[]> {
   return [...all].sort((a, b) => score(b) - score(a)).slice(0, limit);
 }
 
-export async function getMostSaved(limit = 6): Promise<Tool[]> {
+export async function getEditorsPicks(limit = 6): Promise<Tool[]> {
   const all = await allTools();
-  return [...all].sort((a, b) => b.saves - a.saves).slice(0, limit);
+  return [...all].sort(byEditorial).slice(0, limit);
 }
 
 export async function getJustLaunched(limit = 6): Promise<Tool[]> {
@@ -92,8 +92,8 @@ export async function filterTools(filters: ToolFilters): Promise<Tool[]> {
     case "newest":
       out.sort((a, b) => b.launched.localeCompare(a.launched));
       break;
-    case "most-saved":
-      out.sort((a, b) => b.saves - a.saves);
+    case "editors":
+      out.sort(byEditorial);
       break;
     case "trending":
       out.sort((a, b) => score(b) - score(a));
@@ -144,7 +144,6 @@ export function toCardTool(t: Tool): CardTool {
     pricing: t.pricing,
     verifiedAt: t.verifiedAt,
     costPerMonth: t.costPerMonth,
-    saves: t.saves,
   };
 }
 
@@ -183,7 +182,18 @@ function daysSince(iso: string): number {
 }
 function score(t: Tool): number {
   const freshness = Math.max(0, 30 - daysSince(t.verifiedAt));
-  return t.saves + freshness * 300;
+  return freshness * 300 + (t.featured ? 1_000 : 0);
+}
+/**
+ * Editorial order: our picks first, then whatever we checked most recently.
+ *
+ * This replaced a `saves` count that was seeded with invented numbers and was
+ * never wired to persist a real save, so it could only ever have been fiction.
+ * Ranking on `featured` + `verifiedAt` uses two fields we actually maintain.
+ */
+function byEditorial(a: Tool, b: Tool): number {
+  if (!!a.featured !== !!b.featured) return a.featured ? -1 : 1;
+  return b.verifiedAt.localeCompare(a.verifiedAt);
 }
 function haystack(t: Tool): string {
   return [t.name, t.tagline, t.description, t.category, ...t.tags]

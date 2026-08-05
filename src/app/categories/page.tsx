@@ -84,7 +84,7 @@ export default async function CategoriesPage() {
         <p className="mt-3 max-w-2xl text-[16px] leading-relaxed text-ink-soft">
           {total} tools in {categories.length} categories, sorted by the job they
           do rather than who makes them. Pick one and you get everything in it,
-          ranked by saves, with real prices and honest watch-outs.
+          our picks first, with real prices and honest watch-outs.
         </p>
       </div>
 

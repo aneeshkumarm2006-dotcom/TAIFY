@@ -12,7 +12,7 @@ const PRICINGS: Pricing[] = ["free", "freemium", "trial", "paid"];
 export async function GET() {
   const col = await toolsCollection();
   if (!col) return NextResponse.json({ tools: TOOLS, dbEnabled: false });
-  const docs = await col.find({}).sort({ saves: -1 }).toArray();
+  const docs = await col.find({}).sort({ featured: -1, verifiedAt: -1 }).toArray();
   return NextResponse.json({ tools: docs.map(docToTool), dbEnabled: true });
 }
 
@@ -61,7 +61,6 @@ export async function POST(req: Request) {
     pricing,
     costPerMonth: Number(body.costPerMonth) || 0,
     listingCost: body.listingCost || "Free · promoted from $49",
-    saves: Number(body.saves) || 0,
     verifiedAt: new Date(),
     launched:
       body.launched ||

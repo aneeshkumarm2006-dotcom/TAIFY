@@ -166,8 +166,8 @@ function scoreTool(tool: Tool, qtokens: string[]): number {
     const ft = new Set(tokens(text));
     for (const qt of qtokens) if (ft.has(qt)) score += weight;
   }
-  // Gentle nudge toward well-loved, free-friendly options on ties.
-  score += Math.min(tool.saves, 1_000_000) / 5_000_000;
+  // Gentle nudge toward our picks and free-friendly options on ties.
+  if (tool.featured) score += 0.2;
   if (tool.costPerMonth === 0) score += 0.25;
   return score;
 }
@@ -178,11 +178,19 @@ function mockMatch(query: string, catalog: Tool[]): MatchResponse {
     .map((t) => ({ t, s: scoreTool(t, qtokens) }))
     .sort((a, b) => b.s - a.s);
 
-  // If nothing matched at all, fall back to the most-saved tools.
+  // If nothing matched at all, fall back to our picks, freshest first.
   const anyMatch = (ranked[0]?.s ?? 0) > 0.5;
   const ordered = anyMatch
     ? ranked
-    : [...catalog].sort((a, b) => b.saves - a.saves).map((t) => ({ t, s: 0 }));
+    : [...catalog]
+        .sort((a, b) =>
+          !!a.featured !== !!b.featured
+            ? a.featured
+              ? -1
+              : 1
+            : b.verifiedAt.localeCompare(a.verifiedAt),
+        )
+        .map((t) => ({ t, s: 0 }));
 
   const top = ordered.slice(0, 3).map(({ t }) => t);
   const picks: Pick[] = top.map((t, i) => ({

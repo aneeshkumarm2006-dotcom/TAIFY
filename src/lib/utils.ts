@@ -6,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-/** Compact number formatting for saves/counts: 14200 -> "14.2k". */
+/** Compact number formatting for counts: 14200 -> "14.2k". */
 export function compactNumber(n: number): string {
   if (n < 1000) return String(n);
   if (n < 1_000_000) return `${(n / 1000).toFixed(n % 1000 === 0 ? 0 : 1)}k`;

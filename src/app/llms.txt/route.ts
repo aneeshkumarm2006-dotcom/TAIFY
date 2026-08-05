@@ -13,7 +13,7 @@ function section(title: string, lines: string[]): string {
 
 export async function GET(): Promise<Response> {
   const [tools, categories, counts, posts] = await Promise.all([
-    filterTools({ sort: "most-saved" }),
+    filterTools({ sort: "editors" }),
     getCategories(),
     categoryCounts(),
     getPublishedPosts(),
@@ -27,7 +27,7 @@ export async function GET(): Promise<Response> {
     "Prices here are what people really pay per month, not the cheapest advertised tier, and every tool page says plainly where the tool falls down. Listings are free. Promoted placement exists and always carries a label.",
     "",
     section("Key pages", [
-      `- [Home](${absoluteUrl("/")}): search the catalog and see trending, newly launched, and most-saved tools.`,
+      `- [Home](${absoluteUrl("/")}): search the catalog and see trending, newly launched, and editor-picked tools.`,
       `- [Browse all tools](${absoluteUrl("/browse")}): the full catalog with filters for category, pricing, free tier, and verification.`,
       `- [Categories](${absoluteUrl("/categories")}): all ${categories.length} task categories.`,
       `- [AI Match](${absoluteUrl("/match")}): describe a task in one sentence, get the three best-fitting tools with reasons.`,

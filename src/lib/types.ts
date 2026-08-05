@@ -26,7 +26,6 @@ export interface Tool {
   costPerMonth: number;
   /** owner-facing: what it costs to be listed/promoted here */
   listingCost: string;
-  saves: number;
   /** ISO date of last automated freshness check */
   verifiedAt: string;
   launched: string; // "2024·03"
@@ -61,7 +60,6 @@ export type CardTool = Pick<
   | "pricing"
   | "verifiedAt"
   | "costPerMonth"
-  | "saves"
 >;
 
 /** Even smaller: what a bare logo tile needs. */

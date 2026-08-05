@@ -31,7 +31,7 @@ const SORTS = {
     titleWord: "Trending",
     blurb: "sorted by momentum this week",
     sentence:
-      "What's picking up speed this week, by saves and how recently things moved. Prices are what you'd really pay, not the headline tier.",
+      "What's moved most recently, by when we last re-checked each listing. Prices are what you'd really pay, not the headline tier.",
   },
   newest: {
     heading: "Just launched AI tools",
@@ -40,12 +40,12 @@ const SORTS = {
     sentence:
       "The latest arrivals in the catalog. New doesn't mean good, so each one still lists what it's bad at and what it costs a month.",
   },
-  "most-saved": {
-    heading: "Most saved AI tools",
-    titleWord: "Most Saved",
-    blurb: "ranked by saves",
+  editors: {
+    heading: "Editor's picks",
+    titleWord: "Editor's Picks",
+    blurb: "our picks first",
     sentence:
-      "Ranked by how many people saved them. Popularity isn't quality, but it's a decent place to start when you don't know the space yet.",
+      "The tools we'd actually recommend in each category, then everything else by how recently we checked it. It's our judgement, not a popularity contest - so every pick still lists what it's bad at.",
   },
 } as const;
 

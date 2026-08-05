@@ -17,7 +17,7 @@ const SORTS = [
   { value: "relevance", label: "Relevance" },
   { value: "trending", label: "Trending" },
   { value: "newest", label: "Newest" },
-  { value: "most-saved", label: "Most saved" },
+  { value: "editors", label: "Editor's picks" },
 ];
 
 export function FilterBar({

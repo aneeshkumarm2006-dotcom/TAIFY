@@ -8,10 +8,9 @@ import { ToolBackLink } from "@/components/tool-back-link";
 import { ToolGallery } from "@/components/tool-gallery";
 import { BrandLogo } from "@/components/brand-logo";
 import { PricingBadge, VerifiedBadge } from "@/components/ui/badge";
-import { SaveButton } from "@/components/save-button";
 import { ButtonLink } from "@/components/ui/button";
 import { ToolGrid } from "@/components/tool-rail";
-import { compactNumber, embedUrl, timeAgo } from "@/lib/utils";
+import { embedUrl, timeAgo } from "@/lib/utils";
 import {
   SITE_NAME,
   SITE_URL,
@@ -231,8 +230,7 @@ export default async function ToolPage({
                 <VerifiedBadge verifiedAt={tool.verifiedAt} />
               </div>
               <div className="mono mt-1 text-[12px] text-ink-soft">
-                {tool.code} · {tool.category} · by {tool.company} ·{" "}
-                {compactNumber(tool.saves)} saves
+                {tool.code} · {tool.category} · by {tool.company}
               </div>
             </div>
           </div>
@@ -394,9 +392,6 @@ export default async function ToolPage({
             >
               Visit site <ArrowUpRight className="h-4 w-4" />
             </ButtonLink>
-            <div className="mt-2 flex items-center justify-center">
-              <SaveButton slug={tool.slug} saves={tool.saves} />
-            </div>
 
             <div className="mt-4 flex flex-col gap-3 border-t border-line pt-4">
               <div className="flex items-center justify-between text-[13px]">

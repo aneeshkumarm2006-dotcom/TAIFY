@@ -58,7 +58,6 @@ export async function POST(
     pricing: "freemium",
     costPerMonth: 0,
     listingCost: "Free · promoted from $49",
-    saves: 0,
     verifiedAt: new Date(),
     launched: `${new Date().getFullYear()}·${String(new Date().getMonth() + 1).padStart(2, "0")}`,
     url: sub.url,

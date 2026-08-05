@@ -10,7 +10,7 @@ import { categoryIcon } from "@/lib/category-icons";
 import {
   getTrending,
   getJustLaunched,
-  getMostSaved,
+  getEditorsPicks,
   getFeatured,
   getCategories,
   countTools,
@@ -43,15 +43,14 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const [trending, justLaunched, mostSaved, featured, categories, total, strip, posts] =
+  const [trending, justLaunched, featured, categories, total, strip, posts] =
     await Promise.all([
       getTrending(4),
       getJustLaunched(4),
-      getMostSaved(4),
       getFeatured(4),
       getCategories(),
       countTools(),
-      getMostSaved(9),
+      getEditorsPicks(9),
       getPublishedPosts(),
     ]);
 
@@ -124,8 +123,7 @@ export default async function HomePage() {
       <div className="flex flex-col gap-16 py-16">
         <ToolRail title="Trending this week" tools={toCardTools(trending)} href="/browse?sort=trending" />
         <ToolRail title="Just launched" tools={toCardTools(justLaunched)} href="/browse?sort=newest" />
-        <ToolRail title="Most saved" tools={toCardTools(mostSaved)} href="/browse?sort=most-saved" />
-        <ToolRail title="Editor's picks" tools={toCardTools(featured)} href="/browse" />
+        <ToolRail title="Editor's picks" tools={toCardTools(featured)} href="/browse?sort=editors" />
 
         {/* Browse by task */}
         <Reveal>

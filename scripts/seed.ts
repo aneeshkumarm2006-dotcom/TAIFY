@@ -7,7 +7,7 @@ import { config } from "dotenv";
 // Next.js keeps secrets in .env.local; load it (then .env as fallback).
 config({ path: ".env.local" });
 config();
-import { MongoClient } from "mongodb";
+import { MongoClient, type Filter, type UpdateFilter } from "mongodb";
 import { TOOLS } from "../src/data/tools";
 import type { Tool } from "../src/lib/types";
 
@@ -41,11 +41,21 @@ async function main() {
 
   const res = await col.bulkWrite(ops);
 
+  // Drop the old `saves` count from documents seeded before it was removed from
+  // the catalog. The cast is needed because `saves` is no longer part of ToolDoc.
+  const unset = await col.updateMany({ saves: { $exists: true } } as Filter<ToolDoc>, {
+    $unset: { saves: "" },
+  } as UpdateFilter<ToolDoc>);
+  if (unset.modifiedCount) console.log(`  cleared saves on ${unset.modifiedCount} tool(s)`);
+
+  // Drop the index that backed the old most-saved sort, if it's still around.
+  await col.dropIndex("saves_-1").catch(() => {});
+
   // Helpful indexes for browse/detail queries.
   await col.createIndex({ slug: 1 }, { unique: true });
   await col.createIndex({ category: 1 });
   await col.createIndex({ pricing: 1 });
-  await col.createIndex({ saves: -1 });
+  await col.createIndex({ featured: -1, verifiedAt: -1 });
 
   console.log(
     `✓ Seeded ${TOOLS.length} tools into "${db.databaseName}.tools" ` +

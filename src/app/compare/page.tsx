@@ -5,7 +5,7 @@ import { TOOLS } from "@/data/tools";
 import type { Tool } from "@/lib/types";
 import { ComparePicker } from "@/components/compare-picker";
 import { PricingBadge } from "@/components/ui/badge";
-import { compactNumber, cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
 import type { Metadata } from "next";
 
@@ -93,8 +93,8 @@ export default async function ComparePage({
           Head-to-head
         </h1>
         <p className="mb-5 max-w-2xl text-[15px] leading-relaxed text-ink-soft">
-          Pick two and they go on the same six rows: pricing, real monthly cost,
-          free tier, biggest strength, last verified, saves. The better cell in
+          Pick two and they go on the same five rows: pricing, real monthly cost,
+          free tier, biggest strength, last verified. The better cell in
           each row gets highlighted. Underneath, a verdict that names one and
           tells you what it would take to justify the other.
         </p>
@@ -241,13 +241,6 @@ function buildRows(a: Tool, b: Tool): Row[] {
       b: b.verifiedAt.slice(5),
       aWins: a.verifiedAt > b.verifiedAt,
       bWins: b.verifiedAt > a.verifiedAt,
-    },
-    {
-      label: "Saves",
-      a: <span className="tnum">{compactNumber(a.saves)}</span>,
-      b: <span className="tnum">{compactNumber(b.saves)}</span>,
-      aWins: a.saves > b.saves,
-      bWins: b.saves > a.saves,
     },
   ];
 }

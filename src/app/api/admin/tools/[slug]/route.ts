@@ -41,7 +41,6 @@ export async function PUT(
   if (Array.isArray(body.cons)) set.cons = body.cons;
   if (body.pricing && PRICINGS.includes(body.pricing)) set.pricing = body.pricing;
   if (body.costPerMonth !== undefined) set.costPerMonth = Number(body.costPerMonth) || 0;
-  if (body.saves !== undefined) set.saves = Number(body.saves) || 0;
   if (body.featured !== undefined) set.featured = Boolean(body.featured);
 
   const res = await col.updateOne({ slug }, { $set: set });
