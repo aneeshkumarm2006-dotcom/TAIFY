@@ -19,6 +19,7 @@ import {
   Landmark,
   UserCheck,
   Share2,
+  Shirt,
   Sparkles,
   type LucideIcon,
 } from "lucide-react";
@@ -38,6 +39,7 @@ const MAP: Record<string, LucideIcon> = {
   marketing: Megaphone,
   "real-estate": Building2,
   ecommerce: ShoppingBag,
+  fashion: Shirt,
   sales: TrendingUp,
   support: Headphones,
   legal: Scale,

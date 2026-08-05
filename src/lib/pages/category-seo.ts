@@ -76,6 +76,11 @@ export const CATEGORY_SEO: Record<string, CategorySeo> = {
     excerpt:
       "Compare the best AI tools for e-commerce: product photography, store chatbots, upsells, and personalization for Shopify and online stores. Honest pricing and reviews.",
   },
+  fashion: {
+    metaTitle: "Best AI Tools for Fashion & Apparel Brands | TAIFY",
+    excerpt:
+      "Compare the best AI tools for fashion: on-model product photography, virtual try-on, 3D garment design, print generation, trend forecasting, and AI stylists. Honest pricing and reviews.",
+  },
   sales: {
     metaTitle: "Best AI Sales Tools & AI SDRs | TAIFY",
     excerpt:
