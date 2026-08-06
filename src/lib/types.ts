@@ -1,5 +1,17 @@
 export type Pricing = "free" | "freemium" | "trial" | "paid";
 
+/**
+ * How much of the product is actually AI.
+ *
+ * `native`  - the tool doesn't exist without AI (Midjourney, ElevenLabs, Granola).
+ * `feature` - established software that added AI later and is fully usable
+ *             without it (Figma, Zapier, Power BI, Yardi).
+ *
+ * Listing both is deliberate: people search for "Figma AI". Labelling which is
+ * which is the honest way to do it, and lets /browse filter to AI-native only.
+ */
+export type AiDepth = "native" | "feature";
+
 export interface Tool {
   /** slug - URL id, e.g. "rewrite-studio" */
   slug: string;
@@ -22,6 +34,8 @@ export interface Tool {
   category: string;
   tags: string[];
   pricing: Pricing;
+  /** whether AI is the product or a feature bolted onto it */
+  aiDepth: AiDepth;
   /** real "~$/mo to actually use" - 0 means free */
   costPerMonth: number;
   /** owner-facing: what it costs to be listed/promoted here */
@@ -58,6 +72,7 @@ export type CardTool = Pick<
   | "category"
   | "tagline"
   | "pricing"
+  | "aiDepth"
   | "verifiedAt"
   | "costPerMonth"
 >;

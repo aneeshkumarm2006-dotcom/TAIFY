@@ -14,6 +14,8 @@ export interface ToolFilters {
   pricing?: Pricing[];
   verifiedOnly?: boolean;
   hasFreeTier?: boolean;
+  /** only tools where AI is the product, not a bolted-on feature */
+  nativeOnly?: boolean;
   query?: string;
   sort?: "relevance" | "trending" | "newest" | "editors";
 }
@@ -84,6 +86,7 @@ export async function filterTools(filters: ToolFilters): Promise<Tool[]> {
     out = out.filter((t) => t.pricing === "free" || t.pricing === "freemium");
   if (filters.verifiedOnly)
     out = out.filter((t) => daysSince(t.verifiedAt) <= 7);
+  if (filters.nativeOnly) out = out.filter((t) => t.aiDepth !== "feature");
 
   const q = filters.query?.trim().toLowerCase();
   if (q) out = out.filter((t) => keywordMatch(t, q));
@@ -144,6 +147,7 @@ export function toCardTool(t: Tool): CardTool {
     pricing: t.pricing,
     verifiedAt: t.verifiedAt,
     costPerMonth: t.costPerMonth,
+    aiDepth: t.aiDepth,
   };
 }
 

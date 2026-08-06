@@ -7,7 +7,7 @@ import { TOOLS, CATEGORIES } from "@/data/tools";
 import { ToolBackLink } from "@/components/tool-back-link";
 import { ToolGallery } from "@/components/tool-gallery";
 import { BrandLogo } from "@/components/brand-logo";
-import { PricingBadge, VerifiedBadge } from "@/components/ui/badge";
+import { AiDepthBadge, PricingBadge, VerifiedBadge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
 import { ToolGrid } from "@/components/tool-rail";
 import { embedUrl, timeAgo } from "@/lib/utils";
@@ -228,6 +228,7 @@ export default async function ToolPage({
                   {tool.name}
                 </h1>
                 <VerifiedBadge verifiedAt={tool.verifiedAt} />
+                <AiDepthBadge aiDepth={tool.aiDepth} />
               </div>
               <div className="mono mt-1 text-[12px] text-ink-soft">
                 {tool.code} · {tool.category} · by {tool.company}
@@ -398,6 +399,13 @@ export default async function ToolPage({
                 <span className="mono text-[12px] text-ink-soft">Last verified</span>
                 <span className="font-medium text-verified">{timeAgo(tool.verifiedAt)}</span>
               </div>
+              {tool.aiDepth === "feature" && (
+                <p className="text-[12.5px] leading-relaxed text-ink-soft">
+                  {tool.name} isn&apos;t an AI-first product. It was a working{" "}
+                  {categoryName.toLowerCase()} tool before AI, and the AI is a
+                  layer on top - useful, but not the reason the product exists.
+                </p>
+              )}
               {tool.tags.length > 0 && (
                 <div>
                   <div className="mono mb-2 text-[12px] text-ink-soft">Tags</div>

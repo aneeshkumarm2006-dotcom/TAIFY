@@ -56,6 +56,7 @@ export async function POST(
     category,
     tags: [],
     pricing: "freemium",
+    aiDepth: "native",
     costPerMonth: 0,
     listingCost: "Free · promoted from $49",
     verifiedAt: new Date(),

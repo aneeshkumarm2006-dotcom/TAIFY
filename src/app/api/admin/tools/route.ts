@@ -59,6 +59,7 @@ export async function POST(req: Request) {
     category: body.category?.trim() || "productivity",
     tags: Array.isArray(body.tags) ? body.tags : [],
     pricing,
+    aiDepth: body.aiDepth === "feature" ? ("feature" as const) : ("native" as const),
     costPerMonth: Number(body.costPerMonth) || 0,
     listingCost: body.listingCost || "Free · promoted from $49",
     verifiedAt: new Date(),

@@ -90,5 +90,11 @@ export function docToTool(doc: WithId<ToolDoc> | ToolDoc): Tool {
   const { _id, embedding, verifiedAt, ...rest } = doc as WithId<ToolDoc>;
   void _id;
   void embedding;
-  return { ...rest, verifiedAt: new Date(verifiedAt).toISOString() };
+  return {
+    ...rest,
+    // Documents seeded before aiDepth existed have no value; treat them as
+    // AI-native so the badge stays the labelled exception, never a false one.
+    aiDepth: rest.aiDepth ?? "native",
+    verifiedAt: new Date(verifiedAt).toISOString(),
+  };
 }

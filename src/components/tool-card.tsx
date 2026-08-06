@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { CardTool } from "@/lib/types";
 import { BrandLogo } from "./brand-logo";
-import { PricingBadge, VerifiedBadge } from "./ui/badge";
+import { AiDepthBadge, PricingBadge, VerifiedBadge } from "./ui/badge";
 import { cn } from "@/lib/utils";
 
 export function ToolCard({
@@ -52,6 +52,7 @@ export function ToolCard({
       <div className="mt-auto flex flex-wrap items-center gap-2 pt-1">
         <PricingBadge pricing={tool.pricing} />
         <VerifiedBadge verifiedAt={tool.verifiedAt} />
+        <AiDepthBadge aiDepth={tool.aiDepth} />
       </div>
 
       <div className="flex items-center gap-2">

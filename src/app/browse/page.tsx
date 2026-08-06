@@ -64,6 +64,7 @@ function readParams(sp: SP) {
     pricing,
     verifiedOnly: sp.verified === "1",
     hasFreeTier: sp.free === "1",
+    nativeOnly: sp.native === "1",
   };
 }
 
@@ -109,10 +110,11 @@ export default async function BrowsePage({
   searchParams: Promise<SP>;
 }) {
   const sp = await searchParams;
-  const { category, sort, pricing, verifiedOnly, hasFreeTier } = readParams(sp);
+  const { category, sort, pricing, verifiedOnly, hasFreeTier, nativeOnly } =
+    readParams(sp);
 
   const [tools, categories, counts, activeCat, total] = await Promise.all([
-    filterTools({ category, pricing, verifiedOnly, hasFreeTier, sort }),
+    filterTools({ category, pricing, verifiedOnly, hasFreeTier, nativeOnly, sort }),
     getCategories(),
     categoryCounts(),
     category ? getCategory(category) : Promise.resolve(undefined),

@@ -1,7 +1,7 @@
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { timeAgo } from "@/lib/utils";
-import type { Pricing } from "@/lib/types";
+import type { AiDepth, Pricing } from "@/lib/types";
 
 const PRICING_LABEL: Record<Pricing, string> = {
   free: "FREE",
@@ -32,6 +32,34 @@ export function PricingBadge({
       )}
     >
       {PRICING_LABEL[pricing]}
+    </span>
+  );
+}
+
+/**
+ * Says whether AI is the whole product or a feature on top of it.
+ *
+ * Only rendered for `feature` — a badge on all 191 tools would be noise, and
+ * "AI-native" is the unmarked default a visitor already assumes on an AI
+ * directory. The label is the exception, so it carries information.
+ */
+export function AiDepthBadge({
+  aiDepth,
+  className,
+}: {
+  aiDepth: AiDepth;
+  className?: string;
+}) {
+  if (aiDepth === "native") return null;
+  return (
+    <span
+      className={cn(
+        "mono inline-flex items-center rounded-[7px] border border-line-strong px-2 py-[3px] text-[11px] font-semibold text-ink-soft",
+        className,
+      )}
+      title="Established software with AI features added - not an AI-first product"
+    >
+      AI FEATURE
     </span>
   );
 }

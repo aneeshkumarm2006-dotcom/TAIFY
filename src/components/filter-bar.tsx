@@ -38,6 +38,7 @@ export function FilterBar({
   const activeSort = params.get("sort") ?? "relevance";
   const verifiedOnly = params.get("verified") === "1";
   const hasFree = params.get("free") === "1";
+  const nativeOnly = params.get("native") === "1";
 
   const update = useCallback(
     (mutate: (p: URLSearchParams) => void) => {
@@ -93,6 +94,7 @@ export function FilterBar({
 
         <Pill label="Verified" active={verifiedOnly} onClick={() => update((p) => (verifiedOnly ? p.delete("verified") : p.set("verified", "1")))} />
         <Pill label="Free tier" active={hasFree} onClick={() => update((p) => (hasFree ? p.delete("free") : p.set("free", "1")))} />
+        <Pill label="AI-native" active={nativeOnly} onClick={() => update((p) => (nativeOnly ? p.delete("native") : p.set("native", "1")))} />
       </div>
     </div>
   );

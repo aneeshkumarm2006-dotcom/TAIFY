@@ -40,6 +40,7 @@ export async function PUT(
   if (Array.isArray(body.pros)) set.pros = body.pros;
   if (Array.isArray(body.cons)) set.cons = body.cons;
   if (body.pricing && PRICINGS.includes(body.pricing)) set.pricing = body.pricing;
+  if (body.aiDepth === "native" || body.aiDepth === "feature") set.aiDepth = body.aiDepth;
   if (body.costPerMonth !== undefined) set.costPerMonth = Number(body.costPerMonth) || 0;
   if (body.featured !== undefined) set.featured = Boolean(body.featured);
 
