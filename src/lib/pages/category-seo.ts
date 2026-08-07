@@ -15,56 +15,54 @@ export interface CategorySeo {
 
 export const CATEGORY_SEO: Record<string, CategorySeo> = {
   writing: {
-    metaTitle: "AI Introduction Generator | AI Dialogue Generator | TAIFY",
+    metaTitle: "AI Dialogue Generator | TAIFY",
     excerpt:
-      "Explore the best AI introduction generator and AI dialogue generator tools for writing essays, blogs, stories, scripts, emails, and more. Compare features, pricing, and reviews.",
+      "Discover AI dialogue generators, AI introduction generators, AI paragraph expanders, and AI two person conversation generators. Compare verified AI writing tools on TAIFY.",
   },
   chatbot: {
     metaTitle: "Best Personal AI Assistant | TAIFY",
     excerpt:
-      "Discover the best personal AI assistant tools for writing, coding, research, productivity, and everyday conversations. Compare features, pricing, and reviews.",
+      "Compare the best personal AI assistant, best AI executive assistant, AI office assistant, and best AI phone assistants 2026 with verified features and pricing.",
   },
   coding: {
-    metaTitle: "Best AI Code Editor | TAIFY",
+    metaTitle: "AI Coding Assistant | TAIFY",
     excerpt:
-      "Compare the best AI code editor tools for developers. Discover coding assistants that help you write, debug, refactor, and generate code faster with AI.",
+      "Compare AI Coding Assistant tools and the best AI code editors for developers. Find AI coding tools for faster coding, debugging, and code generation.",
   },
   video: {
     metaTitle: "AI Video Workflow | TAIFY",
     excerpt:
-      "Explore AI video workflow tools to create, edit, subtitle, repurpose, and automate video production. Compare the best AI video tools in one place.",
+      "Explore AI video workflow tools, AI video production full workflow solutions, and AI script writing to video workflow tools for faster content creation.",
   },
   research: {
-    metaTitle:
-      "Knowledge, Scientific & Academic Assistant | TAIFY",
+    metaTitle: "AI Knowledge Assistant | TAIFY",
     excerpt:
-      "Compare the best knowledge assistant, scientific assistant, and academic assistant AI tools for research, literature reviews, citations, papers, and fact-based answers.",
+      "Compare AI knowledge assistant tools for research, document search, summarization, note-taking, and knowledge management with verified features.",
   },
   design: {
-    metaTitle: "Design Assistant | Creative Assistant | TAIFY",
+    metaTitle: "Best AI Interior Design App | TAIFY",
     excerpt:
-      "Discover the best design assistant and creative assistant AI tools for presentations, graphics, UI design, websites, branding, and visual content creation.",
+      "Compare the best AI interior design app, AI room design free without login tools, home visualizer AI, and AI bedroom design tools in one place.",
   },
   education: {
-    metaTitle: "Learning Assistant & Academic Helper AI | TAIFY",
+    metaTitle: "Best AI for School | TAIFY",
     excerpt:
-      "Explore AI learning assistant, academic helper, and learning helper tools for studying, homework, tutoring, flashcards, math, and exam preparation.",
+      "Discover the best AI for school, best AI for college students, AI study guide maker, and AI learning assistant tools for studying and homework.",
   },
   productivity: {
-    metaTitle:
-      "Workplace, Office & Business Assistant AI | TAIFY",
+    metaTitle: "Best AI for Business | TAIFY",
     excerpt:
-      "Compare AI workplace assistant, office assistant, and business assistant tools to automate meetings, notes, scheduling, workflows, and everyday productivity.",
+      "Compare the best AI for business, best AI tools for small business, top AI tools for business, and AI tools for product managers on TAIFY.",
   },
   data: {
-    metaTitle: "Data Analyst Assistant | Data Assistant | TAIFY",
+    metaTitle: "Best AI for Data Analysis | TAIFY",
     excerpt:
-      "Find the best data analyst assistant and data assistant AI tools for data analysis, spreadsheets, dashboards, reporting, charts, and business insights.",
+      "Compare the best AI for data analysis, AI analyst tools, AI tools for automating Python data analysis, and AI for analyzing data insights on TAIFY.",
   },
   marketing: {
-    metaTitle: "Marketing, SEO & Campaign Assistant AI | TAIFY",
+    metaTitle: "Best AI Marketing Tools | TAIFY",
     excerpt:
-      "Compare AI marketing assistant, SEO assistant, and campaign assistant tools for content marketing, SEO, ads, social media, analytics, and business growth.",
+      "Discover the best AI marketing tools, free AI tools for marketing, best AI marketing tools 2026, AI marketing assistants, and AI ad optimization software.",
   },
   "real-estate": {
     metaTitle: "Best AI Tools for Real Estate Agents | TAIFY",

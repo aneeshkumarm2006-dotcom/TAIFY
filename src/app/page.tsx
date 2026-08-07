@@ -23,9 +23,9 @@ import { absoluteUrl, SITE_NAME, SITE_URL } from "@/lib/site";
 // Rebuild in the background every 5 min so tool/logo changes appear without a redeploy.
 export const revalidate = 300;
 
-const TITLE = "Best AI Tools Like ChatGPT | Submit AI Tool | TAIFY";
+const TITLE = "Best AI Tools Like ChatGPT | TAIFY";
 const DESCRIPTION =
-  "Discover the best AI tools like ChatGPT across every category. Compare top AI tools, find the right solution for your needs, and submit AI tool listings to reach more users.";
+  "Discover the best AI tools like ChatGPT, AI apps like ChatGPT, and the best all-in-one AI platform. Compare 190+ AI tools and submit your AI tool for free on TAIFY.";
 
 // Overrides the generic title/description set on the root layout.
 export const metadata: Metadata = {
