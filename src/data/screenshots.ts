@@ -184,4 +184,16 @@ export const SCREENSHOTS: Record<string, string> = {
   "scite": "/shots/scite.jpg",
   "connected-papers": "/shots/connected-papers.jpg",
   "kling": "/shots/kling.jpg",
+  "clio-duo": "/shots/clio-duo.jpg",
+  "vlex-vincent": "/shots/vlex-vincent.jpg",
+  "lexis-protege": "/shots/lexis-protege.jpg",
+  "alexi": "/shots/alexi.jpg",
+  "paxton-ai": "/shots/paxton-ai.jpg",
+  "luminance": "/shots/luminance.jpg",
+  "legalon": "/shots/legalon.jpg",
+  "definely": "/shots/definely.jpg",
+  "everlaw": "/shots/everlaw.jpg",
+  "evenup": "/shots/evenup.jpg",
+  "supio": "/shots/supio.jpg",
+  "blue-j": "/shots/blue-j.jpg"
 };
