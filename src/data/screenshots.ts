@@ -195,5 +195,20 @@ export const SCREENSHOTS: Record<string, string> = {
   "everlaw": "/shots/everlaw.jpg",
   "evenup": "/shots/evenup.jpg",
   "supio": "/shots/supio.jpg",
-  "blue-j": "/shots/blue-j.jpg"
+  "blue-j": "/shots/blue-j.jpg",
+  "abridge": "/shots/abridge.jpg",
+  "dragon-copilot": "/shots/dragon-copilot.jpg",
+  "nabla": "/shots/nabla.jpg",
+  "ambience": "/shots/ambience.jpg",
+  "freed": "/shots/freed.jpg",
+  "heidi-health": "/shots/heidi-health.jpg",
+  "openevidence": "/shots/openevidence.jpg",
+  "uptodate": "/shots/uptodate.jpg",
+  "glass-health": "/shots/glass-health.jpg",
+  "aidoc": "/shots/aidoc.jpg",
+  "viz-ai": "/shots/viz-ai.jpg",
+  "qure-ai": "/shots/qure-ai.jpg",
+  "annalise-ai": "/shots/annalise-ai.jpg",
+  "hippocratic-ai": "/shots/hippocratic-ai.jpg",
+  "suki": "/shots/suki.jpg"
 };

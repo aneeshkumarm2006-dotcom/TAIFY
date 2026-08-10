@@ -21,6 +21,7 @@ import {
   Share2,
   Shirt,
   Sparkles,
+  Stethoscope,
   type LucideIcon,
 } from "lucide-react";
 
@@ -40,6 +41,7 @@ const MAP: Record<string, LucideIcon> = {
   "real-estate": Building2,
   ecommerce: ShoppingBag,
   fashion: Shirt,
+  health: Stethoscope,
   sales: TrendingUp,
   support: Headphones,
   legal: Scale,

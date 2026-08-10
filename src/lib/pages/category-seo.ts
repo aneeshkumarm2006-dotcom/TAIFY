@@ -79,6 +79,11 @@ export const CATEGORY_SEO: Record<string, CategorySeo> = {
     excerpt:
       "Compare the best AI tools for fashion: on-model product photography, virtual try-on, 3D garment design, print generation, trend forecasting, and AI stylists. Honest pricing and reviews.",
   },
+  health: {
+    metaTitle: "Best AI Tools for Doctors & Clinicians | TAIFY",
+    excerpt:
+      "Compare the best AI tools for doctors: ambient medical scribes, clinical decision support, and FDA-cleared imaging AI. Real pricing, honest watch-outs, and what each tool can't do.",
+  },
   sales: {
     metaTitle: "Best AI Sales Tools & AI SDRs | TAIFY",
     excerpt:
