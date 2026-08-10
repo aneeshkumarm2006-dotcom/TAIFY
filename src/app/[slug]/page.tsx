@@ -7,6 +7,8 @@ import { Blocks } from "@/components/pages/block-render";
 import { absoluteUrl, metaDescription, SITE_NAME, withBrand } from "@/lib/site";
 import type { Tool } from "@/lib/types";
 import { RESERVED } from "@/lib/pages/reserved";
+import { roleByPageSlug } from "@/data/roles";
+import { RolePageView, roleMetadata } from "./role-page";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +18,11 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
+  // Profession pages (/ai-for-doctors and friends) are code, not admin content,
+  // so they resolve before the database lookup. Their slugs are also in RESERVED,
+  // which is what stops an admin page ever shadowing one.
+  const role = roleByPageSlug(slug);
+  if (role) return roleMetadata(role);
   if (RESERVED.has(slug)) return {};
   const page = await getCustomPage(slug);
   if (!page) {
@@ -39,6 +46,8 @@ export default async function CustomPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+  const role = roleByPageSlug(slug);
+  if (role) return <RolePageView role={role} />;
   if (RESERVED.has(slug)) notFound();
   const page = await getCustomPage(slug);
   if (!page) notFound();

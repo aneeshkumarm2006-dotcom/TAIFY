@@ -1,5 +1,6 @@
 import type { Page } from "./types";
 import type { Tool } from "@/lib/types";
+import { absoluteUrl } from "@/lib/site";
 
 const strip = (s: string) => s.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
 
@@ -72,8 +73,11 @@ export function buildPageSchema({
     });
   }
 
-  // CollectionPage + ItemList for category pages listing tools
-  if (page.type === "category" && tools && tools.length) {
+  // CollectionPage + ItemList for any page that lists tools — category pages and
+  // the profession pages under /ai-for-*. Keyed off `tools` rather than
+  // page.type: passing a tool list is what makes a page a collection, and roles
+  // are stored as type "custom".
+  if (tools?.length) {
     out.push({
       "@context": "https://schema.org",
       "@type": "CollectionPage",
@@ -85,7 +89,10 @@ export function buildPageSchema({
         itemListElement: tools.slice(0, 20).map((t, i) => ({
           "@type": "ListItem",
           position: i + 1,
-          url: `${url.split("/category/")[0]}/tool/${t.slug}`,
+          // Built from SITE_URL, not by splitting `url` on "/category/" — that
+          // only worked for category pages and silently produced
+          // /ai-for-doctors/tool/<slug> for anything else.
+          url: absoluteUrl(`/tool/${t.slug}`),
           name: t.name,
         })),
       },

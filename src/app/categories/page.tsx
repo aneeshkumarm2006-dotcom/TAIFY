@@ -3,14 +3,16 @@ import type { Metadata } from "next";
 import { ArrowRight } from "lucide-react";
 import { getCategories, categoryCounts } from "@/lib/data";
 import { categoryIcon } from "@/lib/category-icons";
+import { roleIcon } from "@/lib/role-icons";
+import { ROLES, rolePath, rolePickSlugs } from "@/data/roles";
 import { Reveal } from "@/components/motion/reveal";
 import { SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
 
 export const revalidate = 300;
 
-const TITLE = `Browse AI Tools by Category · ${SITE_NAME}`;
+const TITLE = `Browse AI Tools by Category & Profession · ${SITE_NAME}`;
 const DESCRIPTION =
-  "Browse the best AI tools by category: coding, image, video, research, study and more. Verified daily, priced honestly.";
+  "Browse the best AI tools by category — coding, image, video, research, study — or by profession, from doctors and lawyers to teachers and accountants.";
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -55,6 +57,18 @@ export default async function CategoriesPage() {
     },
     {
       "@context": "https://schema.org",
+      "@type": "ItemList",
+      name: "AI tools by profession",
+      numberOfItems: ROLES.length,
+      itemListElement: ROLES.map((r, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        name: `AI for ${r.lower}`,
+        url: absoluteUrl(rolePath(r)),
+      })),
+    },
+    {
+      "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       itemListElement: [
         { "@type": "ListItem", position: 1, name: "Home", item: absoluteUrl("/") },
@@ -84,7 +98,14 @@ export default async function CategoriesPage() {
         <p className="mt-3 max-w-2xl text-[16px] leading-relaxed text-ink-soft">
           {total} tools in {categories.length} categories, sorted by the job they
           do rather than who makes them. Pick one and you get everything in it,
-          our picks first, with real prices and honest watch-outs.
+          our picks first, with real prices and honest watch-outs. Or jump to{" "}
+          <Link
+            href="#professions"
+            className="text-accent underline-offset-2 hover:underline"
+          >
+            AI by profession
+          </Link>{" "}
+          if you would rather browse by job title.
         </p>
       </div>
 
@@ -114,6 +135,48 @@ export default async function CategoriesPage() {
           );
         })}
       </div>
+
+      <section id="professions" className="mt-16 scroll-mt-24 border-t border-line pt-10">
+        <div className="eyebrow mb-2">By job title</div>
+        <h2 className="text-[clamp(24px,3.5vw,32px)] font-extrabold tracking-[-0.03em]">
+          Browse AI tools by profession
+        </h2>
+        <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-ink-soft">
+          Categories answer what a tool does. These answer what to use if you
+          are a doctor, a lawyer or a teacher — hand-picked across categories,
+          with a line on why each one suits the work, and a straight note on
+          what is not safe to put into it.
+        </p>
+
+        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {ROLES.map((r, i) => {
+            const Icon = roleIcon(r.slug);
+            return (
+              <Reveal key={r.slug} delay={Math.min(i * 0.04, 0.3)}>
+                <Link
+                  href={rolePath(r)}
+                  className="group flex h-full items-start gap-4 rounded-card border border-line bg-card p-5 transition-all duration-200 hover:-translate-y-1 hover:border-accent hover:shadow-card-lg"
+                >
+                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-[12px] bg-accent-wash text-accent-ink transition-colors group-hover:bg-accent group-hover:text-white">
+                    <Icon className="h-5 w-5" />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[16px] font-bold">
+                        AI for {r.lower}
+                      </span>
+                      <ArrowRight className="h-4 w-4 shrink-0 text-ink-soft transition-transform group-hover:translate-x-0.5 group-hover:text-accent" />
+                    </div>
+                    <div className="mono mt-0.5 text-[12px] text-ink-soft">
+                      {rolePickSlugs(r).length} picks
+                    </div>
+                  </div>
+                </Link>
+              </Reveal>
+            );
+          })}
+        </div>
+      </section>
 
       <section className="mt-16 max-w-3xl border-t border-line pt-10">
         <h2 className="text-[20px] font-bold tracking-[-0.02em]">

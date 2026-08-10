@@ -3,6 +3,7 @@ import { SITE_URL } from "@/lib/site";
 import { getPublishedPosts } from "@/lib/blog/data";
 import { getPublishedCustomSlugs } from "@/lib/pages/data";
 import { filterTools, getCategories } from "@/lib/data";
+import { ROLE_PAGE_SLUGS } from "@/data/roles";
 
 export const dynamic = "force-dynamic";
 
@@ -44,6 +45,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
+  // Profession pages. Static content, but high-intent landing pages, so they
+  // carry the same priority as categories rather than the custom-page default.
+  const roleRoutes: MetadataRoute.Sitemap = ROLE_PAGE_SLUGS.map((s) => ({
+    url: `${SITE_URL}/${s}`,
+    lastModified: now,
+    changeFrequency: "weekly",
+    priority: 0.7,
+  }));
+
   const customRoutes: MetadataRoute.Sitemap = customSlugs.map((s) => ({
     url: `${SITE_URL}/${s}`,
     changeFrequency: "weekly",
@@ -57,5 +67,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  return [...staticRoutes, ...toolRoutes, ...categoryRoutes, ...customRoutes, ...postRoutes];
+  return [
+    ...staticRoutes,
+    ...toolRoutes,
+    ...categoryRoutes,
+    ...roleRoutes,
+    ...customRoutes,
+    ...postRoutes,
+  ];
 }

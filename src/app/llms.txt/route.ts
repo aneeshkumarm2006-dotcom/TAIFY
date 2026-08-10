@@ -1,6 +1,7 @@
 import { SITE_NAME, SITE_TAGLINE, SITE_DESCRIPTION, SITE_URL, absoluteUrl } from "@/lib/site";
 import { filterTools, getCategories, categoryCounts } from "@/lib/data";
 import { getPublishedPosts } from "@/lib/blog/data";
+import { ROLES, rolePath, rolePickSlugs } from "@/data/roles";
 
 // /llms.txt — the llmstxt.org convention. Generated from the live catalog so it
 // never drifts from the site. The Semrush audit (2026-08-01) flagged this as
@@ -29,7 +30,7 @@ export async function GET(): Promise<Response> {
     section("Key pages", [
       `- [Home](${absoluteUrl("/")}): search the catalog and see trending, newly launched, and editor-picked tools.`,
       `- [Browse all tools](${absoluteUrl("/browse")}): the full catalog with filters for category, pricing, free tier, and verification.`,
-      `- [Categories](${absoluteUrl("/categories")}): all ${categories.length} task categories.`,
+      `- [Categories](${absoluteUrl("/categories")}): all ${categories.length} task categories, plus ${ROLES.length} pages of picks by profession.`,
       `- [AI Match](${absoluteUrl("/match")}): describe a task in one sentence, get the three best-fitting tools with reasons.`,
       `- [Compare](${absoluteUrl("/compare")}): any two tools side by side, with a verdict that names one.`,
       `- [Blog](${absoluteUrl("/blog")}): guides and comparisons on choosing AI tools.`,
@@ -40,6 +41,13 @@ export async function GET(): Promise<Response> {
       categories.map(
         (c) =>
           `- [${c.name}](${absoluteUrl(`/category/${c.slug}`)}): best ${c.name.toLowerCase()} AI tools (${counts[c.slug] ?? 0} listed).`,
+      ),
+    ),
+    section(
+      "By profession",
+      ROLES.map(
+        (r) =>
+          `- [AI for ${r.lower}](${absoluteUrl(rolePath(r))}): ${rolePickSlugs(r).length} hand-picked tools for ${r.lower}, with why each suits the work and what it is not safe for. ${r.excerpt}`,
       ),
     ),
     section(

@@ -34,6 +34,16 @@ export function SiteFooter() {
               ]}
             />
             <FooterCol
+              title="By profession"
+              links={[
+                ["AI for doctors", "/ai-for-doctors"],
+                ["AI for lawyers", "/ai-for-lawyers"],
+                ["AI for teachers", "/ai-for-teachers"],
+                ["AI for accountants", "/ai-for-accountants"],
+                ["All professions", "/categories#professions"],
+              ]}
+            />
+            <FooterCol
               title="For makers"
               links={[
                 ["Submit a tool", "/submit"],
