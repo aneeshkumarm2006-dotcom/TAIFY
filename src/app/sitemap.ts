@@ -10,8 +10,14 @@ export const dynamic = "force-dynamic";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
+  // "/" not "": Next writes sitemap <loc> values verbatim, and Semrush string-
+  // matches them against crawled URLs without normalising an empty path to "/".
+  // Every internal link to the homepage is href="/", which resolves to
+  // ".../"— so a bare-origin loc matched nothing, and the same one string was
+  // reported twice: once as "orphaned sitemap pages", once as the homepage's
+  // "In sitemap = 0".
   const staticRoutes: MetadataRoute.Sitemap = [
-    "",
+    "/",
     "/browse",
     "/categories",
     "/match",
@@ -22,7 +28,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url: `${SITE_URL}${p}`,
     lastModified: now,
     changeFrequency: "daily",
-    priority: p === "" ? 1 : 0.7,
+    priority: p === "/" ? 1 : 0.7,
   }));
 
   const [tools, categories, posts, customSlugs] = await Promise.all([

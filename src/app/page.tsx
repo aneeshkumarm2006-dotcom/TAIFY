@@ -55,6 +55,10 @@ export default async function HomePage() {
     ]);
 
   const latestPosts = posts.slice(0, 3);
+  // One array, passed by reference to both FloatingLogos and LogoStrip. React
+  // Flight dedupes by object identity, so calling toLogoTools(strip) at each
+  // call site serialised the same nine tools into the RSC payload twice.
+  const logoTools = toLogoTools(strip);
 
   const schema = {
     "@context": "https://schema.org",
@@ -86,7 +90,7 @@ export default async function HomePage() {
       />
       {/* Hero */}
       <section className="relative overflow-hidden border-b border-line py-16 text-center sm:py-24">
-        <FloatingLogos tools={toLogoTools(strip)} />
+        <FloatingLogos tools={logoTools} />
         <div className="relative">
         <div className="eyebrow mb-5">The front door · discover AI tools</div>
         <AnimatedHeadline />
@@ -114,7 +118,7 @@ export default async function HomePage() {
         </HeroStagger>
 
         <div className="mt-12">
-          <LogoStrip tools={toLogoTools(strip)} />
+          <LogoStrip tools={logoTools} />
         </div>
         </div>
       </section>

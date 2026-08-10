@@ -54,20 +54,14 @@ export function SiteFooter() {
         </div>
         <div className="mono mt-10 flex flex-col gap-2 border-t border-line pt-6 text-[11px] text-ink-soft sm:flex-row sm:items-center sm:justify-between">
           <span>© {new Date().getFullYear()} TAIFY · a field guide to AI</span>
-          <span className="flex items-center gap-3">
-            {/* nofollow: /login is Disallowed in robots.txt, so a followed
-                site-wide link just burns crawl budget on a page crawlers are
-                told not to fetch (Semrush: "blocked from crawling"). */}
-            <Link
-              href="/login"
-              rel="nofollow"
-              className="transition-colors hover:text-accent"
-            >
-              Team login
-            </Link>
-            <span>·</span>
-            <span>Built with Next.js · MongoDB · Claude</span>
-          </span>
+          {/* Deliberately no /login link. It is Disallowed in robots.txt, so a
+              followed link trips Semrush's "blocked from crawling" while a
+              rel="nofollow" one trips "nofollow attributes in internal links" —
+              and because this footer renders on every route, that second one
+              fired on all 456 crawled pages. There is no safe way to link it.
+              The team reaches /login via src/proxy.ts, which redirects any
+              unauthenticated /admin or /seoteam request to /login?next=<dest>. */}
+          <span>Built with Next.js · MongoDB · Claude</span>
         </div>
       </div>
     </footer>

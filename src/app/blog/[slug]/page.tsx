@@ -106,10 +106,20 @@ export default async function PostPage({
   ) as Tool[];
 
   // Other posts, so each article carries more than the single inbound link from
-  // /blog — Semrush flagged all four posts as having only one internal link.
-  const morePosts = (await getPublishedPosts())
-    .filter((p) => p.slug !== post.slug)
-    .slice(0, 3);
+  // /blog. Ring rotation, not a top-of-list slice: post i links to i+1, i+2,
+  // i+3, wrapping around. Because the offsets are constant, every post both
+  // emits and *receives* three links.
+  //
+  // The previous `.slice(0, 3)` pointed all 19 posts at the same three newest
+  // ones, so 15 were left with a single internal link — it worked when the blog
+  // had four posts and quietly stopped as soon as it grew.
+  const allPosts = await getPublishedPosts();
+  const idx = allPosts.findIndex((p) => p.slug === post.slug);
+  const ring =
+    idx === -1
+      ? allPosts.filter((p) => p.slug !== post.slug)
+      : [...allPosts.slice(idx + 1), ...allPosts.slice(0, idx)];
+  const morePosts = ring.slice(0, 3);
 
   const description = postDescription(post);
   const jsonLd = {

@@ -8,13 +8,21 @@ function strip(p: Post & { _id?: unknown }): Post {
   return rest;
 }
 
-/** Public: only published posts, newest first. */
+/**
+ * Public: only published posts, newest first.
+ *
+ * `slug` is a tiebreaker, not decoration: five posts share an identical
+ * `publishedAt`, and Mongo gives no stable order for ties. The related-posts
+ * ring in /blog/[slug] derives each post's neighbours from this order on every
+ * request, so an unstable sort would hand different neighbours to different
+ * crawls and let a post silently lose its inbound links again.
+ */
 export async function getPublishedPosts(): Promise<Post[]> {
   const col = await postsCollection();
   if (!col) return [];
   const docs = await col
     .find({ status: "published" })
-    .sort({ publishedAt: -1 })
+    .sort({ publishedAt: -1, slug: 1 })
     .toArray();
   return docs.map(strip);
 }

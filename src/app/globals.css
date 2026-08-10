@@ -232,3 +232,10 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* VerifiedBadge border. A class, not an inline style: the badge renders once
+   per tool card, so an inline `style` attribute shipped ~203 times per listing
+   page for zero text. */
+.border-verified-soft {
+  border-color: color-mix(in srgb, var(--verified) 34%, transparent);
+}

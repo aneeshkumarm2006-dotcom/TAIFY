@@ -43,15 +43,32 @@ export const TITLE_MAX = 70;
 const BRAND_SUFFIX = ` · ${SITE_NAME}`;
 
 /**
- * Append the brand to a title when it still fits inside `max`.
+ * Append the brand to a title, shortening the title itself when the suffix
+ * would otherwise not fit inside `max`.
  *
- * Doubles as the fix for Semrush's "duplicate content in h1 and title" warning:
- * pages whose H1 is the raw title get a distinct, brand-suffixed <title>.
+ * This is the fix for Semrush's "duplicate content in h1 and title" warning:
+ * pages whose H1 is the raw title get a distinct, brand-suffixed <title>. The
+ * suffix is the *only* thing making the two differ, so it must never be
+ * dropped — the previous all-or-nothing version returned the bare title once a
+ * headline passed `max - 8` (62) characters, which is exactly how two posts
+ * with 63- and 67-character headlines ended up with a <title> that matched
+ * their H1 character for character.
+ *
+ * Truncation is at a word boundary and only when the cut would split a word,
+ * so a headline that ends flush against the limit keeps its last word.
  */
 export function withBrand(title: string, max = TITLE_MAX): string {
   const t = title.trim();
   if (t.endsWith(BRAND_SUFFIX) || t.endsWith(`| ${SITE_NAME}`)) return t;
-  return t.length + BRAND_SUFFIX.length <= max ? t + BRAND_SUFFIX : t;
+  const room = max - BRAND_SUFFIX.length;
+  // Nothing sensible to append into: hand back a title that at least fits.
+  if (room < 20) return t.slice(0, max);
+  if (t.length <= room) return t + BRAND_SUFFIX;
+  const cut = t.slice(0, room);
+  // Only back off to the previous space when `room` lands mid-word.
+  const space = cut.lastIndexOf(" ");
+  const base = t[room] === " " || space <= 20 ? cut : cut.slice(0, space);
+  return base.replace(/[\s·|,:;?!-]+$/, "") + BRAND_SUFFIX;
 }
 
 /**

@@ -73,11 +73,14 @@ export function VerifiedBadge({
 }) {
   return (
     <span
+      // border-verified-soft is a CSS class, not an inline style: this badge
+      // renders once per tool card, so the 73-byte inline `style` shipped ~203
+      // times on /browse (≈15 KB of markup carrying no text) and fed straight
+      // into Semrush's "low text to HTML ratio" on every listing page.
       className={cn(
-        "mono inline-flex items-center gap-[5px] rounded-[7px] border px-2 py-[3px] text-[11px] font-semibold text-verified",
+        "mono border-verified-soft inline-flex items-center gap-[5px] rounded-[7px] border px-2 py-[3px] text-[11px] font-semibold text-verified",
         className,
       )}
-      style={{ borderColor: "color-mix(in srgb, var(--verified) 34%, transparent)" }}
     >
       <Check className="h-3 w-3" strokeWidth={3} />
       verified {timeAgo(verifiedAt)}

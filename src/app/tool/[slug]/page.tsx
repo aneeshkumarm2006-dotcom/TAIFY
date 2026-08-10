@@ -13,7 +13,6 @@ import { ToolGrid } from "@/components/tool-rail";
 import { embedUrl, timeAgo } from "@/lib/utils";
 import {
   SITE_NAME,
-  SITE_URL,
   absoluteUrl,
   metaDescription,
   pickTitle,
@@ -120,25 +119,44 @@ function launchedLabel(v: string): string {
   return name ? `in ${name} ${year}` : `in ${year}`;
 }
 
-/** SoftwareApplication + Breadcrumb for the tool. */
+/**
+ * Product + Breadcrumb for the tool.
+ *
+ * `Product`, not `SoftwareApplication`: Google lists three required properties
+ * for the Software App rich result — name, offers.price, and "Rating or review"
+ * (aggregateRating OR review). We have no ratings and no honest basis to derive
+ * one, so every tool page shipped one required-property error (Semrush flagged
+ * 203/203). Product is satisfied by name + offers alone, keeps the same pricing
+ * and vendor semantics, and validates clean. The markup was never malformed —
+ * validator.schema.org reported 0 errors — it was ineligible for a rich result
+ * we can't honestly earn.
+ *
+ * Two things are deliberately absent:
+ * - `availability`. It is the strongest merchant-listing signal, and a merchant
+ *   listing asserts we are the seller. We aren't; we link out to the vendor.
+ * - the logo in `image`. Logos are google.com/s2/favicons lookups, and Google's
+ *   own robots.txt is `Disallow: /s2`, so they are uncrawlable. `image` is not
+ *   required for a product snippet, so it is emitted only when we host a real
+ *   screenshot.
+ */
 function buildToolSchema(tool: Tool, categoryName: string): object[] {
   const url = absoluteUrl(`/tool/${tool.slug}`);
+  const images = (tool.images ?? []).map((p) =>
+    p.startsWith("http") ? p : absoluteUrl(p),
+  );
   return [
     {
       "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "@id": `${url}#software`,
+      "@type": "Product",
+      "@id": `${url}#product`,
       name: tool.name,
       alternateName: tool.tagline,
       description: tool.description,
       url,
       sameAs: tool.url,
-      applicationCategory: "BusinessApplication",
-      applicationSubCategory: categoryName,
-      operatingSystem: "Web",
-      ...(tool.logo ? { image: tool.logo } : {}),
-      ...(tool.images?.length ? { screenshot: tool.images } : {}),
-      author: { "@type": "Organization", name: tool.company },
+      category: categoryName,
+      ...(images.length ? { image: images } : {}),
+      brand: { "@type": "Organization", name: tool.company },
       offers: {
         "@type": "Offer",
         price: tool.costPerMonth,
@@ -151,11 +169,13 @@ function buildToolSchema(tool: Tool, categoryName: string): object[] {
               unitCode: "MON",
             } }
           : {}),
-        availability: "https://schema.org/InStock",
         url: tool.url,
       },
       keywords: tool.tags.join(", "),
-      isPartOf: { "@id": `${SITE_URL}/#website` },
+      // No `isPartOf` here: it is a CreativeWork property that
+      // SoftwareApplication inherited and Product does not have, so it
+      // validates as UNKNOWN_FIELD. The site graph is already established by
+      // the Organization + WebSite nodes in app/layout.tsx.
     },
     {
       "@context": "https://schema.org",
