@@ -127,6 +127,39 @@ export default function SubmitPage() {
 
       <section className="mt-16 border-t border-line pt-10">
         <h2 className="text-[20px] font-bold tracking-[-0.02em]">
+          Submit your AI tool to TAIFY
+        </h2>
+        <p className="mt-3 text-[14.5px] leading-relaxed text-ink-soft">
+          Have an AI tool that you want more people to discover? Submit your AI
+          tool to TAIFY for a free basic listing. Every submission is reviewed by
+          our team before it goes live, so users can find tools with clear
+          descriptions, transparent pricing, and useful information.
+        </p>
+        <p className="mt-3 text-[14.5px] leading-relaxed text-ink-soft">
+          A basic listing is free and can appear in relevant AI tool categories
+          and AI Match results. You can also include screenshots and a demo video
+          to help potential users understand what your tool does and whether it is
+          right for their needs.
+        </p>
+
+        <h2 className="mt-10 text-[20px] font-bold tracking-[-0.02em]">
+          What happens after you submit?
+        </h2>
+        <p className="mt-3 text-[14.5px] leading-relaxed text-ink-soft">
+          Once you submit your AI tool, our team reviews the listing to make sure
+          the website works, the pricing information is accurate, and the tool
+          matches the description provided. If everything checks out, your listing
+          can be published in the TAIFY catalog.
+        </p>
+        <p className="mt-3 text-[14.5px] leading-relaxed text-ink-soft">
+          You can update your listing later when your tool, pricing, or other
+          important information changes. We also verify pricing and listing
+          information so users can make informed choices.
+        </p>
+      </section>
+
+      <section className="mt-12">
+        <h2 className="text-[20px] font-bold tracking-[-0.02em]">
           Before you submit
         </h2>
         <dl className="mt-5 space-y-5">
