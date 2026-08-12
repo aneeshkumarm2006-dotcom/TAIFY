@@ -8,7 +8,7 @@ import { getTool } from "@/lib/data";
 import { applyBacklinks } from "@/lib/blog/backlinks";
 import { addHeadingIds } from "@/lib/blog/toc";
 import { readingTime } from "@/lib/utils";
-import { SITE_NAME, SITE_URL, absoluteUrl, metaDescription, withBrand } from "@/lib/site";
+import { OG_IMAGE, OG_IMAGE_CARD, SITE_NAME, SITE_URL, absoluteUrl, metaDescription, withBrand } from "@/lib/site";
 import { BrandLogo } from "@/components/brand-logo";
 import { ReadingProgress, Toc, ShareButtons } from "@/components/blog/reading-aids";
 import type { Post, Tool } from "@/lib/types";
@@ -64,7 +64,7 @@ export async function generateMetadata({
       description,
       url,
       siteName: SITE_NAME,
-      ...(images ? { images } : {}),
+      images: images ?? OG_IMAGE_CARD,
       publishedTime: post.publishedAt ?? undefined,
       modifiedTime: post.updatedAt,
       authors: post.author ? [post.author] : undefined,
@@ -73,7 +73,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title,
       description,
-      ...(images ? { images } : {}),
+      images: images ?? [OG_IMAGE],
     },
   };
 }

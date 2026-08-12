@@ -6,7 +6,7 @@ import type { Tool } from "@/lib/types";
 import { ComparePicker } from "@/components/compare-picker";
 import { PricingBadge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
+import { OG_IMAGE, OG_IMAGE_CARD, SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
 import type { Metadata } from "next";
 
 const TITLE = `Compare AI Tools Side by Side · ${SITE_NAME}`;
@@ -40,8 +40,15 @@ export async function generateMetadata({
     title,
     description,
     alternates: { canonical: absoluteUrl("/compare") },
-    openGraph: { type: "website", title, description, url: absoluteUrl("/compare"), siteName: SITE_NAME },
-    twitter: { card: "summary_large_image", title, description },
+    openGraph: {
+      type: "website",
+      title,
+      description,
+      url: absoluteUrl("/compare"),
+      siteName: SITE_NAME,
+      images: OG_IMAGE_CARD,
+    },
+    twitter: { card: "summary_large_image", title, description, images: [OG_IMAGE] },
   };
 }
 

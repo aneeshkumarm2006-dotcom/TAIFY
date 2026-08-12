@@ -7,7 +7,7 @@ import { CATEGORIES } from "@/data/tools";
 import { buildPageSchema } from "@/lib/pages/schema";
 import { Blocks } from "@/components/pages/block-render";
 import { MotionGrid } from "@/components/motion/motion-grid";
-import { absoluteUrl, SITE_NAME, TITLE_MAX, withBrand } from "@/lib/site";
+import { absoluteUrl, OG_IMAGE, OG_IMAGE_CARD, SITE_NAME, TITLE_MAX, withBrand } from "@/lib/site";
 import type { Tool } from "@/lib/types";
 
 export const revalidate = 300;
@@ -43,8 +43,17 @@ export async function generateMetadata({
       description: page.excerpt,
       url,
       siteName: SITE_NAME,
+      // Declaring `openGraph` here replaces the layout's copy outright, image
+      // included, so the card has to be passed back in - without it every
+      // category page shared with no preview image at all.
+      images: OG_IMAGE_CARD,
     },
-    twitter: { card: "summary_large_image", title, description: page.excerpt },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description: page.excerpt,
+      images: [OG_IMAGE],
+    },
   };
 }
 

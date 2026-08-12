@@ -39,7 +39,11 @@ function BlockView({ block: b, toolMap }: { block: Block; toolMap: Record<string
       return (
         <section>
           {b.heading && <h2 className="mb-4 text-[24px] font-extrabold tracking-[-0.025em]">{b.heading}</h2>}
-          <FaqAccordion items={b.items.filter((it) => it.q.trim())} />
+          {/* Both halves have to be there. A question typed into the admin
+              without an answer used to render as a row that opens onto nothing,
+              and buildPageSchema drops it anyway - so the page would advertise a
+              question the FAQPage schema never mentioned. */}
+          <FaqAccordion items={b.items.filter((it) => it.q.trim() && it.a.trim())} />
         </section>
       );
 

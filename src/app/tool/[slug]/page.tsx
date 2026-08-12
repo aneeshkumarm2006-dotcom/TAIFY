@@ -12,6 +12,8 @@ import { ButtonLink } from "@/components/ui/button";
 import { ToolGrid } from "@/components/tool-rail";
 import { embedUrl, timeAgo } from "@/lib/utils";
 import {
+  OG_IMAGE,
+  OG_IMAGE_CARD,
   SITE_NAME,
   absoluteUrl,
   metaDescription,
@@ -69,13 +71,15 @@ export async function generateMetadata({
       description,
       url,
       siteName: SITE_NAME,
-      ...(images ? { images } : {}),
+      // Falls back to the site card: a tool with no screenshot was shipping no
+      // og:image at all, because declaring `openGraph` here drops the layout's.
+      images: images ?? OG_IMAGE_CARD,
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      ...(images ? { images } : {}),
+      images: images ?? [OG_IMAGE],
     },
   };
 }

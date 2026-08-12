@@ -6,6 +6,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { ChromeGate } from "@/components/chrome-gate";
 import { Ticker } from "@/components/ticker";
 import { getSiteSettings } from "@/lib/settings";
+import { countTools } from "@/lib/data";
 import {
   SITE_URL,
   SITE_NAME,
@@ -98,7 +99,7 @@ const themeScript = `
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const settings = await getSiteSettings();
+  const [settings, toolCount] = await Promise.all([getSiteSettings(), countTools()]);
   return (
     <html
       lang="en"
@@ -116,7 +117,7 @@ export default async function RootLayout({
         <ChromeGate
           top={
             <>
-              <Ticker settings={settings} />
+              <Ticker settings={settings} toolCount={toolCount} />
               <TopNav />
             </>
           }

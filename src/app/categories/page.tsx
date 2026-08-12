@@ -6,7 +6,7 @@ import { categoryIcon } from "@/lib/category-icons";
 import { roleIcon } from "@/lib/role-icons";
 import { ROLES, rolePath, rolePickSlugs } from "@/data/roles";
 import { Reveal } from "@/components/motion/reveal";
-import { SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
+import { OG_IMAGE, OG_IMAGE_CARD, SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
 
 export const revalidate = 300;
 
@@ -24,8 +24,14 @@ export const metadata: Metadata = {
     description: DESCRIPTION,
     url: absoluteUrl("/categories"),
     siteName: SITE_NAME,
+    images: OG_IMAGE_CARD,
   },
-  twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+    images: [OG_IMAGE],
+  },
 };
 
 export default async function CategoriesPage() {

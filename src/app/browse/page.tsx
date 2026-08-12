@@ -11,7 +11,7 @@ import {
   countTools,
   toCardTools,
 } from "@/lib/data";
-import { absoluteUrl, SITE_NAME } from "@/lib/site";
+import { absoluteUrl, OG_IMAGE, OG_IMAGE_CARD, SITE_NAME } from "@/lib/site";
 import type { Pricing } from "@/lib/types";
 
 export const revalidate = 300;
@@ -99,8 +99,14 @@ export async function generateMetadata({
     title,
     description,
     alternates: { canonical },
-    openGraph: { title, description, url: canonical, type: "website" },
-    twitter: { card: "summary_large_image", title, description },
+    openGraph: {
+      title,
+      description,
+      url: canonical,
+      type: "website",
+      images: OG_IMAGE_CARD,
+    },
+    twitter: { card: "summary_large_image", title, description, images: [OG_IMAGE] },
   };
 }
 

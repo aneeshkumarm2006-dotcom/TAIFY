@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Check } from "lucide-react";
 import { SubmitForm } from "@/components/submit-form";
-import { SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
+import { OG_IMAGE, OG_IMAGE_CARD, SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
 
 const TITLE = `Submit Your AI Tool - Free Listing · ${SITE_NAME}`;
 const DESCRIPTION =
@@ -18,8 +18,14 @@ export const metadata: Metadata = {
     description: DESCRIPTION,
     url: absoluteUrl("/submit"),
     siteName: SITE_NAME,
+    images: OG_IMAGE_CARD,
   },
-  twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+    images: [OG_IMAGE],
+  },
 };
 
 const PERKS = [

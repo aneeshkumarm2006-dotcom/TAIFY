@@ -13,7 +13,7 @@ import { buildPageSchema } from "@/lib/pages/schema";
 import { Blocks } from "@/components/pages/block-render";
 import { RoleSections } from "@/components/pages/role-picks";
 import { RoleIcon } from "@/lib/role-icons";
-import { absoluteUrl, SITE_NAME, TITLE_MAX, withBrand } from "@/lib/site";
+import { absoluteUrl, OG_IMAGE, OG_IMAGE_CARD, SITE_NAME, TITLE_MAX, withBrand } from "@/lib/site";
 import type { CardTool, Tool } from "@/lib/types";
 
 /**
@@ -43,8 +43,14 @@ export function roleMetadata(role: Role): Metadata {
       description: page.excerpt,
       url,
       siteName: SITE_NAME,
+      images: OG_IMAGE_CARD,
     },
-    twitter: { card: "summary_large_image", title, description: page.excerpt },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description: page.excerpt,
+      images: [OG_IMAGE],
+    },
   };
 }
 

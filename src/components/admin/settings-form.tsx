@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Loader2, Check, Megaphone } from "lucide-react";
 import type { SiteSettings } from "@/lib/settings";
+import { TOOL_COUNT_TOKEN } from "@/lib/ticker";
 
 export function SettingsForm() {
   const [s, setS] = useState<SiteSettings | null>(null);
@@ -74,7 +75,10 @@ export function SettingsForm() {
             className="rounded-lg border border-line-strong bg-ground px-3 py-2 text-[14px] outline-none focus:border-accent"
           />
           <span className="mono text-[11px] text-ink-soft">
-            Emoji welcome. They scroll left in a loop.
+            Emoji welcome. They scroll left in a loop. Write{" "}
+            <code className="rounded bg-ground px-1">{TOOL_COUNT_TOKEN}</code> for the
+            live catalog total instead of typing the number — it updates itself as
+            tools are added.
           </span>
         </div>
 

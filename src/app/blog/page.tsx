@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { getPublishedPosts } from "@/lib/blog/data";
 import { readingTime } from "@/lib/utils";
 import { Reveal } from "@/components/motion/reveal";
-import { SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
+import { OG_IMAGE, OG_IMAGE_CARD, SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
 
 const TITLE = `AI Tool Guides &amp; Comparisons · ${SITE_NAME}`.replace("&amp;", "&");
 const DESCRIPTION =
@@ -20,8 +20,14 @@ export const metadata: Metadata = {
     description: DESCRIPTION,
     url: absoluteUrl("/blog"),
     siteName: SITE_NAME,
+    images: OG_IMAGE_CARD,
   },
-  twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+    images: [OG_IMAGE],
+  },
 };
 
 export const dynamic = "force-dynamic";

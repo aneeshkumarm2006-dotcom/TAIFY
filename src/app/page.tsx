@@ -18,29 +18,45 @@ import {
   toLogoTools,
 } from "@/lib/data";
 import { getPublishedPosts } from "@/lib/blog/data";
-import { absoluteUrl, SITE_NAME, SITE_URL } from "@/lib/site";
+import { absoluteUrl, OG_IMAGE, OG_IMAGE_CARD, SITE_NAME, SITE_URL } from "@/lib/site";
 
 // Rebuild in the background every 5 min so tool/logo changes appear without a redeploy.
 export const revalidate = 300;
 
 const TITLE = "Best AI Tools Like ChatGPT | TAIFY";
-const DESCRIPTION =
-  "Discover the best AI tools like ChatGPT, AI apps like ChatGPT, and the best all-in-one AI platform. Compare 190+ AI tools and submit your AI tool for free on TAIFY.";
+
+/**
+ * The catalog size is read from the database rather than written into the copy.
+ * The audit found four different totals on the site at once - 203 in the hero,
+ * 190+ in this description, 31+ in the announcement bar - because only the
+ * on-page figures were live and the rest were typed once and left behind.
+ */
+const describe = (total: number) =>
+  `The best AI tools like ChatGPT, AI apps like ChatGPT, and the best all-in-one AI platform. Compare ${total}+ AI tools and submit your AI tool for free on TAIFY.`;
 
 // Overrides the generic title/description set on the root layout.
-export const metadata: Metadata = {
-  title: TITLE,
-  description: DESCRIPTION,
-  alternates: { canonical: absoluteUrl("/") },
-  openGraph: {
-    type: "website",
+export async function generateMetadata(): Promise<Metadata> {
+  const description = describe(await countTools());
+  return {
     title: TITLE,
-    description: DESCRIPTION,
-    url: absoluteUrl("/"),
-    siteName: SITE_NAME,
-  },
-  twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
-};
+    description,
+    alternates: { canonical: absoluteUrl("/") },
+    openGraph: {
+      type: "website",
+      title: TITLE,
+      description,
+      url: absoluteUrl("/"),
+      siteName: SITE_NAME,
+      images: OG_IMAGE_CARD,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: TITLE,
+      description,
+      images: [OG_IMAGE],
+    },
+  };
+}
 
 export default async function HomePage() {
   const [trending, justLaunched, featured, categories, total, strip, posts] =
@@ -65,7 +81,7 @@ export default async function HomePage() {
     "@type": "CollectionPage",
     "@id": `${SITE_URL}/#webpage`,
     name: TITLE,
-    description: DESCRIPTION,
+    description: describe(total),
     url: absoluteUrl("/"),
     isPartOf: { "@id": `${SITE_URL}/#website` },
     about: { "@id": `${SITE_URL}/#organization` },

@@ -4,7 +4,7 @@ import { getCustomPage } from "@/lib/pages/data";
 import { getTool } from "@/lib/data";
 import { buildPageSchema } from "@/lib/pages/schema";
 import { Blocks } from "@/components/pages/block-render";
-import { absoluteUrl, metaDescription, SITE_NAME, withBrand } from "@/lib/site";
+import { absoluteUrl, metaDescription, OG_IMAGE, OG_IMAGE_CARD, SITE_NAME, withBrand } from "@/lib/site";
 import type { Tool } from "@/lib/types";
 import { RESERVED } from "@/lib/pages/reserved";
 import { roleByPageSlug } from "@/data/roles";
@@ -35,8 +35,15 @@ export async function generateMetadata({
     title,
     description,
     alternates: { canonical: url },
-    openGraph: { type: "website", title, description, url, siteName: SITE_NAME },
-    twitter: { card: "summary_large_image", title, description },
+    openGraph: {
+      type: "website",
+      title,
+      description,
+      url,
+      siteName: SITE_NAME,
+      images: OG_IMAGE_CARD,
+    },
+    twitter: { card: "summary_large_image", title, description, images: [OG_IMAGE] },
   };
 }
 

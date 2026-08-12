@@ -3,7 +3,7 @@ import Link from "next/link";
 import { SearchBar } from "@/components/search-bar";
 import { MatchResults } from "@/components/match-results";
 import { filterTools, getCategories } from "@/lib/data";
-import { SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
+import { OG_IMAGE, OG_IMAGE_CARD, SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
 
 const TITLE = `AI Match - Describe Your Task, Get 3 Tools · ${SITE_NAME}`;
 const DESCRIPTION =
@@ -21,8 +21,14 @@ export const metadata: Metadata = {
     description: DESCRIPTION,
     url: absoluteUrl("/match"),
     siteName: SITE_NAME,
+    images: OG_IMAGE_CARD,
   },
-  twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+    images: [OG_IMAGE],
+  },
 };
 
 const FAQS = [

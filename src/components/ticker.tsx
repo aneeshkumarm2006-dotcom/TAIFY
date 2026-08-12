@@ -1,12 +1,20 @@
 import { Sparkles } from "lucide-react";
 import type { SiteSettings } from "@/lib/settings";
+import { fillToolCount } from "@/lib/ticker";
 
 /** Auto-scrolling announcement bar. Controlled from /admin/settings. */
-export function Ticker({ settings }: { settings: SiteSettings }) {
+export function Ticker({
+  settings,
+  toolCount,
+}: {
+  settings: SiteSettings;
+  toolCount: number;
+}) {
   if (!settings.tickerEnabled || settings.tickerMessages.length === 0) return null;
 
+  const messages = settings.tickerMessages.map((m) => fillToolCount(m, toolCount));
   // Duplicate the messages so the marquee loops seamlessly.
-  const items = [...settings.tickerMessages, ...settings.tickerMessages];
+  const items = [...messages, ...messages];
 
   return (
     <div className="ticker group overflow-hidden bg-ink text-ground">

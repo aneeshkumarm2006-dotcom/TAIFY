@@ -1,5 +1,6 @@
 import "server-only";
 import { settingsCollection } from "@/lib/db/mongo";
+import { TOOL_COUNT_TOKEN } from "@/lib/ticker";
 
 export interface SiteSettings {
   tickerEnabled: boolean;
@@ -11,12 +12,13 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   tickerEnabled: true,
   tickerMessages: [
     "🚀 New - AI Match finds your perfect tool in seconds",
-    "✅ 31+ AI tools, verified daily with honest pricing",
+    `✅ ${TOOL_COUNT_TOKEN}+ AI tools, verified daily with honest pricing`,
     "📈 Read the blog: Best AI Tools for Maths, Science & Coding",
     "🛠️ Submit your AI tool - free basic listing",
   ],
   tickerSpeed: 30,
 };
+
 
 export async function getSiteSettings(): Promise<SiteSettings> {
   const col = await settingsCollection();
