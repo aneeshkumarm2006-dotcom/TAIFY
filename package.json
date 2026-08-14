@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "db:seed": "tsx scripts/seed.ts",
-    "blog:seed": "tsx scripts/seed-blog.ts"
+    "blog:seed": "tsx scripts/seed-blog.ts",
+    "schema:check": "tsx scripts/check-schema.mts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.112.5",

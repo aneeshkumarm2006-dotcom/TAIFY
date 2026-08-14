@@ -18,7 +18,10 @@ import {
   toLogoTools,
 } from "@/lib/data";
 import { getPublishedPosts } from "@/lib/blog/data";
-import { absoluteUrl, OG_IMAGE, OG_IMAGE_CARD, SITE_NAME, SITE_URL } from "@/lib/site";
+import { absoluteUrl, OG_IMAGE, OG_IMAGE_CARD, SITE_NAME } from "@/lib/site";
+import { itemListNode, toolListEntry, webPageNode } from "@/lib/schema/nodes";
+import { listId, orgId, ref } from "@/lib/schema/ids";
+import { JsonLd } from "@/lib/schema/json-ld";
 
 // Rebuild in the background every 5 min so tool/logo changes appear without a redeploy.
 export const revalidate = 300;
@@ -76,34 +79,28 @@ export default async function HomePage() {
   // call site serialised the same nine tools into the RSC payload twice.
   const logoTools = toLogoTools(strip);
 
-  const schema = {
-    "@context": "https://schema.org",
-    "@type": "CollectionPage",
-    "@id": `${SITE_URL}/#webpage`,
-    name: TITLE,
-    description: describe(total),
-    url: absoluteUrl("/"),
-    isPartOf: { "@id": `${SITE_URL}/#website` },
-    about: { "@id": `${SITE_URL}/#organization` },
-    mainEntity: {
-      "@type": "ItemList",
+  const graph = [
+    webPageNode({
+      path: "/",
+      name: TITLE,
+      description: describe(total),
+      type: "CollectionPage",
+      // The homepage has no breadcrumb trail of its own — it is the root.
+      hasBreadcrumb: false,
+      about: ref(orgId()),
+      mainEntity: ref(listId("/", "trending")),
+    }),
+    itemListNode({
+      path: "/",
+      key: "trending",
       name: "Trending AI tools",
-      numberOfItems: trending.length,
-      itemListElement: trending.map((t, i) => ({
-        "@type": "ListItem",
-        position: i + 1,
-        name: t.name,
-        url: absoluteUrl(`/tool/${t.slug}`),
-      })),
-    },
-  };
+      entries: trending.map(toolListEntry),
+    }),
+  ];
 
   return (
     <div className="mx-auto w-full max-w-[1440px] px-6 lg:px-10">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-      />
+      <JsonLd graph={graph} />
       {/* Hero */}
       <section className="relative overflow-hidden border-b border-line py-16 text-center sm:py-24">
         <FloatingLogos tools={logoTools} />

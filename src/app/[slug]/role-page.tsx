@@ -10,6 +10,7 @@ import {
 import { filterTools, toCardTool } from "@/lib/data";
 import { buildRolePage } from "@/lib/roles/page";
 import { buildPageSchema } from "@/lib/pages/schema";
+import { JsonLd } from "@/lib/schema/json-ld";
 import { Blocks } from "@/components/pages/block-render";
 import { RoleSections } from "@/components/pages/role-picks";
 import { RoleIcon } from "@/lib/role-icons";
@@ -60,7 +61,7 @@ export async function RolePageView({ role }: { role: Role }) {
   assertRolePicksExist();
 
   const page = buildRolePage(role);
-  const url = absoluteUrl(rolePath(role));
+  const path = rolePath(role);
 
   // One catalog read, then index it — the alternative is a getTool() round trip
   // per pick, and a role page cites fifteen or more tools.
@@ -74,14 +75,14 @@ export async function RolePageView({ role }: { role: Role }) {
   const cardMap: Record<string, CardTool> = {};
   for (const t of picked) cardMap[t.slug] = toCardTool(t);
 
-  const schema = buildPageSchema({
+  const graph = buildPageSchema({
     page,
-    url,
+    path,
     tools: picked,
     crumbs: [
       { name: "Home", url: absoluteUrl("/") },
       { name: "Professions", url: absoluteUrl("/categories#professions") },
-      { name: role.h1, url },
+      { name: role.h1, url: absoluteUrl(path) },
     ],
   });
 
@@ -89,13 +90,7 @@ export async function RolePageView({ role }: { role: Role }) {
 
   return (
     <div className="mx-auto max-w-[900px] px-6 py-12 lg:px-10">
-      {schema.map((s, i) => (
-        <script
-          key={i}
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(s) }}
-        />
-      ))}
+      <JsonLd graph={graph} />
 
       <nav className="mono mb-5 flex items-center gap-1.5 text-[12px] text-ink-soft">
         <Link href="/" className="hover:text-accent">

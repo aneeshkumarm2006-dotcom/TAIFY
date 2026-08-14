@@ -12,6 +12,9 @@ import {
   toCardTools,
 } from "@/lib/data";
 import { absoluteUrl, OG_IMAGE, OG_IMAGE_CARD, SITE_NAME } from "@/lib/site";
+import { breadcrumbNode, itemListNode, toolListEntry, webPageNode } from "@/lib/schema/nodes";
+import { listId, ref } from "@/lib/schema/ids";
+import { JsonLd } from "@/lib/schema/json-ld";
 import type { Pricing } from "@/lib/types";
 
 export const revalidate = 300;
@@ -130,45 +133,39 @@ export default async function BrowsePage({
   // The H1 tracks the active sort so the ?sort= variants aren't byte-identical
   // to /browse — Semrush flagged two of them as duplicate content.
   const heading = activeCat ? `${activeCat.name} AI tools` : SORTS[sort].heading;
-  const canonical = activeCat
-    ? absoluteUrl(`/category/${activeCat.slug}`)
-    : absoluteUrl("/browse");
 
-  const schema = [
-    {
-      "@context": "https://schema.org",
-      "@type": "CollectionPage",
+  // The node ids follow the canonical, not the filtered URL: a ?sort= or
+  // ?pricing= variant points its canonical at /browse (or at the matching
+  // category page), so minting a second set of ids per filter permutation would
+  // scatter one page's identity across the query space.
+  const schemaPath = activeCat ? `/category/${activeCat.slug}` : "/browse";
+  // 30 of however many match. Marking up the whole result set would describe
+  // rows the page never renders; `numberOfItems` still reports the real total.
+  const listed = tools.slice(0, 30);
+  const graph = [
+    webPageNode({
+      path: schemaPath,
       name: heading,
       description: `${tools.length} AI tools, each with a real cost-to-use estimate and a last-verified date.`,
-      url: canonical,
-      isPartOf: { "@id": `${absoluteUrl("/")}#website` },
-      mainEntity: {
-        "@type": "ItemList",
-        numberOfItems: tools.length,
-        itemListElement: tools.slice(0, 30).map((t, i) => ({
-          "@type": "ListItem",
-          position: i + 1,
-          name: t.name,
-          url: absoluteUrl(`/tool/${t.slug}`),
-        })),
-      },
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Home", item: absoluteUrl("/") },
-        { "@type": "ListItem", position: 2, name: "Browse", item: absoluteUrl("/browse") },
-      ],
-    },
+      type: "CollectionPage",
+      mainEntity: ref(listId(schemaPath, "tools")),
+    }),
+    breadcrumbNode(schemaPath, [
+      { name: "Home", url: absoluteUrl("/") },
+      { name: "Browse", url: absoluteUrl("/browse") },
+    ]),
+    itemListNode({
+      path: schemaPath,
+      key: "tools",
+      name: heading,
+      entries: listed.map(toolListEntry),
+      numberOfItems: tools.length,
+    }),
   ];
 
   return (
     <div className="mx-auto max-w-[1440px] px-6 py-8 lg:px-10">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-      />
+      <JsonLd graph={graph} />
 
       <nav className="mono mb-4 flex items-center gap-1.5 text-[12px] text-ink-soft">
         <Link href="/" className="hover:text-accent">Home</Link>

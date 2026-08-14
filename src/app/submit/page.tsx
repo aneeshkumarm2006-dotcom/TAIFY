@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Check } from "lucide-react";
 import { SubmitForm } from "@/components/submit-form";
-import { OG_IMAGE, OG_IMAGE_CARD, SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
+import { OG_IMAGE, OG_IMAGE_CARD, SITE_NAME, absoluteUrl } from "@/lib/site";
+import { breadcrumbNode, faqNode, webPageNode } from "@/lib/schema/nodes";
+import { JsonLd } from "@/lib/schema/json-ld";
 
 const TITLE = `Submit Your AI Tool - Free Listing · ${SITE_NAME}`;
 const DESCRIPTION =
@@ -64,40 +66,18 @@ const FAQS = [
 ];
 
 export default function SubmitPage() {
-  const schema = [
-    {
-      "@context": "https://schema.org",
-      "@type": "WebPage",
-      name: TITLE,
-      description: DESCRIPTION,
-      url: absoluteUrl("/submit"),
-      isPartOf: { "@id": `${SITE_URL}/#website` },
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      mainEntity: FAQS.map((f) => ({
-        "@type": "Question",
-        name: f.q,
-        acceptedAnswer: { "@type": "Answer", text: f.a },
-      })),
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Home", item: absoluteUrl("/") },
-        { "@type": "ListItem", position: 2, name: "Submit a tool", item: absoluteUrl("/submit") },
-      ],
-    },
+  const graph = [
+    webPageNode({ path: "/submit", name: TITLE, description: DESCRIPTION }),
+    breadcrumbNode("/submit", [
+      { name: "Home", url: absoluteUrl("/") },
+      { name: "Submit a tool", url: absoluteUrl("/submit") },
+    ]),
+    faqNode("/submit", FAQS),
   ];
 
   return (
     <div className="mx-auto max-w-2xl px-6 py-14">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-      />
+      <JsonLd graph={graph} />
 
       <nav className="mono mb-5 flex items-center gap-1.5 text-[12px] text-ink-soft">
         <Link href="/" className="hover:text-accent">Home</Link>

@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { getCustomPage } from "@/lib/pages/data";
 import { getTool } from "@/lib/data";
 import { buildPageSchema } from "@/lib/pages/schema";
+import { JsonLd } from "@/lib/schema/json-ld";
 import { Blocks } from "@/components/pages/block-render";
 import { absoluteUrl, metaDescription, OG_IMAGE, OG_IMAGE_CARD, SITE_NAME, withBrand } from "@/lib/site";
 import type { Tool } from "@/lib/types";
@@ -64,21 +65,19 @@ export default async function CustomPage({
   const toolMap: Record<string, Tool> = {};
   for (const t of extra) toolMap[t.slug] = t;
 
-  const url = absoluteUrl(`/${slug}`);
-  const schema = buildPageSchema({
+  const path = `/${slug}`;
+  const graph = buildPageSchema({
     page,
-    url,
+    path,
     crumbs: [
       { name: "Home", url: absoluteUrl("/") },
-      { name: page.title, url },
+      { name: page.title, url: absoluteUrl(path) },
     ],
   });
 
   return (
     <div className="mx-auto max-w-[820px] px-6 py-12">
-      {schema.map((s, i) => (
-        <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(s) }} />
-      ))}
+      <JsonLd graph={graph} />
       <h1 className="text-balance text-[clamp(30px,5vw,46px)] font-extrabold tracking-[-0.04em]">
         {page.title}
       </h1>

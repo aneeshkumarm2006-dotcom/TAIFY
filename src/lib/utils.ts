@@ -42,6 +42,28 @@ export function readingTime(html: string): number {
   return Math.max(1, Math.round(words / 200));
 }
 
+/**
+ * True when the maker's name is really the product name, so we don't write
+ * "Leonardo AI comes from Leonardo". Compares with branding suffixes and
+ * punctuation stripped off both sides.
+ *
+ * Also decides whether a tool's own URL can stand in for its brand's URL in
+ * schema: when the two are one entity, chatgpt.com-style links describe both.
+ * When they differ ("ChatGPT" by "OpenAI"), the tool URL is the product's, not
+ * the company's, and we have no field holding the company's own site.
+ */
+export function sameEntity(name: string, company: string): boolean {
+  const core = (s: string) =>
+    s
+      .toLowerCase()
+      .replace(/\.(ai|new|com|io|co)\b/g, "")
+      .replace(/\b(ai|inc|ltd|labs|llc|technologies|the)\b/g, "")
+      .replace(/[^a-z0-9]/g, "");
+  const a = core(name);
+  const b = core(company);
+  return a === b || (!!a && !!b && (a.startsWith(b) || b.startsWith(a)));
+}
+
 /** Relative "verified" label: a Date -> "2d ago". */
 export function timeAgo(date: Date | string): string {
   const d = typeof date === "string" ? new Date(date) : date;

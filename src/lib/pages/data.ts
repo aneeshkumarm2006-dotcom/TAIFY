@@ -36,7 +36,7 @@ function defaultCategoryBlocks(cat: Category): Page["blocks"] {
       items: [
         {
           q: `What is the best ${lower} AI tool?`,
-          a: `There isn't one, and anyone handing you a single name is guessing about your budget. That's why the list below is ranked by how many people saved each tool rather than by an editorial pick. Something perfect for occasional use is often the wrong call for daily work. If you'd rather not weigh it up yourself, describe the job on <a href="/match">AI Match</a> and you'll get three with reasons.`,
+          a: `There isn't one, and anyone handing you a single name is guessing about your budget. Something perfect for occasional use is often the wrong call for daily work. The list below leads with our picks and then runs in order of how recently each listing was checked, so what you see first is either something we rate or something we know is still accurate. If you'd rather not weigh it up yourself, describe the job on <a href="/match">AI Match</a> and you'll get three with reasons.`,
         },
         {
           q: `Are there free ${lower} AI tools?`,

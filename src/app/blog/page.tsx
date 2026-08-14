@@ -4,7 +4,10 @@ import type { Metadata } from "next";
 import { getPublishedPosts } from "@/lib/blog/data";
 import { readingTime } from "@/lib/utils";
 import { Reveal } from "@/components/motion/reveal";
-import { OG_IMAGE, OG_IMAGE_CARD, SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
+import { OG_IMAGE, OG_IMAGE_CARD, SITE_NAME, absoluteUrl } from "@/lib/site";
+import { breadcrumbNode, postStub } from "@/lib/schema/nodes";
+import { orgId, ref, websiteId } from "@/lib/schema/ids";
+import { JsonLd } from "@/lib/schema/json-ld";
 
 const TITLE = `AI Tool Guides &amp; Comparisons · ${SITE_NAME}`.replace("&amp;", "&");
 const DESCRIPTION =
@@ -35,42 +38,29 @@ export const dynamic = "force-dynamic";
 export default async function BlogIndex() {
   const posts = await getPublishedPosts();
 
-  const schema = [
+  const graph = [
     {
-      "@context": "https://schema.org",
       "@type": "Blog",
       "@id": `${absoluteUrl("/blog")}#blog`,
       name: `${SITE_NAME} blog`,
       description: DESCRIPTION,
       url: absoluteUrl("/blog"),
-      isPartOf: { "@id": `${SITE_URL}/#website` },
-      publisher: { "@id": `${SITE_URL}/#organization` },
-      blogPost: posts.map((p) => ({
-        "@type": "BlogPosting",
-        headline: p.title,
-        description: p.excerpt,
-        url: absoluteUrl(`/blog/${p.slug}`),
-        datePublished: p.publishedAt,
-        dateModified: p.updatedAt,
-        ...(p.author ? { author: { "@type": "Person", name: p.author } } : {}),
-      })),
+      isPartOf: ref(websiteId()),
+      publisher: ref(orgId()),
+      inLanguage: "en",
+      // Each stub carries the same @id its article page mints, so a post listed
+      // here and read there is one entity rather than two.
+      blogPost: posts.map(postStub),
     },
-    {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Home", item: absoluteUrl("/") },
-        { "@type": "ListItem", position: 2, name: "Blog", item: absoluteUrl("/blog") },
-      ],
-    },
+    breadcrumbNode("/blog", [
+      { name: "Home", url: absoluteUrl("/") },
+      { name: "Blog", url: absoluteUrl("/blog") },
+    ]),
   ];
 
   return (
     <div className="mx-auto max-w-[1200px] px-6 py-12 lg:px-10">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-      />
+      <JsonLd graph={graph} />
 
       <nav className="mono mb-5 flex items-center gap-1.5 text-[12px] text-ink-soft">
         <Link href="/" className="hover:text-accent">Home</Link>

@@ -13,8 +13,9 @@ import {
   SITE_TAGLINE,
   SITE_DESCRIPTION,
   OG_IMAGE,
-  absoluteUrl,
 } from "@/lib/site";
+import { organizationNode, webSiteNode } from "@/lib/schema/nodes";
+import { JsonLd } from "@/lib/schema/json-ld";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
@@ -52,40 +53,13 @@ export const metadata: Metadata = {
   },
 };
 
-// Site-wide entity graph: identifies the publisher and enables the sitelinks
-// search box. Page-level schema (SoftwareApplication, BlogPosting, …) layers
-// on top of this.
-const siteSchema = [
-  {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "@id": `${SITE_URL}/#organization`,
-    name: SITE_NAME,
-    alternateName: SITE_TAGLINE,
-    url: SITE_URL,
-    logo: { "@type": "ImageObject", url: absoluteUrl("/icon.svg") },
-    description: SITE_DESCRIPTION,
-  },
-  {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "@id": `${SITE_URL}/#website`,
-    name: SITE_NAME,
-    alternateName: SITE_TAGLINE,
-    url: SITE_URL,
-    description: SITE_DESCRIPTION,
-    publisher: { "@id": `${SITE_URL}/#organization` },
-    inLanguage: "en",
-    potentialAction: {
-      "@type": "SearchAction",
-      target: {
-        "@type": "EntryPoint",
-        urlTemplate: absoluteUrl("/match?q={search_term_string}"),
-      },
-      "query-input": "required name=search_term_string",
-    },
-  },
-];
+// Site-wide entity graph: identifies the publisher, and is the node every page's
+// own graph points `publisher` / `about` / `author` at by @id.
+//
+// It has to be repeated in the <head> of every page rather than declared once on
+// the homepage: Google resolves an @id reference within a document, but gives no
+// assurance it resolves one pointing at a node defined on a different URL.
+const siteSchema = [organizationNode(), webSiteNode()];
 
 // Prevent a light/dark flash by setting the theme class before paint.
 const themeScript = `
@@ -108,10 +82,7 @@ export default async function RootLayout({
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(siteSchema) }}
-        />
+        <JsonLd graph={siteSchema} />
       </head>
       <body className="min-h-full flex flex-col">
         <ChromeGate

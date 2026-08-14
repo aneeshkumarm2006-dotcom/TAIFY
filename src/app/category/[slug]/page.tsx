@@ -5,6 +5,7 @@ import { getCategoryPage } from "@/lib/pages/data";
 import { filterTools, getTool, toCardTools } from "@/lib/data";
 import { CATEGORIES } from "@/data/tools";
 import { buildPageSchema } from "@/lib/pages/schema";
+import { JsonLd } from "@/lib/schema/json-ld";
 import { Blocks } from "@/components/pages/block-render";
 import { MotionGrid } from "@/components/motion/motion-grid";
 import { absoluteUrl, OG_IMAGE, OG_IMAGE_CARD, SITE_NAME, TITLE_MAX, withBrand } from "@/lib/site";
@@ -75,23 +76,21 @@ export default async function CategoryPage({
   const toolMap: Record<string, Tool> = {};
   for (const t of [...tools, ...extra]) toolMap[t.slug] = t;
 
-  const url = absoluteUrl(`/category/${slug}`);
-  const schema = buildPageSchema({
+  const path = `/category/${slug}`;
+  const graph = buildPageSchema({
     page,
-    url,
+    path,
     tools,
     crumbs: [
       { name: "Home", url: absoluteUrl("/") },
       { name: "Categories", url: absoluteUrl("/categories") },
-      { name: cat.name, url },
+      { name: cat.name, url: absoluteUrl(path) },
     ],
   });
 
   return (
     <div className="mx-auto max-w-[1180px] px-6 py-12 lg:px-10">
-      {schema.map((s, i) => (
-        <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(s) }} />
-      ))}
+      <JsonLd graph={graph} />
 
       <nav className="mono mb-5 flex items-center gap-1.5 text-[12px] text-ink-soft">
         <Link href="/" className="hover:text-accent">Home</Link>

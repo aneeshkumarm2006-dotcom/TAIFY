@@ -8,7 +8,10 @@ import { getTool } from "@/lib/data";
 import { applyBacklinks } from "@/lib/blog/backlinks";
 import { addHeadingIds } from "@/lib/blog/toc";
 import { readingTime } from "@/lib/utils";
-import { OG_IMAGE, OG_IMAGE_CARD, SITE_NAME, SITE_URL, absoluteUrl, metaDescription, withBrand } from "@/lib/site";
+import { OG_IMAGE, OG_IMAGE_CARD, SITE_NAME, absoluteUrl, metaDescription, withBrand } from "@/lib/site";
+import { breadcrumbNode, postNode, webPageNode } from "@/lib/schema/nodes";
+import { postId, ref, toolId } from "@/lib/schema/ids";
+import { JsonLd } from "@/lib/schema/json-ld";
 import { BrandLogo } from "@/components/brand-logo";
 import { ReadingProgress, Toc, ShareButtons } from "@/components/blog/reading-aids";
 import type { Post, Tool } from "@/lib/types";
@@ -122,35 +125,30 @@ export default async function PostPage({
   const morePosts = ring.slice(0, 3);
 
   const description = postDescription(post);
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "BlogPosting",
-    headline: post.title,
-    description,
-    image: post.coverImage ? [post.coverImage] : undefined,
-    datePublished: post.publishedAt,
-    dateModified: post.updatedAt,
-    wordCount: post.body.replace(/<[^>]+>/g, " ").split(/\s+/).filter(Boolean).length,
-    author: { "@type": post.author ? "Person" : "Organization", name: post.author || SITE_NAME },
-    publisher: { "@id": `${SITE_URL}/#organization` },
-    isPartOf: { "@id": `${SITE_URL}/#website` },
-    mainEntityOfPage: { "@type": "WebPage", "@id": url },
-  };
-  const breadcrumb = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Home", item: absoluteUrl("/") },
-      { "@type": "ListItem", position: 2, name: "Blog", item: absoluteUrl("/blog") },
-      { "@type": "ListItem", position: 3, name: post.title, item: url },
-    ],
-  };
+  const path = `/blog/${post.slug}`;
+  const graph = [
+    webPageNode({
+      path,
+      name: post.title,
+      description,
+      primaryImage: post.coverImage || undefined,
+      mainEntity: ref(postId(post.slug)),
+    }),
+    breadcrumbNode(path, [
+      { name: "Home", url: absoluteUrl("/") },
+      { name: "Blog", url: absoluteUrl("/blog") },
+      { name: post.title, url },
+    ]),
+    // `related` is the set of tools this post links to internally and shows in
+    // the "Tools in this post" rail, so `mentions` names entities the reader can
+    // see — it isn't a keyword dump.
+    postNode(post, { description, mentions: related.map((t) => toolId(t.slug)) }),
+  ];
 
   return (
     <>
       <ReadingProgress />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }} />
+      <JsonLd graph={graph} />
 
       <div className="mx-auto max-w-[1180px] px-6 py-10 lg:px-10">
         <div className="grid gap-10 lg:grid-cols-[210px_minmax(0,1fr)_250px]">

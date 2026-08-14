@@ -6,7 +6,10 @@ import { categoryIcon } from "@/lib/category-icons";
 import { roleIcon } from "@/lib/role-icons";
 import { ROLES, rolePath, rolePickSlugs } from "@/data/roles";
 import { Reveal } from "@/components/motion/reveal";
-import { OG_IMAGE, OG_IMAGE_CARD, SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
+import { OG_IMAGE, OG_IMAGE_CARD, SITE_NAME, absoluteUrl } from "@/lib/site";
+import { breadcrumbNode, itemListNode, webPageNode } from "@/lib/schema/nodes";
+import { listId, ref } from "@/lib/schema/ids";
+import { JsonLd } from "@/lib/schema/json-ld";
 
 export const revalidate = 300;
 
@@ -42,53 +45,41 @@ export default async function CategoriesPage() {
 
   const total = Object.values(counts).reduce((n, c) => n + c, 0);
 
-  const schema = [
-    {
-      "@context": "https://schema.org",
-      "@type": "CollectionPage",
+  const graph = [
+    webPageNode({
+      path: "/categories",
       name: TITLE,
       description: DESCRIPTION,
-      url: absoluteUrl("/categories"),
-      isPartOf: { "@id": `${SITE_URL}/#website` },
-      mainEntity: {
-        "@type": "ItemList",
-        numberOfItems: categories.length,
-        itemListElement: categories.map((c, i) => ({
-          "@type": "ListItem",
-          position: i + 1,
-          name: c.name,
-          url: absoluteUrl(`/category/${c.slug}`),
-        })),
-      },
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "ItemList",
+      type: "CollectionPage",
+      mainEntity: ref(listId("/categories", "categories")),
+    }),
+    breadcrumbNode("/categories", [
+      { name: "Home", url: absoluteUrl("/") },
+      { name: "Categories", url: absoluteUrl("/categories") },
+    ]),
+    itemListNode({
+      path: "/categories",
+      key: "categories",
+      name: "AI tools by category",
+      entries: categories.map((c) => ({
+        name: c.name,
+        url: absoluteUrl(`/category/${c.slug}`),
+      })),
+    }),
+    itemListNode({
+      path: "/categories",
+      key: "professions",
       name: "AI tools by profession",
-      numberOfItems: ROLES.length,
-      itemListElement: ROLES.map((r, i) => ({
-        "@type": "ListItem",
-        position: i + 1,
+      entries: ROLES.map((r) => ({
         name: `AI for ${r.lower}`,
         url: absoluteUrl(rolePath(r)),
       })),
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Home", item: absoluteUrl("/") },
-        { "@type": "ListItem", position: 2, name: "Categories", item: absoluteUrl("/categories") },
-      ],
-    },
+    }),
   ];
 
   return (
     <div className="mx-auto max-w-[1200px] px-6 py-12 lg:px-10">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-      />
+      <JsonLd graph={graph} />
 
       <nav className="mono mb-5 flex items-center gap-1.5 text-[12px] text-ink-soft">
         <Link href="/" className="hover:text-accent">Home</Link>

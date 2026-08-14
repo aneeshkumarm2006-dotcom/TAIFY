@@ -10,7 +10,7 @@ import { BrandLogo } from "@/components/brand-logo";
 import { AiDepthBadge, PricingBadge, VerifiedBadge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
 import { ToolGrid } from "@/components/tool-rail";
-import { embedUrl, timeAgo } from "@/lib/utils";
+import { embedUrl, sameEntity, timeAgo } from "@/lib/utils";
 import {
   OG_IMAGE,
   OG_IMAGE_CARD,
@@ -19,6 +19,9 @@ import {
   metaDescription,
   pickTitle,
 } from "@/lib/site";
+import { breadcrumbNode, faqNode, toolNode, webPageNode } from "@/lib/schema/nodes";
+import { ref, toolId } from "@/lib/schema/ids";
+import { JsonLd } from "@/lib/schema/json-ld";
 import type { Tool } from "@/lib/types";
 
 export const revalidate = 300;
@@ -99,104 +102,11 @@ const MONTHS = [
   "July", "August", "September", "October", "November", "December",
 ];
 
-/**
- * True when the maker's name is really the product name, so we don't write
- * "Leonardo AI comes from Leonardo". Compares with branding suffixes and
- * punctuation stripped off both sides.
- */
-function sameEntity(name: string, company: string): boolean {
-  const core = (s: string) =>
-    s
-      .toLowerCase()
-      .replace(/\.(ai|new|com|io|co)\b/g, "")
-      .replace(/\b(ai|inc|ltd|labs|llc|technologies|the)\b/g, "")
-      .replace(/[^a-z0-9]/g, "");
-  const a = core(name);
-  const b = core(company);
-  return a === b || (!!a && !!b && (a.startsWith(b) || b.startsWith(a)));
-}
-
 /** "2024·03" reads as "March 2024" in prose, not "2024 03". */
 function launchedLabel(v: string): string {
   const [year, month] = v.split(/[·./-]/);
   const name = MONTHS[Number(month) - 1];
   return name ? `in ${name} ${year}` : `in ${year}`;
-}
-
-/**
- * Product + Breadcrumb for the tool.
- *
- * `Product`, not `SoftwareApplication`: Google lists three required properties
- * for the Software App rich result — name, offers.price, and "Rating or review"
- * (aggregateRating OR review). We have no ratings and no honest basis to derive
- * one, so every tool page shipped one required-property error (Semrush flagged
- * 203/203). Product is satisfied by name + offers alone, keeps the same pricing
- * and vendor semantics, and validates clean. The markup was never malformed —
- * validator.schema.org reported 0 errors — it was ineligible for a rich result
- * we can't honestly earn.
- *
- * Two things are deliberately absent:
- * - `availability`. It is the strongest merchant-listing signal, and a merchant
- *   listing asserts we are the seller. We aren't; we link out to the vendor.
- * - the logo in `image`. Logos are google.com/s2/favicons lookups, and Google's
- *   own robots.txt is `Disallow: /s2`, so they are uncrawlable. `image` is not
- *   required for a product snippet, so it is emitted only when we host a real
- *   screenshot.
- */
-function buildToolSchema(tool: Tool, categoryName: string): object[] {
-  const url = absoluteUrl(`/tool/${tool.slug}`);
-  const images = (tool.images ?? []).map((p) =>
-    p.startsWith("http") ? p : absoluteUrl(p),
-  );
-  return [
-    {
-      "@context": "https://schema.org",
-      "@type": "Product",
-      "@id": `${url}#product`,
-      name: tool.name,
-      alternateName: tool.tagline,
-      description: tool.description,
-      url,
-      sameAs: tool.url,
-      category: categoryName,
-      ...(images.length ? { image: images } : {}),
-      brand: { "@type": "Organization", name: tool.company },
-      offers: {
-        "@type": "Offer",
-        price: tool.costPerMonth,
-        priceCurrency: "USD",
-        ...(tool.costPerMonth > 0
-          ? { priceSpecification: {
-              "@type": "UnitPriceSpecification",
-              price: tool.costPerMonth,
-              priceCurrency: "USD",
-              unitCode: "MON",
-            } }
-          : {}),
-        url: tool.url,
-      },
-      keywords: tool.tags.join(", "),
-      // No `isPartOf` here: it is a CreativeWork property that
-      // SoftwareApplication inherited and Product does not have, so it
-      // validates as UNKNOWN_FIELD. The site graph is already established by
-      // the Organization + WebSite nodes in app/layout.tsx.
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Home", item: absoluteUrl("/") },
-        { "@type": "ListItem", position: 2, name: "Categories", item: absoluteUrl("/categories") },
-        {
-          "@type": "ListItem",
-          position: 3,
-          name: categoryName,
-          item: absoluteUrl(`/category/${tool.category}`),
-        },
-        { "@type": "ListItem", position: 4, name: tool.name, item: url },
-      ],
-    },
-  ];
 }
 
 export default async function ToolPage({
@@ -217,25 +127,34 @@ export default async function ToolPage({
   const catch_ =
     tool.cons.find((c) => !/free tier|no free|paid only|paid-only/i.test(c)) ??
     (tool.pricing === "paid" ? undefined : tool.cons[0]);
-  const schema = [
-    ...buildToolSchema(tool, categoryName),
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      mainEntity: faqs.map((f) => ({
-        "@type": "Question",
-        name: f.q,
-        acceptedAnswer: { "@type": "Answer", text: f.a },
-      })),
-    },
+  const path = `/tool/${tool.slug}`;
+  const shot = tool.images?.[0];
+  const graph = [
+    // `dateModified` belongs here rather than on the Product: it is a
+    // CreativeWork property, and validator.schema.org returns UNKNOWN_FIELD for
+    // it on Product. It reports the same date the page prints under "We checked
+    // this listing", so it is a real freshness signal rather than a bumped one.
+    webPageNode({
+      path,
+      name: `${tool.name} review, pricing and alternatives`,
+      description: tool.description,
+      dateModified: tool.verifiedAt,
+      primaryImage: shot ? (shot.startsWith("http") ? shot : absoluteUrl(shot)) : undefined,
+      mainEntity: ref(toolId(tool.slug)),
+    }),
+    breadcrumbNode(path, [
+      { name: "Home", url: absoluteUrl("/") },
+      { name: "Categories", url: absoluteUrl("/categories") },
+      { name: categoryName, url: absoluteUrl(`/category/${tool.category}`) },
+      { name: tool.name, url: absoluteUrl(path) },
+    ]),
+    toolNode(tool, categoryName),
+    faqNode(path, faqs),
   ];
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-10">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-      />
+      <JsonLd graph={graph} />
       <ToolBackLink
         categorySlug={category?.slug ?? tool.category}
         categoryName={categoryName}

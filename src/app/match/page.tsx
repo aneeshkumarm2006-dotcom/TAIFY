@@ -3,7 +3,9 @@ import Link from "next/link";
 import { SearchBar } from "@/components/search-bar";
 import { MatchResults } from "@/components/match-results";
 import { filterTools, getCategories } from "@/lib/data";
-import { OG_IMAGE, OG_IMAGE_CARD, SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
+import { OG_IMAGE, OG_IMAGE_CARD, SITE_NAME, absoluteUrl } from "@/lib/site";
+import { breadcrumbNode, faqNode, webPageNode } from "@/lib/schema/nodes";
+import { JsonLd } from "@/lib/schema/json-ld";
 
 const TITLE = `AI Match - Describe Your Task, Get 3 Tools · ${SITE_NAME}`;
 const DESCRIPTION =
@@ -66,40 +68,18 @@ export default async function MatchPage({
     getCategories(),
   ]);
 
-  const schema = [
-    {
-      "@context": "https://schema.org",
-      "@type": "WebPage",
-      name: TITLE,
-      description: DESCRIPTION,
-      url: absoluteUrl("/match"),
-      isPartOf: { "@id": `${SITE_URL}/#website` },
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      mainEntity: FAQS.map((f) => ({
-        "@type": "Question",
-        name: f.q,
-        acceptedAnswer: { "@type": "Answer", text: f.a },
-      })),
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Home", item: absoluteUrl("/") },
-        { "@type": "ListItem", position: 2, name: "AI Match", item: absoluteUrl("/match") },
-      ],
-    },
+  const graph = [
+    webPageNode({ path: "/match", name: TITLE, description: DESCRIPTION }),
+    breadcrumbNode("/match", [
+      { name: "Home", url: absoluteUrl("/") },
+      { name: "AI Match", url: absoluteUrl("/match") },
+    ]),
+    faqNode("/match", FAQS),
   ];
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-10">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-      />
+      <JsonLd graph={graph} />
 
       <div className="mb-8 text-center">
         <div className="eyebrow mb-3">AI Match · answers, not a list</div>

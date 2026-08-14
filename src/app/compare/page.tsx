@@ -6,7 +6,9 @@ import type { Tool } from "@/lib/types";
 import { ComparePicker } from "@/components/compare-picker";
 import { PricingBadge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { OG_IMAGE, OG_IMAGE_CARD, SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
+import { OG_IMAGE, OG_IMAGE_CARD, SITE_NAME, absoluteUrl } from "@/lib/site";
+import { breadcrumbNode, webPageNode } from "@/lib/schema/nodes";
+import { JsonLd } from "@/lib/schema/json-ld";
 import type { Metadata } from "next";
 
 const TITLE = `Compare AI Tools Side by Side · ${SITE_NAME}`;
@@ -62,31 +64,28 @@ export default async function ComparePage({
   const a = sp.a ? await getTool(sp.a) : undefined;
   const b = sp.b ? await getTool(sp.b) : undefined;
 
-  const schema = [
-    {
-      "@context": "https://schema.org",
-      "@type": "WebPage",
-      name: a && b ? `${a.name} vs ${b.name}` : TITLE,
+  // Deliberately not pair-specific. Every ?a=&b= variant canonicalises to
+  // /compare, so a node named "Grok vs ChatGPT" would describe a URL Google will
+  // never index under that name — and the description and url beside it were the
+  // generic ones anyway, so the old node contradicted itself. The pairing still
+  // gets its own <title> and social preview, which is where it belongs. For the
+  // same reason there are no per-pair Product or ItemList nodes here; the tools
+  // are marked up on /tool/<slug>, which is the page that gets indexed.
+  const graph = [
+    webPageNode({
+      path: "/compare",
+      name: TITLE,
       description: DESCRIPTION,
-      url: absoluteUrl("/compare"),
-      isPartOf: { "@id": `${SITE_URL}/#website` },
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Home", item: absoluteUrl("/") },
-        { "@type": "ListItem", position: 2, name: "Compare", item: absoluteUrl("/compare") },
-      ],
-    },
+    }),
+    breadcrumbNode("/compare", [
+      { name: "Home", url: absoluteUrl("/") },
+      { name: "Compare", url: absoluteUrl("/compare") },
+    ]),
   ];
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-10">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-      />
+      <JsonLd graph={graph} />
 
       <nav className="mono mb-4 flex items-center gap-1.5 text-[12px] text-ink-soft">
         <Link href="/" className="hover:text-accent">Home</Link>
