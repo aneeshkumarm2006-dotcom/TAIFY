@@ -79,6 +79,22 @@ export async function submissionsCollection(): Promise<Collection<Submission> | 
   return db ? db.collection<Submission>("submissions") : null;
 }
 
+/** A message from the public /contact form. */
+export interface ContactMessage {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  /** Toggled from the admin inbox so the team can track what it has dealt with. */
+  read: boolean;
+  createdAt: string;
+}
+
+export async function contactsCollection(): Promise<Collection<ContactMessage> | null> {
+  const db = await getDb();
+  return db ? db.collection<ContactMessage>("contacts") : null;
+}
+
 export const isDbEnabled = Boolean(uri);
 
 /**

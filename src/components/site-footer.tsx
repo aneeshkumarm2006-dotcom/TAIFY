@@ -48,6 +48,7 @@ export function SiteFooter() {
               links={[
                 ["Submit a tool", "/submit"],
                 ["Listing & pricing", "/submit"],
+                ["Contact us", "/contact"],
               ]}
             />
           </div>
@@ -61,7 +62,6 @@ export function SiteFooter() {
               fired on all 456 crawled pages. There is no safe way to link it.
               The team reaches /login via src/proxy.ts, which redirects any
               unauthenticated /admin or /seoteam request to /login?next=<dest>. */}
-          <span>Built with Next.js · MongoDB · Claude</span>
         </div>
       </div>
     </footer>

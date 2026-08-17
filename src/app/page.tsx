@@ -26,20 +26,14 @@ import { JsonLd } from "@/lib/schema/json-ld";
 // Rebuild in the background every 5 min so tool/logo changes appear without a redeploy.
 export const revalidate = 300;
 
-const TITLE = "Best AI Tools Like ChatGPT | TAIFY";
+const TITLE = "There's An AI For You — Find the Right AI Tool, Fast";
 
-/**
- * The catalog size is read from the database rather than written into the copy.
- * The audit found four different totals on the site at once - 203 in the hero,
- * 190+ in this description, 31+ in the announcement bar - because only the
- * on-page figures were live and the rest were typed once and left behind.
- */
-const describe = (total: number) =>
-  `The best AI tools like ChatGPT, AI apps like ChatGPT, and the best all-in-one AI platform. Compare ${total}+ AI tools and submit your AI tool for free on TAIFY.`;
+const DESCRIPTION =
+  "Discover 1000s of AI tools by profession, use case, and industry. Updated daily. Find the exact AI for your job in seconds — no scrolling through generic lists.";
 
 // Overrides the generic title/description set on the root layout.
 export async function generateMetadata(): Promise<Metadata> {
-  const description = describe(await countTools());
+  const description = DESCRIPTION;
   return {
     title: TITLE,
     description,
@@ -83,7 +77,7 @@ export default async function HomePage() {
     webPageNode({
       path: "/",
       name: TITLE,
-      description: describe(total),
+      description: DESCRIPTION,
       type: "CollectionPage",
       // The homepage has no breadcrumb trail of its own — it is the root.
       hasBreadcrumb: false,

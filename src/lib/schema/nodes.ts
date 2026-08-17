@@ -110,7 +110,7 @@ export function webPageNode({
   path: string;
   name: string;
   description?: string;
-  type?: "WebPage" | "CollectionPage";
+  type?: "WebPage" | "CollectionPage" | "ContactPage";
   hasBreadcrumb?: boolean;
   primaryImage?: string;
   dateModified?: string;
