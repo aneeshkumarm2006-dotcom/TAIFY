@@ -31,17 +31,17 @@ export function generateStaticParams() {
 }
 
 /**
- * `<name> - <tagline> · TAIFY` runs past 70 characters for the wordier taglines
+ * `<name> - <tagline> | TAIFY` runs past 70 characters for the wordier taglines
  * (Semrush flagged 8 tool pages), and past ~60 Google truncates it in the SERP.
  * Fall back through progressively shorter shapes until one fits.
  */
 function toolTitle(tool: Pick<Tool, "name" | "tagline">): string {
   return pickTitle([
-    `${tool.name} - ${tool.tagline.replace(/\.$/, "")} · ${SITE_NAME}`,
+    `${tool.name} - ${tool.tagline.replace(/\.$/, "")} | ${SITE_NAME}`,
     `${tool.name} - ${tool.tagline.replace(/\.$/, "")}`,
-    `${tool.name} Review: Pricing, Pros & Cons · ${SITE_NAME}`,
-    `${tool.name} Review & Pricing · ${SITE_NAME}`,
-    `${tool.name} · ${SITE_NAME}`,
+    `${tool.name} Review: Pricing, Pros & Cons | ${SITE_NAME}`,
+    `${tool.name} Review & Pricing | ${SITE_NAME}`,
+    `${tool.name} | ${SITE_NAME}`,
   ]);
 }
 
@@ -53,7 +53,7 @@ export async function generateMetadata({
   const { slug } = await params;
   const tool = await getTool(slug);
   if (!tool) {
-    return { title: `Tool not found · ${SITE_NAME}`, robots: { index: false, follow: true } };
+    return { title: `Tool not found | ${SITE_NAME}`, robots: { index: false, follow: true } };
   }
 
   const title = toolTitle(tool);

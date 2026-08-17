@@ -13,7 +13,7 @@ import { JsonLd } from "@/lib/schema/json-ld";
 
 export const revalidate = 300;
 
-const TITLE = `Browse AI Tools by Category & Profession · ${SITE_NAME}`;
+const TITLE = `Browse AI Tools by Category & Profession | ${SITE_NAME}`;
 const DESCRIPTION =
   "Browse the best AI tools by category — coding, image, video, research, study — or by profession, from doctors and lawyers to teachers and accountants.";
 

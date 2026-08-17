@@ -91,8 +91,8 @@ export async function generateMetadata({
   const s = SORTS[sort];
 
   const title = cat
-    ? `Browse ${cat.name} AI Tools · ${SITE_NAME}`
-    : `Browse ${s.titleWord} AI Tools · ${SITE_NAME}`;
+    ? `Browse ${cat.name} AI Tools | ${SITE_NAME}`
+    : `Browse ${s.titleWord} AI Tools | ${SITE_NAME}`;
 
   const description = cat
     ? `Every ${cat.name.toLowerCase()} AI tool in the TAIFY catalog, filterable by price, free tier and how recently we checked. Prices are what you'd really pay a month.`

@@ -6,7 +6,7 @@ import { OG_IMAGE, OG_IMAGE_CARD, SITE_NAME, absoluteUrl } from "@/lib/site";
 import { breadcrumbNode, faqNode, webPageNode } from "@/lib/schema/nodes";
 import { JsonLd } from "@/lib/schema/json-ld";
 
-const TITLE = `Submit Your AI Tool - Free Listing · ${SITE_NAME}`;
+const TITLE = `Submit Your AI Tool - Free Listing | ${SITE_NAME}`;
 const DESCRIPTION =
   "List your AI tool in the TAIFY field guide for free. Verified by a person, indexed, and shown in AI Match results. Honest pricing throughout, with optional promoted placement from $49.";
 

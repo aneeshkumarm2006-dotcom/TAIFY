@@ -7,7 +7,7 @@ import { OG_IMAGE, OG_IMAGE_CARD, SITE_NAME, absoluteUrl } from "@/lib/site";
 import { breadcrumbNode, faqNode, webPageNode } from "@/lib/schema/nodes";
 import { JsonLd } from "@/lib/schema/json-ld";
 
-const TITLE = `AI Match - Describe Your Task, Get 3 Tools · ${SITE_NAME}`;
+const TITLE = `AI Match - Describe Your Task, Get 3 Tools | ${SITE_NAME}`;
 const DESCRIPTION =
   "Describe what you're trying to do in one sentence and get three AI tools that fit, with reasons, real monthly costs, and what each one is bad at.";
 

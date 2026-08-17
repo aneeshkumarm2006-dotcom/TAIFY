@@ -25,7 +25,7 @@ export async function generateMetadata({
   const { slug } = await params;
   const page = await getCategoryPage(slug);
   if (!page) {
-    return { title: `Not found · ${SITE_NAME}`, robots: { index: false, follow: true } };
+    return { title: `Not found | ${SITE_NAME}`, robots: { index: false, follow: true } };
   }
   // Guard against an over-long title typed into the admin: anything past the
   // 70-character limit falls back to the generated short form rather than

@@ -5,7 +5,7 @@ import { OG_IMAGE, OG_IMAGE_CARD, SITE_NAME, absoluteUrl } from "@/lib/site";
 import { breadcrumbNode, faqNode, webPageNode } from "@/lib/schema/nodes";
 import { JsonLd } from "@/lib/schema/json-ld";
 
-const TITLE = `Contact Us · ${SITE_NAME}`;
+const TITLE = `Contact Us | ${SITE_NAME}`;
 const DESCRIPTION =
   "Get in touch with the TAIFY team. Corrections to a listing, pricing that has changed, partnership questions, or anything else about the field guide to AI tools.";
 

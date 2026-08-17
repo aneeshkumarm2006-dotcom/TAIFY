@@ -9,7 +9,7 @@ import { breadcrumbNode, postStub } from "@/lib/schema/nodes";
 import { orgId, ref, websiteId } from "@/lib/schema/ids";
 import { JsonLd } from "@/lib/schema/json-ld";
 
-const TITLE = `AI Tool Guides &amp; Comparisons · ${SITE_NAME}`.replace("&amp;", "&");
+const TITLE = `AI Tool Guides &amp; Comparisons | ${SITE_NAME}`.replace("&amp;", "&");
 const DESCRIPTION =
   "Guides and comparisons on AI tools: how to pick one for the job, what it really costs once the free tier runs out, and where it falls over.";
 

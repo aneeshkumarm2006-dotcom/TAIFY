@@ -26,7 +26,7 @@ import { JsonLd } from "@/lib/schema/json-ld";
 // Rebuild in the background every 5 min so tool/logo changes appear without a redeploy.
 export const revalidate = 300;
 
-const TITLE = "There's An AI For You — Find the Right AI Tool, Fast";
+const TITLE = "There's An AI For You | Find the Right AI Tool, Fast";
 
 const DESCRIPTION =
   "Discover 1000s of AI tools by profession, use case, and industry. Updated daily. Find the exact AI for your job in seconds — no scrolling through generic lists.";

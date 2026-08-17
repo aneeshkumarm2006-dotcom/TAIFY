@@ -51,7 +51,7 @@ export async function generateMetadata({
   const { slug } = await params;
   const post = await getPublishedPost(slug);
   if (!post) {
-    return { title: `Not found · ${SITE_NAME}`, robots: { index: false, follow: true } };
+    return { title: `Not found | ${SITE_NAME}`, robots: { index: false, follow: true } };
   }
   const url = absoluteUrl(`/blog/${post.slug}`);
   const images = post.coverImage ? [post.coverImage] : undefined;

@@ -27,7 +27,7 @@ export async function generateMetadata({
   if (RESERVED.has(slug)) return {};
   const page = await getCustomPage(slug);
   if (!page) {
-    return { title: `Not found · ${SITE_NAME}`, robots: { index: false, follow: true } };
+    return { title: `Not found | ${SITE_NAME}`, robots: { index: false, follow: true } };
   }
   const title = page.metaTitle || withBrand(page.title);
   const description = page.excerpt || metaDescription(page.intro);

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { DashboardNav } from "@/components/admin/dashboard-nav";
 
 export const metadata: Metadata = {
-  title: "SEO blog · TAIFY",
+  title: "SEO blog | TAIFY",
   robots: { index: false, follow: false },
 };
 

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { DashboardNav } from "@/components/admin/dashboard-nav";
 
 export const metadata: Metadata = {
-  title: "Tools admin · TAIFY",
+  title: "Tools admin | TAIFY",
   robots: { index: false, follow: false },
 };
 

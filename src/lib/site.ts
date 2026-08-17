@@ -63,7 +63,7 @@ export function absoluteUrl(path: string): string {
 export const TITLE_TARGET = 60;
 export const TITLE_MAX = 70;
 
-const BRAND_SUFFIX = ` · ${SITE_NAME}`;
+const BRAND_SUFFIX = ` | ${SITE_NAME}`;
 
 /**
  * Append the brand to a title, shortening the title itself when the suffix

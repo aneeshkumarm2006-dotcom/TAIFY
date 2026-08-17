@@ -11,7 +11,7 @@ import { breadcrumbNode, webPageNode } from "@/lib/schema/nodes";
 import { JsonLd } from "@/lib/schema/json-ld";
 import type { Metadata } from "next";
 
-const TITLE = `Compare AI Tools Side by Side · ${SITE_NAME}`;
+const TITLE = `Compare AI Tools Side by Side | ${SITE_NAME}`;
 const DESCRIPTION =
   "Put any two AI tools head to head on real monthly cost, free tier, strengths and freshness, and get a verdict that names one instead of hedging.";
 
@@ -32,7 +32,7 @@ export async function generateMetadata({
   ]);
 
   const title =
-    a && b ? `${a.name} vs ${b.name}: Which Should You Use? · ${SITE_NAME}` : TITLE;
+    a && b ? `${a.name} vs ${b.name}: Which Should You Use? | ${SITE_NAME}` : TITLE;
   const description =
     a && b
       ? `${a.name} vs ${b.name} on real monthly cost, free tier, strengths and freshness, with a verdict on which one fits your budget and your job.`

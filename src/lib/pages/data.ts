@@ -74,7 +74,7 @@ function defaultCategoryPage(cat: Category): Page {
     type: "category",
     slug: cat.slug,
     title: `Best ${cat.name} AI Tools`,
-    metaTitle: seo?.metaTitle ?? `Best ${cat.name} AI Tools (2026) · TAIFY`,
+    metaTitle: seo?.metaTitle ?? `Best ${cat.name} AI Tools (2026) | TAIFY`,
     excerpt:
       seo?.excerpt ??
       `The best ${cat.name.toLowerCase()} AI tools, compared on what they really cost, what they do, and who they suit. Verified daily.`,
