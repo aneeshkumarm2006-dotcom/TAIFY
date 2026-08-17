@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { submissionsCollection } from "@/lib/db/mongo";
+import { sendLeadNotification } from "@/lib/email";
 
+// nodemailer needs a real TCP socket, which the Edge runtime does not have.
 export const runtime = "nodejs";
+// The default 10s is tight once an SMTP handshake is in the path.
+export const maxDuration = 30;
 
 // Light in-memory rate limit per IP.
 const attempts = new Map<string, { count: number; first: number }>();
@@ -38,7 +42,7 @@ export async function POST(req: Request) {
       { status: 400 },
     );
 
-  await col.insertOne({
+  const doc = {
     name,
     url,
     tagline: String(b.tagline ?? "").trim(),
@@ -47,14 +51,52 @@ export async function POST(req: Request) {
     images: Array.isArray(b.images) ? (b.images as string[]).filter(Boolean).slice(0, 8) : [],
     video: String(b.video ?? "").trim(),
     submitterEmail: String(b.submitterEmail ?? "").trim(),
-    status: "pending",
+    status: "pending" as const,
     createdAt: new Date().toISOString(),
-  });
+  };
+
+  // Persist first: a mail failure must never cost us the lead.
+  await col.insertOne(doc);
 
   attempts.set(ip, {
     count: (rec && now - rec.first < WINDOW ? rec.count : 0) + 1,
     first: rec && now - rec.first < WINDOW ? rec.first : now,
   });
 
+  // Awaited on purpose. Vercel freezes the function the moment the response is
+  // returned, so a fire-and-forget send has its SMTP handshake killed
+  // mid-flight: it works in dev and silently sends nothing in production.
+  // sendLeadNotification never throws; the catch is belt-and-braces so that
+  // awaiting it still cannot fail the submission.
+  try {
+    await sendLeadNotification({
+      subject: `New tool submission: ${doc.name}`,
+      heading: "A new tool was submitted for review",
+      replyTo: doc.submitterEmail,
+      fields: [
+        { label: "Tool name", value: doc.name },
+        { label: "Website", value: doc.url },
+        { label: "Tagline", value: doc.tagline },
+        { label: "What it solves", value: doc.description },
+        { label: "Category", value: doc.category },
+        { label: "Screenshots", value: doc.images.join("\n") },
+        { label: "Demo video", value: doc.video },
+        { label: "Submitter email", value: doc.submitterEmail },
+        { label: "Submitted at", value: doc.createdAt },
+        { label: "Review it", value: `${siteOrigin(req)}/admin/submissions` },
+      ],
+    });
+  } catch {
+    // Already logged inside the mail module.
+  }
+
   return NextResponse.json({ ok: true });
+}
+
+/** Origin of the deployment handling this request, for the admin deep link. */
+function siteOrigin(req: Request): string {
+  const configured = (process.env.NEXT_PUBLIC_SITE_URL ?? "").trim();
+  if (configured) return configured.replace(/\/$/, "");
+  const host = req.headers.get("host");
+  return host ? `https://${host}` : "";
 }
