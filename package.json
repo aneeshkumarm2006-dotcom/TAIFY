@@ -9,6 +9,7 @@
     "lint": "eslint",
     "db:seed": "tsx scripts/seed.ts",
     "blog:seed": "tsx scripts/seed-blog.ts",
+    "pages:seed": "tsx scripts/seed-pages.ts",
     "schema:check": "tsx scripts/check-schema.mts"
   },
   "dependencies": {

@@ -78,7 +78,9 @@ function defaultCategoryPage(cat: Category): Page {
     excerpt:
       seo?.excerpt ??
       `The best ${cat.name.toLowerCase()} AI tools, compared on what they really cost, what they do, and who they suit. Verified daily.`,
-    intro: `The best ${cat.name.toLowerCase()} AI tools below, each priced at what you'd really pay a month rather than the cheapest tier on their pricing page.`,
+    intro:
+      seo?.intro ??
+      `The best ${cat.name.toLowerCase()} AI tools below, each priced at what you'd really pay a month rather than the cheapest tier on their pricing page.`,
     blocks: defaultCategoryBlocks(cat),
     customSchema: "",
     status: "published",

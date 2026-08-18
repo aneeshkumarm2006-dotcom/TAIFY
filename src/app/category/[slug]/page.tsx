@@ -7,6 +7,7 @@ import { CATEGORIES } from "@/data/tools";
 import { buildPageSchema } from "@/lib/pages/schema";
 import { JsonLd } from "@/lib/schema/json-ld";
 import { Blocks } from "@/components/pages/block-render";
+import { PageIntro } from "@/components/pages/page-intro";
 import { MotionGrid } from "@/components/motion/motion-grid";
 import { absoluteUrl, OG_IMAGE, OG_IMAGE_CARD, SITE_NAME, TITLE_MAX, withBrand } from "@/lib/site";
 import type { Tool } from "@/lib/types";
@@ -101,9 +102,7 @@ export default async function CategoryPage({
       <h1 className="text-balance text-[clamp(30px,5vw,46px)] font-extrabold tracking-[-0.04em]">
         {page.title}
       </h1>
-      {page.intro && (
-        <p className="mt-4 max-w-2xl text-[17px] leading-relaxed text-ink-soft">{page.intro}</p>
-      )}
+      {page.intro && <PageIntro intro={page.intro} className="max-w-2xl" />}
 
       {tools.length > 0 && (
         <div className="mt-8">

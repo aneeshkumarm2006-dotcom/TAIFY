@@ -5,6 +5,7 @@ import { getTool } from "@/lib/data";
 import { buildPageSchema } from "@/lib/pages/schema";
 import { JsonLd } from "@/lib/schema/json-ld";
 import { Blocks } from "@/components/pages/block-render";
+import { PageIntro } from "@/components/pages/page-intro";
 import { absoluteUrl, metaDescription, OG_IMAGE, OG_IMAGE_CARD, SITE_NAME, withBrand } from "@/lib/site";
 import type { Tool } from "@/lib/types";
 import { RESERVED } from "@/lib/pages/reserved";
@@ -81,9 +82,7 @@ export default async function CustomPage({
       <h1 className="text-balance text-[clamp(30px,5vw,46px)] font-extrabold tracking-[-0.04em]">
         {page.title}
       </h1>
-      {page.intro && (
-        <p className="mt-4 text-[17px] leading-relaxed text-ink-soft">{page.intro}</p>
-      )}
+      {page.intro && <PageIntro intro={page.intro} />}
       <Blocks blocks={page.blocks} toolMap={toolMap} />
     </div>
   );

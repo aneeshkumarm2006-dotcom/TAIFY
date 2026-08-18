@@ -86,9 +86,13 @@ export default function SubmitPage() {
       </nav>
 
       <div className="eyebrow mb-3">For makers</div>
-      <h1 className="text-[clamp(28px,4vw,40px)] font-extrabold tracking-[-0.035em]">
-        List your AI tool.
+      <h1 className="text-balance text-[clamp(28px,4vw,40px)] font-extrabold tracking-[-0.035em]">
+        Submit Your AI Tool to TAIFY — Free Basic Listing
       </h1>
+      <p className="mt-3 max-w-lg text-[16px] text-ink-soft">
+        This is where you submit an AI tool for review — takes a few minutes,
+        and the basic listing is free.
+      </p>
       <p className="mt-3 max-w-lg text-[16px] text-ink-soft">
         TAIFY is transparent about cost - for users <em>and</em> for you. Basic
         listing is free; promotion is optional and clearly labeled.

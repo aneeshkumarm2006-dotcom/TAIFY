@@ -11,6 +11,12 @@
 export interface CategorySeo {
   metaTitle: string;
   excerpt: string;
+  /**
+   * Optional replacement for the generated intro paragraph under the H1.
+   * A blank line starts a new paragraph, so a category can open with the
+   * usual pricing line and then explain what the category actually covers.
+   */
+  intro?: string;
 }
 
 export const CATEGORY_SEO: Record<string, CategorySeo> = {
@@ -63,6 +69,9 @@ export const CATEGORY_SEO: Record<string, CategorySeo> = {
     metaTitle: "Best AI Marketing Tools | TAIFY",
     excerpt:
       "Discover the best AI marketing tools, free AI tools for marketing, best AI marketing tools 2026, AI marketing assistants, and AI ad optimization software.",
+    intro:
+      "The best marketing AI tools below, each priced at what you'd really pay a month rather than the cheapest tier on their pricing page.\n\n" +
+      "AI marketing assistants can help with everyday marketing tasks such as content creation, SEO, campaign planning, audience research, social media, and advertising. They're useful for marketers, agencies, small businesses, and anyone who wants to speed up repetitive marketing work.",
   },
   "real-estate": {
     metaTitle: "Best AI Tools for Real Estate Agents | TAIFY",
