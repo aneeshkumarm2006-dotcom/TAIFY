@@ -24,6 +24,46 @@ export function slugify(input: string): string {
     .slice(0, 80);
 }
 
+/**
+ * Host of a URL, lowercased and without "www." - "" when it will not parse.
+ * Accepts input with the protocol left off, the way people type it into a form.
+ */
+export function urlHost(input: string): string {
+  const raw = input.trim();
+  if (!raw) return "";
+  try {
+    const u = new URL(/^https?:\/\//i.test(raw) ? raw : `https://${raw}`);
+    return u.hostname.toLowerCase().replace(/^www\./, "");
+  } catch {
+    return "";
+  }
+}
+
+/**
+ * Stable identity for a submitted tool, used to recognise the same product
+ * coming back a second time: "https://www.Penroll.app/" and "penroll.app" and
+ * "https://penroll.app?utm_source=x" all collapse to "penroll.app".
+ *
+ * The query string is dropped wholesale rather than filtered. Every repeat
+ * submission we have seen differs only by tracking parameters, and a tool whose
+ * identity genuinely lives in a query parameter is rare enough to handle by
+ * hand. Returns "" for anything that will not parse, which callers treat as an
+ * invalid URL rather than as a key.
+ */
+export function canonicalUrlKey(input: string): string {
+  const host = urlHost(input);
+  if (!host) return "";
+  const raw = input.trim();
+  let path = "";
+  try {
+    path = new URL(/^https?:\/\//i.test(raw) ? raw : `https://${raw}`).pathname;
+  } catch {
+    return host;
+  }
+  path = path.replace(/\/+$/, "").toLowerCase();
+  return path && path !== "/" ? `${host}${path}` : host;
+}
+
 /** Convert a YouTube/Vimeo watch URL to an embeddable URL (null if not video). */
 export function embedUrl(url: string): string | null {
   if (!url) return null;

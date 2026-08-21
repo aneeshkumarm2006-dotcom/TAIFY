@@ -1,8 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { SESSION_COOKIE, verifySession } from "@/lib/auth/session";
 
-// Protect the dashboard UIs and their write APIs.
-const PROTECTED_PAGES = ["/admin", "/seoteam"];
+// Protect the dashboard UIs, their write APIs, and the unpublished-draft
+// previews the review screen renders in an iframe.
+const PROTECTED_PAGES = ["/admin", "/seoteam", "/preview"];
 const PROTECTED_APIS = ["/api/admin", "/api/seoteam"];
 
 export async function proxy(req: NextRequest) {
@@ -30,5 +31,11 @@ export async function proxy(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/seoteam/:path*", "/api/admin/:path*", "/api/seoteam/:path*"],
+  matcher: [
+    "/admin/:path*",
+    "/seoteam/:path*",
+    "/preview/:path*",
+    "/api/admin/:path*",
+    "/api/seoteam/:path*",
+  ],
 };

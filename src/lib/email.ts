@@ -193,6 +193,56 @@ export function describeMailConfig() {
   };
 }
 
+/** A one-off message to the person who submitted a tool. */
+export interface SubmitterEmail {
+  to: string;
+  subject: string;
+  heading: string;
+  /** Body paragraphs, rendered in order. */
+  body: string[];
+  /** Optional button, e.g. the published listing. */
+  cta?: { label: string; url: string };
+}
+
+/**
+ * Write back to a submitter: confirmation on arrival, and the decision when
+ * their tool is published or turned down.
+ *
+ * Same never-throws contract as sendLeadNotification. A submitter who never
+ * hears anything is a bad experience, but it must not be able to fail an
+ * approval that has already written to the database, so every failure is
+ * reported through the result and swallowed by the caller.
+ */
+export async function sendSubmitterEmail(
+  msg: SubmitterEmail,
+): Promise<MailResult> {
+  const cfg = readConfig();
+  if (!cfg) return { ok: false, skipped: "SMTP_USER / SMTP_PASS not configured" };
+
+  const to = msg.to.trim();
+  if (!to) return { ok: false, skipped: "no submitter address" };
+
+  const replyTo = readRecipients()[0];
+
+  try {
+    const info = await getTransport(cfg).sendMail({
+      from: cfg.from,
+      to,
+      replyTo,
+      subject: msg.subject,
+      text: [msg.heading, "", ...msg.body, msg.cta ? `\n${msg.cta.label}: ${msg.cta.url}` : ""]
+        .filter(Boolean)
+        .join("\n"),
+      html: noticeHtml(msg),
+    });
+    return { ok: true, messageId: info.messageId, recipients: [to] };
+  } catch (err) {
+    const error = err instanceof Error ? err.message : String(err);
+    console.error("[email] submitter notice failed:", error);
+    return { ok: false, error, recipients: [to] };
+  }
+}
+
 // ---- Body rendering ----
 
 function textBody(heading: string, rows: LeadNotification["fields"]): string {
@@ -226,6 +276,26 @@ function htmlBody(heading: string, rows: LeadNotification["fields"]): string {
     `<div style="font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#111">` +
     `<h2 style="margin:0 0 14px;font-size:17px">${escapeHtml(heading)}</h2>` +
     `<table cellpadding="0" cellspacing="0" style="border-collapse:collapse">${cells}</table>` +
+    `</div>`
+  );
+}
+
+function noticeHtml(msg: SubmitterEmail): string {
+  const paras = msg.body
+    .map(
+      (p) =>
+        `<p style="margin:0 0 12px;font-size:14px;line-height:1.6">${escapeHtml(p)}</p>`,
+    )
+    .join("");
+  const cta = msg.cta
+    ? `<p style="margin:18px 0 0"><a href="${escapeHtml(msg.cta.url)}" style="display:inline-block;background:#3a7ca5;color:#fff;text-decoration:none;padding:10px 18px;border-radius:8px;font-size:14px;font-weight:600">${escapeHtml(msg.cta.label)}</a></p>`
+    : "";
+  return (
+    `<div style="font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#111;max-width:560px">` +
+    `<h2 style="margin:0 0 14px;font-size:17px">${escapeHtml(msg.heading)}</h2>` +
+    paras +
+    cta +
+    `<p style="margin:22px 0 0;font-size:12px;color:#777">TAIFY - thereisanaiforyou.com</p>` +
     `</div>`
   );
 }

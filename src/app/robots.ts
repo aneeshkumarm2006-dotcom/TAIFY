@@ -10,7 +10,7 @@ export default function robots(): MetadataRoute.Robots {
         // Private dashboards + endpoints. Everything public stays crawlable;
         // duplicate filter permutations are handled with canonical tags on
         // /browse rather than a Disallow, so link equity still flows.
-        disallow: ["/admin", "/seoteam", "/login", "/api/"],
+        disallow: ["/admin", "/seoteam", "/preview", "/login", "/api/"],
       },
     ],
     sitemap: `${SITE_URL}/sitemap.xml`,

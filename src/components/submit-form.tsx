@@ -1,9 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { Loader2, CheckCircle2 } from "lucide-react";
 import { CATEGORIES } from "@/data/tools";
 import { Select } from "@/components/ui/select";
+
+interface FormError {
+  message: string;
+  /** Set when the tool is already in the catalog, so we can link to it. */
+  existingSlug?: string;
+}
 
 export function SubmitForm() {
   const [f, setF] = useState({
@@ -17,13 +24,27 @@ export function SubmitForm() {
     submitterEmail: "",
   });
   const [status, setStatus] = useState<"idle" | "saving" | "done" | "error">("idle");
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<FormError | null>(null);
   const set = (k: keyof typeof f, v: string) => setF((p) => ({ ...p, [k]: v }));
+
+  // Two signals a script cannot fake convincingly: a field only a headless
+  // browser would find, and the time between the form appearing and being
+  // submitted. Both are read by the API, which answers a bot exactly as it
+  // answers a person.
+  const trap = useRef<HTMLInputElement>(null);
+  const openedAt = useRef(0);
+  useEffect(() => {
+    openedAt.current = Date.now();
+  }, []);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!f.name.trim() || !f.url.trim()) {
-      setError("Tool name and website are required.");
+      setError({ message: "Tool name and website are required." });
+      return;
+    }
+    if (!f.submitterEmail.trim()) {
+      setError({ message: "We need an email address to reach you about the listing." });
       return;
     }
     setStatus("saving");
@@ -34,11 +55,20 @@ export function SubmitForm() {
       body: JSON.stringify({
         ...f,
         images: f.images.split("\n").map((s) => s.trim()).filter(Boolean),
+        company_website: trap.current?.value ?? "",
+        elapsedMs: openedAt.current ? Date.now() - openedAt.current : 0,
       }),
     });
     if (res.ok) setStatus("done");
     else {
-      setError((await res.json().catch(() => ({})))?.error ?? "Something went wrong.");
+      const d = (await res.json().catch(() => ({}))) as {
+        error?: string;
+        existingSlug?: string;
+      };
+      setError({
+        message: d.error ?? "Something went wrong.",
+        existingSlug: d.existingSlug,
+      });
       setStatus("error");
     }
   }
@@ -50,6 +80,7 @@ export function SubmitForm() {
         <h2 className="mt-3 text-[18px] font-bold">Thanks - submission received!</h2>
         <p className="mt-1 text-[14px] text-ink-soft">
           Our team will review <b>{f.name}</b> and publish it if it&apos;s a fit.
+          We&apos;ve sent a confirmation to {f.submitterEmail}.
         </p>
       </div>
     );
@@ -87,11 +118,38 @@ export function SubmitForm() {
       <Field label="Demo video URL (YouTube / Vimeo)">
         <input className={inp} value={f.video} onChange={(e) => set("video", e.target.value)} placeholder="https://youtube.com/watch?v=…" />
       </Field>
-      <Field label="Your email (optional - for updates)">
+      <Field label="Your email *">
         <input className={inp} value={f.submitterEmail} onChange={(e) => set("submitterEmail", e.target.value)} placeholder="you@company.com" type="email" />
+        <p className="mono text-[11px] text-ink-soft">
+          Where we send the decision. Never published on your listing.
+        </p>
       </Field>
 
-      {error && <p className="text-[13px] text-accent-ink">{error}</p>}
+      {/* Honeypot. Hidden from people and from screen readers; bots fill it. */}
+      <input
+        ref={trap}
+        type="text"
+        name="company_website"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        className="absolute left-[-9999px] h-0 w-0 opacity-0"
+      />
+
+      {error && (
+        <p className="text-[13px] text-accent-ink">
+          {error.message}
+          {error.existingSlug && (
+            <>
+              {" "}
+              <Link href={`/tool/${error.existingSlug}`} className="underline">
+                See the listing
+              </Link>
+              .
+            </>
+          )}
+        </p>
+      )}
 
       <button
         type="submit"

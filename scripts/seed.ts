@@ -26,9 +26,33 @@ async function main() {
   const col = db.collection<ToolDoc>("tools");
 
   // Remove any tools no longer in the catalog (e.g. old placeholder entries).
+  //
+  // Guarded, because this line is more destructive than it looks. Production
+  // serves tools from Mongo, and a listing published by approving a submission
+  // exists only there - its slug is not in src/data/tools.ts, so an unguarded
+  // seed silently deletes every tool the review queue has ever produced.
+  // Re-running the seed to refresh copy must never be the thing that does that.
   const slugs = TOOLS.map((t) => t.slug);
-  const removed = await col.deleteMany({ slug: { $nin: slugs } });
-  if (removed.deletedCount) console.log(`  removed ${removed.deletedCount} stale tool(s)`);
+  const orphans = await col
+    .find({ slug: { $nin: slugs } }, { projection: { slug: 1, name: 1, _id: 0 } })
+    .toArray();
+
+  if (orphans.length && !process.argv.includes("--prune")) {
+    console.error(
+      `✗ ${orphans.length} tool(s) in the database are not in src/data/tools.ts:\n` +
+        orphans.map((o) => `    ${o.slug}${o.name ? ` (${o.name})` : ""}`).join("\n") +
+        "\n\n  These were most likely published from the submission queue and " +
+        "exist nowhere else.\n  Back-port them into TOOLS, or re-run with --prune " +
+        "to delete them for good.",
+    );
+    await client.close();
+    process.exit(1);
+  }
+
+  if (orphans.length) {
+    const removed = await col.deleteMany({ slug: { $nin: slugs } });
+    console.log(`  removed ${removed.deletedCount} stale tool(s) (--prune)`);
+  }
 
   // Idempotent: upsert each tool by slug so re-running is safe.
   const ops = TOOLS.map((t) => ({
