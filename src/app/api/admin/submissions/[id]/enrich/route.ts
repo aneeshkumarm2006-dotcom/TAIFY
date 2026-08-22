@@ -39,7 +39,12 @@ export async function POST(
     tagline: page.tagline,
     description: page.description,
     images: page.image ? [page.image] : [],
-    logo: page.icon || faviconFor(url),
+    // Deliberately the Google favicon rather than the site's own icon, even
+    // though we just scraped one: the logo renders through next/image, which
+    // throws on a host missing from next.config.ts. A self-hosted favicon would
+    // 500 the published page. Google's service 404s for some domains - the link
+    // check catches that, and an empty logo falls back to the letter tile.
+    logo: faviconFor(url),
     color: page.themeColor || undefined,
   };
 

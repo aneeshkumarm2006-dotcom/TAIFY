@@ -110,10 +110,18 @@ export function ToolFields({
           </select>
         </Field>
       </div>
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 gap-3">
         <Field label="Real $/mo">
           <input type="number" className={inp} value={(f.costPerMonth as number) ?? 0} onChange={(e) => set("costPerMonth", e.target.value)} />
         </Field>
+        <Field label="Billed">
+          <select className={inp} value={(f.billing as string) ?? "monthly"} onChange={(e) => set("billing", e.target.value)}>
+            <option value="monthly">per month</option>
+            <option value="one-time">one-time licence</option>
+          </select>
+        </Field>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
         <Field label="Mark (2 ltrs)">
           <input className={inp} maxLength={2} value={(f.mark as string) ?? ""} onChange={(e) => set("mark", e.target.value)} />
         </Field>

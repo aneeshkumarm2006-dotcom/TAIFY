@@ -5,7 +5,7 @@ import { TOOLS } from "@/data/tools";
 import type { Tool } from "@/lib/types";
 import { ComparePicker } from "@/components/compare-picker";
 import { PricingBadge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { cn, costChip } from "@/lib/utils";
 import { OG_IMAGE, OG_IMAGE_CARD, SITE_NAME, absoluteUrl } from "@/lib/site";
 import { breadcrumbNode, webPageNode } from "@/lib/schema/nodes";
 import { JsonLd } from "@/lib/schema/json-ld";
@@ -222,7 +222,7 @@ interface Row {
 }
 
 function buildRows(a: Tool, b: Tool): Row[] {
-  const cost = (t: Tool) => (t.costPerMonth === 0 ? "$0" : `~$${t.costPerMonth}`);
+  const cost = (t: Tool) => costChip(t.costPerMonth, t.billing);
   const freeTier = (t: Tool) => t.pricing === "free" || t.pricing === "freemium";
   return [
     { label: "Pricing", a: <PricingBadge pricing={a.pricing} />, b: <PricingBadge pricing={b.pricing} /> },

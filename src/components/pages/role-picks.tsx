@@ -4,6 +4,7 @@ import type { Role } from "@/data/roles";
 import type { CardTool } from "@/lib/types";
 import { BrandLogo } from "@/components/brand-logo";
 import { PricingBadge } from "@/components/ui/badge";
+import { costChip } from "@/lib/utils";
 
 /**
  * The curated sections on a profession page.
@@ -75,7 +76,7 @@ function PickRow({ tool, why }: { tool: CardTool; why: string }) {
             </span>
             <PricingBadge pricing={tool.pricing} />
             <span className="mono text-[11.5px] text-ink-soft">
-              {tool.costPerMonth === 0 ? "$0" : `~$${tool.costPerMonth}/mo`}
+              {costChip(tool.costPerMonth, tool.billing)}
             </span>
           </div>
           <p className="mt-1.5 text-[14px] leading-relaxed text-ink-soft">

@@ -42,6 +42,8 @@ export async function PUT(
   if (body.pricing && PRICINGS.includes(body.pricing)) set.pricing = body.pricing;
   if (body.aiDepth === "native" || body.aiDepth === "feature") set.aiDepth = body.aiDepth;
   if (body.costPerMonth !== undefined) set.costPerMonth = Number(body.costPerMonth) || 0;
+  if (body.billing === "one-time" || body.billing === "monthly")
+    set.billing = body.billing === "one-time" ? "one-time" : undefined;
   if (body.featured !== undefined) set.featured = Boolean(body.featured);
 
   const res = await col.updateOne({ slug }, { $set: set });

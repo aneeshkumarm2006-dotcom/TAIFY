@@ -102,6 +102,7 @@ export function buildToolDoc(slug: string, body: Partial<Tool>): ToolDoc {
     pricing,
     aiDepth: body.aiDepth === "feature" ? "feature" : "native",
     costPerMonth: Number(body.costPerMonth) || 0,
+    billing: body.billing === "one-time" ? "one-time" : undefined,
     listingCost: body.listingCost || "Free · promoted from $49",
     verifiedAt: now,
     launched:

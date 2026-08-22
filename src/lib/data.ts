@@ -147,6 +147,7 @@ export function toCardTool(t: Tool): CardTool {
     pricing: t.pricing,
     verifiedAt: t.verifiedAt,
     costPerMonth: t.costPerMonth,
+    billing: t.billing,
     aiDepth: t.aiDepth,
   };
 }

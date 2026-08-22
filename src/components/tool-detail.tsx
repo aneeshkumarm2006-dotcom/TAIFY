@@ -39,6 +39,8 @@ export function ToolDetail({
 }) {
   const category = CATEGORIES.find((c) => c.slug === tool.category);
   const categoryName = category?.name ?? tool.category;
+  // A licence bought outright, not a subscription: "$42 / mo" would be false.
+  const once = tool.billing === "one-time";
   // The sentence before this already covers the pricing model, so a watch-out
   // that only restates it ("no free tier") would read twice in a row.
   const catch_ =
@@ -120,7 +122,9 @@ export function ToolDetail({
                 <span className="font-semibold text-accent-ink">
                   {tool.costPerMonth === 0
                     ? "$0 · free"
-                    : `~$${tool.costPerMonth} / mo`}
+                    : once
+                      ? `~$${tool.costPerMonth} · one-time`
+                      : `~$${tool.costPerMonth} / mo`}
                 </span>
               </Row>
               <Row k="Cost to get listed here">
@@ -155,9 +159,13 @@ export function ToolDetail({
                 <b className="text-ink">
                   {tool.costPerMonth === 0
                     ? "nothing"
-                    : `about $${tool.costPerMonth} a month`}
+                    : once
+                      ? `about $${tool.costPerMonth}, once`
+                      : `about $${tool.costPerMonth} a month`}
                 </b>
-                {" if you use it like most people do. "}
+                {once
+                  ? " and never again. "
+                  : " if you use it like most people do. "}
                 {tool.pricing === "free"
                   ? "There's no paid tier waiting behind it."
                   : tool.pricing === "freemium"
@@ -212,7 +220,11 @@ export function ToolDetail({
             <div className="text-[26px] font-extrabold tracking-[-0.03em]">
               {tool.costPerMonth === 0 ? "$0" : `~$${tool.costPerMonth}`}
               <span className="mono ml-1 text-[12px] font-medium text-ink-soft">
-                {tool.costPerMonth === 0 ? "free" : "/mo real"}
+                {tool.costPerMonth === 0
+                  ? "free"
+                  : once
+                    ? "one-time"
+                    : "/mo real"}
               </span>
             </div>
             <div className="mono mt-1 text-[12px] text-ink-soft">
@@ -303,7 +315,9 @@ export function buildFaqs(
     a:
       tool.costPerMonth === 0
         ? `Nothing, for the way most people use it. There's no paid tier waiting behind the free one.`
-        : `About $${tool.costPerMonth} a month in practice. That's the plan people actually land on, not the cheapest one on the pricing page.`,
+        : tool.billing === "one-time"
+          ? `About $${tool.costPerMonth}, paid once. There's no subscription behind it and no monthly renewal.`
+          : `About $${tool.costPerMonth} a month in practice. That's the plan people actually land on, not the cheapest one on the pricing page.`,
   });
 
   out.push({

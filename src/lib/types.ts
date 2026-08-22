@@ -38,6 +38,12 @@ export interface Tool {
   aiDepth: AiDepth;
   /** real "~$/mo to actually use" - 0 means free */
   costPerMonth: number;
+  /**
+   * How costPerMonth is charged. Absent means the usual monthly subscription;
+   * "one-time" is a licence bought once, where printing "$42 / mo" would be a
+   * plain falsehood on a catalog whose whole pitch is honest pricing.
+   */
+  billing?: "monthly" | "one-time";
   /** owner-facing: what it costs to be listed/promoted here */
   listingCost: string;
   /** ISO date of last automated freshness check */
@@ -75,6 +81,7 @@ export type CardTool = Pick<
   | "aiDepth"
   | "verifiedAt"
   | "costPerMonth"
+  | "billing"
 >;
 
 /** Even smaller: what a bare logo tile needs. */

@@ -92,6 +92,25 @@ function ownedHost(host: string): boolean {
 }
 
 /**
+ * Hosts next/image will load, mirroring `images.remotePatterns` in
+ * next.config.ts.
+ *
+ * The logo is the one field rendered through next/image, and next/image throws
+ * on an unconfigured host - which means a published listing with a self-hosted
+ * favicon does not degrade, it returns a 500 for the whole tool page. Keep this
+ * list in step with next.config.ts.
+ */
+function logoHostAllowed(host: string): boolean {
+  return (
+    host === "www.google.com" ||
+    host === "picsum.photos" ||
+    host === "images.unsplash.com" ||
+    host === "cdn.pixabay.com" ||
+    host.endsWith("public.blob.vercel-storage.com")
+  );
+}
+
+/**
  * What is missing or suspect in a draft.
  *
  * The blocking set is deliberately the shape of a listing readers expect: an
@@ -124,6 +143,15 @@ export function checkDraft(draft: Partial<Tool>): DraftIssue[] {
   const images = arr(draft.images);
   if (images.length === 0 && !draft.logo?.trim())
     block("images", "No screenshot and no logo - the listing would render bare");
+
+  // Blocking, not a warning: next/image throws on an unconfigured host, so this
+  // does not degrade to a missing image, it 500s the published tool page.
+  const logoHost = urlHost(draft.logo ?? "");
+  if (logoHost && !logoHostAllowed(logoHost))
+    block(
+      "logo",
+      `Logo host ${logoHost} is not in next.config.ts - it would 500 the page. Use a Google favicon, or clear the field for a letter tile.`,
+    );
 
   const tags = arr(draft.tags);
   if (tags.length < 3) warn("tags", `Only ${tags.length} tag(s) - aim for 3+`);

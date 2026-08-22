@@ -116,3 +116,16 @@ export function timeAgo(date: Date | string): string {
   if (mins > 0) return `${mins}m ago`;
   return "just now";
 }
+
+/**
+ * The compact price chip used on cards and comparison rows: "$0", "~$20/mo",
+ * or "~$42 once" for a licence bought outright. Kept in one place so a
+ * one-time price cannot be printed as a monthly one in three of four spots.
+ */
+export function costChip(
+  costPerMonth: number,
+  billing?: "monthly" | "one-time",
+): string {
+  if (costPerMonth === 0) return "$0";
+  return billing === "one-time" ? `~$${costPerMonth} once` : `~$${costPerMonth}/mo`;
+}

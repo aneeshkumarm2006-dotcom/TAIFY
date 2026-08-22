@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { CardTool } from "@/lib/types";
 import { BrandLogo } from "./brand-logo";
 import { AiDepthBadge, PricingBadge, VerifiedBadge } from "./ui/badge";
-import { cn } from "@/lib/utils";
+import { cn, costChip } from "@/lib/utils";
 
 export function ToolCard({
   tool,
@@ -59,7 +59,7 @@ export function ToolCard({
         <span className="mono text-[11.5px] text-ink-soft">
           real cost{" "}
           <b className="font-semibold text-ink">
-            {tool.costPerMonth === 0 ? "$0" : `~$${tool.costPerMonth}/mo`}
+            {costChip(tool.costPerMonth, tool.billing)}
           </b>
         </span>
       </div>
