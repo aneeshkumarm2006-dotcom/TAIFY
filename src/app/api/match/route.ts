@@ -1,9 +1,28 @@
 import { NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { filterTools } from "@/lib/data";
+import { noteAttempt, rateOnly } from "@/lib/spam/guard";
 import type { Tool } from "@/lib/types";
 
 export const runtime = "nodejs";
+
+/**
+ * Caps for the matcher.
+ *
+ * This endpoint is the only public POST on the site that spends money: it hands
+ * the entire catalog to Claude on every call. Until now it had no honeypot, no
+ * timer and no limit of any kind, so a shell loop against it billed the
+ * ANTHROPIC_API_KEY directly. That is not a spam problem, it is a billing one,
+ * and it needed a ceiling more than it needed a classifier.
+ *
+ * Generous on purpose - trying four or five phrasings in an hour is what the
+ * page is for - and the fallback scorer below is free, so anyone over the cap
+ * still gets a real answer rather than an error.
+ */
+const MAX_PER_IP = 20;
+const MAX_PER_NET = 60;
+/** Long enough for any real question, short enough not to be a prompt payload. */
+const MAX_QUERY_CHARS = 500;
 
 interface Pick {
   slug: string;
@@ -18,8 +37,8 @@ interface MatchResponse {
 }
 
 export async function POST(req: Request) {
-  const { query } = (await req.json()) as { query?: string };
-  const q = (query ?? "").trim();
+  const { query } = (await req.json().catch(() => ({}))) as { query?: string };
+  const q = (query ?? "").trim().slice(0, MAX_QUERY_CHARS);
   if (!q) {
     return NextResponse.json({ error: "Empty query" }, { status: 400 });
   }
@@ -31,10 +50,27 @@ export async function POST(req: Request) {
     return NextResponse.json({ query: q, picks: [], others: [], usedAI: false });
   }
 
+  // Over the cap, fall through to the local scorer rather than returning an
+  // error. It costs nothing to run and the visitor still gets recommendations,
+  // so a shared office IP hitting the ceiling degrades instead of breaking.
+  const rate = await rateOnly(req, "match", {
+    perIp: MAX_PER_IP,
+    perNet: MAX_PER_NET,
+  });
+  if (rate.limited) {
+    return NextResponse.json(mockMatch(q, catalog));
+  }
+
   const key = process.env.ANTHROPIC_API_KEY;
   if (!key) {
     return NextResponse.json(mockMatch(q, catalog));
   }
+
+  // Logged only after we have decided to spend: the ledger counts paid calls.
+  await noteAttempt(
+    { ipHash: rate.ipHash, netHash: rate.netHash, fingerprint: "" },
+    { form: "match", email: "", outcome: "match" },
+  );
 
   try {
     const result = await aiMatch(key, q, catalog);

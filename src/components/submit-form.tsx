@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Loader2, CheckCircle2 } from "lucide-react";
 import { CATEGORIES } from "@/data/tools";
 import { Select } from "@/components/ui/select";
+import { useTurnstile } from "@/components/turnstile-widget";
 
 interface FormError {
   message: string;
@@ -37,6 +38,8 @@ export function SubmitForm() {
     openedAt.current = Date.now();
   }, []);
 
+  const turnstile = useTurnstile();
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!f.name.trim() || !f.url.trim()) {
@@ -56,7 +59,8 @@ export function SubmitForm() {
         ...f,
         images: f.images.split("\n").map((s) => s.trim()).filter(Boolean),
         company_website: trap.current?.value ?? "",
-        elapsedMs: openedAt.current ? Date.now() - openedAt.current : 0,
+        elapsedMs: openedAt.current ? Date.now() - openedAt.current : undefined,
+        turnstileToken: turnstile.token ?? undefined,
       }),
     });
     if (res.ok) setStatus("done");
@@ -70,6 +74,8 @@ export function SubmitForm() {
         existingSlug: d.existingSlug,
       });
       setStatus("error");
+      // Turnstile tokens are single-use, so a retry needs a fresh one.
+      turnstile.reset();
     }
   }
 
@@ -135,6 +141,8 @@ export function SubmitForm() {
         aria-hidden="true"
         className="absolute left-[-9999px] h-0 w-0 opacity-0"
       />
+
+      {turnstile.element}
 
       {error && (
         <p className="text-[13px] text-accent-ink">

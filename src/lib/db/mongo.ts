@@ -128,6 +128,8 @@ export interface Submission {
   ipHash?: string;
   createdAt: string;
   updatedAt: string;
+  /** What the spam classifier concluded. Absent on anything stored before it. */
+  spam?: SpamRecord;
 }
 
 export async function submissionsCollection(): Promise<Collection<Submission> | null> {
@@ -152,12 +154,37 @@ export interface SubmitAttempt {
   outcome: string;
   /** Real Date, so the TTL index can expire it. */
   at: Date;
+
+  /**
+   * Which form the attempt came from. Optional because the four rows already in
+   * this collection predate the contact form sharing it; absent means "submit".
+   * "match" is the AI matcher, which stores nothing but still has to be counted.
+   */
+  form?: "contact" | "submit" | "match";
+  /** Salted hash of the /24 or /48 the caller sits in. "" when unparseable. */
+  netHash?: string;
+  /** Hash of the human-written fields only, for duplicate detection. */
+  fingerprint?: string;
 }
 
-export async function submitLogCollection(): Promise<Collection<SubmitAttempt> | null> {
+/**
+ * Shared attempt ledger for both public forms.
+ *
+ * Still the `submitLog` collection underneath: it already carries a 24h TTL
+ * index on `at` and the rows that document the one bot-shaped event this site
+ * has seen, and renaming it would throw both away for nothing.
+ *
+ * In the database, not in memory. The Map this replaced lived on one serverless
+ * instance and died with it, so every cold start handed the same submitter a
+ * fresh allowance.
+ */
+export async function formLogCollection(): Promise<Collection<SubmitAttempt> | null> {
   const db = await getDb();
   return db ? db.collection<SubmitAttempt>("submitLog") : null;
 }
+
+/** @deprecated Use formLogCollection - the ledger now serves both forms. */
+export const submitLogCollection = formLogCollection;
 
 /** A message from the public /contact form. */
 export interface ContactMessage {
@@ -168,11 +195,98 @@ export interface ContactMessage {
   /** Toggled from the admin inbox so the team can track what it has dealt with. */
   read: boolean;
   createdAt: string;
+  /** Everything the classifier decided about this one. See lib/spam/verdict.ts. */
+  spam?: SpamRecord;
 }
 
 export async function contactsCollection(): Promise<Collection<ContactMessage> | null> {
   const db = await getDb();
   return db ? db.collection<ContactMessage>("contacts") : null;
+}
+
+/**
+ * What the spam classifier concluded, stored on the document it judged.
+ *
+ * `reasons` is stored rather than recomputed on read, so the Spam view always
+ * shows the reasoning that actually produced the verdict rather than whatever
+ * today's rules would say. An operator who cannot see why something was flagged
+ * cannot correct it, and a reason that silently changes under them is worse
+ * than none.
+ */
+export interface SpamRecord {
+  verdict: "allow" | "quarantine" | "reject";
+  score: number;
+  category: string;
+  reasons: string[];
+  /** Machine codes, for grouping and for the backfill to reason about. */
+  codes: string[];
+  at: string;
+  /**
+   * True once a person has overridden the machine ("not spam", or a manual
+   * status change in the review screen). The backfill never touches these.
+   */
+  clearedByHuman?: boolean;
+}
+
+/**
+ * The blocked bin: a copy of every submission the classifier rejected outright.
+ *
+ * This collection is what earns the right to reject anything at all. A hard
+ * filter with nothing behind it turns one false positive into a destroyed
+ * customer nobody ever finds out about, and this site has already had one -
+ * ideahunter.today, dropped by the 3-second timer on 2026-08-23, payload gone.
+ *
+ * Expires after 30 days via a TTL index on `at` (see ensureSpamIndexes).
+ */
+export interface BlockedSubmission {
+  form: "contact" | "submit";
+  /** The whole payload as it arrived, so nothing is lost while it is here. */
+  payload: Record<string, unknown>;
+  verdict: "reject";
+  score: number;
+  category: string;
+  reasons: string[];
+  codes: string[];
+  ipHash: string;
+  netHash: string;
+  /** Real Date, so the TTL index can expire it. */
+  at: Date;
+}
+
+export async function blockedCollection(): Promise<Collection<BlockedSubmission> | null> {
+  const db = await getDb();
+  return db ? db.collection<BlockedSubmission>("blockedSubmissions") : null;
+}
+
+/**
+ * Create the indexes the spam machinery needs, once per process.
+ *
+ * There is no migration runner in this repo, so they are created lazily on
+ * first write. createIndex is idempotent, and every failure is swallowed: an
+ * index that could not be built must never cost us a submission.
+ */
+let indexesReady: Promise<void> | null = null;
+export function ensureSpamIndexes(): Promise<void> {
+  if (indexesReady) return indexesReady;
+  indexesReady = (async () => {
+    const db = await getDb();
+    if (!db) return;
+    await Promise.allSettled([
+      // 30-day bin. The number is the promise made to the operator: anything
+      // the machine threw away is recoverable for a month.
+      db
+        .collection("blockedSubmissions")
+        .createIndex({ at: 1 }, { expireAfterSeconds: 30 * 24 * 60 * 60 }),
+      db.collection("blockedSubmissions").createIndex({ form: 1, at: -1 }),
+      // Duplicate-payload lookups over the last 24h.
+      db.collection("submitLog").createIndex({ fingerprint: 1, at: -1 }),
+      // Per-neighbourhood rate limiting.
+      db.collection("submitLog").createIndex({ netHash: 1, at: -1 }),
+      db.collection("contacts").createIndex({ createdAt: -1 }),
+      db.collection("contacts").createIndex({ "spam.verdict": 1, createdAt: -1 }),
+    ]);
+  })().catch(() => {});
+  return indexesReady;
 }
 
 export const isDbEnabled = Boolean(uri);

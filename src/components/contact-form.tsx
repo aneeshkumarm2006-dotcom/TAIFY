@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Loader2, CheckCircle2 } from "lucide-react";
+import { useTurnstile } from "@/components/turnstile-widget";
 
 export function ContactForm() {
   const [f, setF] = useState({
@@ -16,6 +17,16 @@ export function ContactForm() {
   const [error, setError] = useState<string | null>(null);
   const set = (k: keyof typeof f, v: string) => setF((p) => ({ ...p, [k]: v }));
 
+  // Time between the form appearing and the POST. A direct POST has no stamp at
+  // all, which the server scores differently from a fast one: a browser holding
+  // a cached bundle from before this shipped must not have its message bounced.
+  const openedAt = useRef(0);
+  useEffect(() => {
+    openedAt.current = Date.now();
+  }, []);
+
+  const turnstile = useTurnstile();
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!f.name.trim() || !f.email.trim() || !f.subject.trim() || !f.message.trim()) {
@@ -27,12 +38,18 @@ export function ContactForm() {
     const res = await fetch("/api/contact", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(f),
+      body: JSON.stringify({
+        ...f,
+        elapsedMs: openedAt.current ? Date.now() - openedAt.current : undefined,
+        turnstileToken: turnstile.token ?? undefined,
+      }),
     });
     if (res.ok) setStatus("done");
     else {
       setError((await res.json().catch(() => ({})))?.error ?? "Something went wrong.");
       setStatus("error");
+      // Turnstile tokens are single-use, so a retry needs a fresh one.
+      turnstile.reset();
     }
   }
 
@@ -104,6 +121,8 @@ export function ContactForm() {
           onChange={(e) => set("website", e.target.value)}
         />
       </div>
+
+      {turnstile.element}
 
       {error && <p className="text-[13px] text-accent-ink">{error}</p>}
 

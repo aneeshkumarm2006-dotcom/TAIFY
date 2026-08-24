@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
-import { createHash } from "node:crypto";
 import {
+  formLogCollection,
   submissionsCollection,
-  submitLogCollection,
   toolsCollection,
   type Submission,
   type SubmissionRevision,
@@ -10,6 +9,10 @@ import {
 import { findToolByUrl } from "@/lib/tools/create";
 import { sendLeadNotification, sendSubmitterEmail } from "@/lib/email";
 import { canonicalUrlKey, urlHost } from "@/lib/utils";
+import { CATEGORIES } from "@/data/tools";
+import { binRejected, guard, noteAttempt, toSpamRecord } from "@/lib/spam/guard";
+import { isSilentReject } from "@/lib/spam/classify";
+import { turnstileEnabled, verifyTurnstile } from "@/lib/spam/turnstile";
 
 // nodemailer needs a real TCP socket, which the Edge runtime does not have.
 export const runtime = "nodejs";
@@ -17,11 +20,11 @@ export const runtime = "nodejs";
 export const maxDuration = 30;
 
 const WINDOW_MS = 60 * 60 * 1000; // 1h
-const MAX_PER_IP = 5;
 const MAX_PER_EMAIL = 3;
 const MAX_PER_DOMAIN = 5;
-/** A human cannot read the form and fill it in faster than this. */
-const MIN_FILL_MS = 3_000;
+
+/** The only values the category dropdown can emit. Anything else is a script. */
+const CATEGORY_SLUGS = CATEGORIES.map((c) => c.slug);
 
 /**
  * Shared inboxes. The per-domain cap skips these: four people submitting from
@@ -40,6 +43,10 @@ const FREEMAIL = new Set([
  * Throwaway inboxes. Not a block - a flag on the record, because a submission
  * from an address that stops existing tomorrow cannot be verified or followed
  * up, and that is worth knowing before spending review time on it.
+ *
+ * It stays a flag and never becomes a score, on the evidence: armandabe@
+ * agentmail.to became the published Operator listing and sjvduetp@163cc.online
+ * became JPG2Excel. Both look synthetic. Both were real.
  */
 const DISPOSABLE = [
   "mailinator.com",
@@ -61,42 +68,83 @@ const DISPOSABLE = [
 export async function POST(req: Request) {
   const b = (await req.json().catch(() => ({}))) as Record<string, unknown>;
 
+  const name = String(b.name ?? "").trim();
+  const url = String(b.url ?? "").trim();
+  const tagline = String(b.tagline ?? "").trim();
+  const description = String(b.description ?? "").trim();
+  const category = String(b.category ?? "").trim();
+  const submitterEmail = String(b.submitterEmail ?? "").trim();
+  const trap = String(b.company_website ?? "").trim();
+  const urlKey = canonicalUrlKey(url);
+  const emailDomain = submitterEmail.split("@")[1]?.toLowerCase() ?? "";
+  const email = submitterEmail.toLowerCase();
+
+  // A stamp of 0 means the client had no render time to report - an old cached
+  // bundle, or a direct POST. That is not the same as "submitted instantly", so
+  // it must not arrive at the classifier looking like it.
+  const rawElapsed = Number(b.elapsedMs ?? 0);
+  const elapsedMs =
+    Number.isFinite(rawElapsed) && rawElapsed > 0 ? rawElapsed : undefined;
+
+  const ctx = await guard(
+    req,
+    {
+      form: "submit",
+      name,
+      email: submitterEmail,
+      // The tagline and description are the only prose on this form.
+      message: [tagline, description].filter(Boolean).join("\n"),
+      // Never scored as a link: on this form the URL is the submission.
+      url,
+      category,
+      allowedCategories: CATEGORY_SLUGS,
+      honeypot: trap,
+      elapsedMs,
+    },
+    [name, tagline, description],
+  );
+
+  const { assessment } = ctx;
+  const note = (outcome: string) =>
+    noteAttempt(ctx, { form: "submit", email, urlKey, outcome });
+
+  // Turnstile first, and the one check that does not fail open.
+  if (turnstileEnabled()) {
+    const check = await verifyTurnstile(String(b.turnstileToken ?? ""), ctx.ip);
+    if (!check.ok) {
+      console.warn("[submit] turnstile rejected:", check.errors?.join(", "));
+      await note("turnstile-failed");
+      return NextResponse.json(
+        { error: "That verification didn't go through. Please try again." },
+        { status: 403 },
+      );
+    }
+  }
+
+  // Rejected payloads are copied to the 30-day bin and answered exactly as a
+  // real submission is answered, so an author tuning their script learns
+  // nothing from the response. Nothing reaches the submissions collection.
+  //
+  // isSilentReject keeps a typo out of this branch: a malformed email rejects,
+  // but it is the one reject a person can cause by typing, so it falls through
+  // to the 400 below where they can see it and fix it.
+  if (isSilentReject(assessment)) {
+    await binRejected(ctx, "submit", {
+      name, url, tagline, description, category, submitterEmail,
+      images: b.images, video: b.video, honeypot: trap,
+    });
+    await note(`rejected-${assessment.category}`);
+    return NextResponse.json({ ok: true });
+  }
+
   const col = await submissionsCollection();
   const tools = await toolsCollection();
-  const log = await submitLogCollection();
+  const log = await formLogCollection();
   if (!col || !tools)
     return NextResponse.json(
       { error: "Submissions are temporarily unavailable." },
       { status: 503 },
     );
-
-  const ip =
-    req.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
-    req.headers.get("x-real-ip") ||
-    "unknown";
-  const ipHash = hashIp(ip);
-
-  const name = String(b.name ?? "").trim();
-  const url = String(b.url ?? "").trim();
-  const submitterEmail = String(b.submitterEmail ?? "").trim();
-  const urlKey = canonicalUrlKey(url);
-  const emailDomain = submitterEmail.split("@")[1]?.toLowerCase() ?? "";
-
-  const email = submitterEmail.toLowerCase();
-  const note = (outcome: string) =>
-    log
-      ?.insertOne({ ipHash, email, emailDomain, urlKey, outcome, at: new Date() })
-      .catch(() => {});
-
-  // A bot fills every field it can see, including the one nobody can, and it
-  // submits the instant the page parses. Both get the same answer a real
-  // submission gets, so an author tuning their script learns nothing from it.
-  const trap = String(b.company_website ?? "").trim();
-  const elapsed = Number(b.elapsedMs ?? 0);
-  if (trap || (elapsed > 0 && elapsed < MIN_FILL_MS)) {
-    await note(trap ? "honeypot" : "too-fast");
-    return NextResponse.json({ ok: true });
-  }
 
   if (!name || !url)
     return NextResponse.json(
@@ -117,26 +165,28 @@ export async function POST(req: Request) {
       { status: 400 },
     );
 
-  // Rate limit in the database, not in memory. The Map this replaces lived on
-  // one serverless instance and died with it, so every cold start handed the
-  // same submitter a fresh allowance - which is how one tool arrived four times
-  // in six hours. Every attempt counts toward the cap, including the ones we
-  // turn away, so retrying a rejected duplicate hits the ceiling sooner.
+  // Rate limits live in the database, not in memory. The Map this replaces
+  // lived on one serverless instance and died with it, so every cold start
+  // handed the same submitter a fresh allowance - which is how one tool arrived
+  // four times in six hours. The IP and network caps are checked inside
+  // guard(); these two are specific to this form.
+  if (ctx.rateLimited) {
+    await note(`rate-limited-${ctx.rateLimitScope}`);
+    return NextResponse.json(
+      { error: "Too many submissions. Try again later." },
+      { status: 429 },
+    );
+  }
   if (log) {
     const since = new Date(Date.now() - WINDOW_MS);
-    const [byIp, byEmail, byDomain] = await Promise.all([
-      log.countDocuments({ ipHash, at: { $gt: since } }),
+    const [byEmail, byDomain] = await Promise.all([
       log.countDocuments({ email, at: { $gt: since } }),
       emailDomain && !FREEMAIL.has(emailDomain)
         ? log.countDocuments({ emailDomain, at: { $gt: since } })
         : Promise.resolve(0),
     ]);
-    if (
-      byIp >= MAX_PER_IP ||
-      byEmail >= MAX_PER_EMAIL ||
-      byDomain >= MAX_PER_DOMAIN
-    ) {
-      await note("rate-limited");
+    if (byEmail >= MAX_PER_EMAIL || byDomain >= MAX_PER_DOMAIN) {
+      await note("rate-limited-email");
       return NextResponse.json(
         { error: "Too many submissions. Try again later." },
         { status: 429 },
@@ -161,9 +211,9 @@ export async function POST(req: Request) {
   const head = {
     name,
     url,
-    tagline: String(b.tagline ?? "").trim(),
-    description: String(b.description ?? "").trim(),
-    category: String(b.category ?? "").trim(),
+    tagline,
+    description,
+    category,
     images: Array.isArray(b.images)
       ? (b.images as string[]).filter(Boolean).slice(0, 8)
       : [],
@@ -227,23 +277,34 @@ export async function POST(req: Request) {
     );
   }
 
+  // Quarantine is stored exactly like anything else, just parked in the Spam
+  // tab with its reasoning attached and nobody emailed about it. It is a place
+  // a human looks, not a bin.
+  const quarantined = assessment.verdict === "quarantine";
+
   const stamp = new Date().toISOString();
   const doc: Submission = {
     urlKey,
     urlHost: urlHost(url),
     ...head,
-    status: "pending",
+    status: quarantined ? "spam" : "pending",
     attempts: 1,
     revisions: [],
     flags: await initialFlags(url, emailDomain),
-    ipHash,
+    ipHash: ctx.ipHash,
     createdAt: stamp,
     updatedAt: stamp,
+    spam: toSpamRecord(assessment),
   };
 
   // Persist first: a mail failure must never cost us the lead.
   await col.insertOne(doc);
-  await note("accepted");
+  await note(quarantined ? `quarantined-${assessment.category}` : "accepted");
+
+  // A quarantined submission gets the ordinary success response - the submitter
+  // is not told they tripped a filter - but no notification goes out and no
+  // acknowledgement is sent, because replying to a bot confirms the address.
+  if (quarantined) return NextResponse.json({ ok: true });
 
   // Awaited on purpose. Vercel freezes the function the moment the response is
   // returned, so a fire-and-forget send has its SMTP handshake killed
@@ -284,15 +345,6 @@ export async function POST(req: Request) {
   }
 
   return NextResponse.json({ ok: true });
-}
-
-/**
- * Salted hash of the caller's IP. Enough to count attempts in a window and to
- * spot one machine submitting ten tools, without keeping an address log.
- */
-function hashIp(ip: string): string {
-  const salt = process.env.SESSION_SECRET ?? "taify";
-  return createHash("sha256").update(`${salt}:${ip}`).digest("hex").slice(0, 32);
 }
 
 /** Deliberately loose: rejecting a real address is worse than taking a fake one. */

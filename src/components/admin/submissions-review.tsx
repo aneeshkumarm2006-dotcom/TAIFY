@@ -23,6 +23,22 @@ const TABS = [
 
 type TabKey = (typeof TABS)[number]["key"];
 
+/** Human labels for the classifier's category codes. */
+const SPAM_LABEL: Record<string, string> = {
+  "bot-trap": "Bot trap",
+  "impossible-field": "Impossible field",
+  "malformed-email": "Bad email",
+  "bulk-mail": "Bulk mail",
+  "outbound-promo": "Outbound pitch",
+  "off-platform-contact": "Off-platform contact",
+  "link-spam": "Link drop",
+  "keyboard-mash": "Keyboard mash",
+  duplicate: "Duplicate",
+  flood: "Flood",
+  "no-browser-proof": "No browser proof",
+  clean: "Clean",
+};
+
 /**
  * The review queue.
  *
@@ -244,6 +260,11 @@ export function SubmissionsReview() {
                       {f}
                     </span>
                   ))}
+                  {s.spam?.verdict === "quarantine" && (
+                    <span className="mono rounded-full bg-line px-2 py-0.5 text-[10.5px] text-ink-soft">
+                      {SPAM_LABEL[s.spam.category] ?? s.spam.category} · {s.spam.score}
+                    </span>
+                  )}
                   {s.publishedSlug && (
                     <Link
                       href={`/tool/${s.publishedSlug}`}
@@ -263,6 +284,21 @@ export function SubmissionsReview() {
                   {(s.createdAt ?? "").slice(0, 10)}
                   {s.reviewNote && ` · "${s.reviewNote}"`}
                 </div>
+                {/* Why the classifier flagged it, in the words it recorded at
+                    the time. An operator who cannot see the reasoning cannot
+                    correct it. */}
+                {(s.spam?.reasons?.length ?? 0) > 0 && (
+                  <ul className="mt-2 flex flex-col gap-1 border-l-2 border-line pl-3">
+                    {s.spam!.reasons.map((r, i) => (
+                      <li
+                        key={i}
+                        className="mono text-[11px] leading-relaxed text-ink-soft"
+                      >
+                        {r}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
               <Link
                 href={`/admin/submissions/${s.id}`}
