@@ -160,7 +160,7 @@ export interface SubmitAttempt {
    * this collection predate the contact form sharing it; absent means "submit".
    * "match" is the AI matcher, which stores nothing but still has to be counted.
    */
-  form?: "contact" | "submit" | "match";
+  form?: "contact" | "submit" | "match" | "newsletter";
   /** Salted hash of the /24 or /48 the caller sits in. "" when unparseable. */
   netHash?: string;
   /** Hash of the human-written fields only, for duplicate detection. */
@@ -202,6 +202,68 @@ export interface ContactMessage {
 export async function contactsCollection(): Promise<Collection<ContactMessage> | null> {
   const db = await getDb();
   return db ? db.collection<ContactMessage>("contacts") : null;
+}
+
+/**
+ * One row per address on the Friday newsletter list.
+ *
+ * Keyed on the lowercased address, which is the only identity a newsletter
+ * has. Re-subscribing updates the row rather than inserting a second one:
+ * somebody who signs up from a tool page in March and a blog post in June is
+ * one subscriber, and `sources` is what tells us which pages earn signups.
+ */
+export interface Subscriber {
+  /** Lowercased and trimmed. Unique - see ensureNewsletterIndexes. */
+  email: string;
+  emailDomain: string;
+  /** "active" until an unsubscribe flow exists to set anything else. */
+  status: "active" | "unsubscribed";
+  /**
+   * Which modal rule fired, most recent last, deduped. "tools" = the second
+   * tool page of a session, "dwell" = 30s browsing, "exit" = leaving a post.
+   */
+  sources: string[];
+  /** The page they were reading when they subscribed. */
+  path: string;
+  /**
+   * Things worth knowing that are not worth rejecting over: "fast-fill",
+   * "disposable-email". The submit form takes the same line - a disposable
+   * domain is a note on the record and never a block, because two of them
+   * became published listings.
+   */
+  flags: string[];
+  /** Salted hash - enough to spot a flood, not an IP log. */
+  ipHash?: string;
+  netHash?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export async function subscribersCollection(): Promise<Collection<Subscriber> | null> {
+  const db = await getDb();
+  return db ? db.collection<Subscriber>("subscribers") : null;
+}
+
+/**
+ * The unique index the subscribe route relies on to stay idempotent.
+ *
+ * Lazy and once per process, like ensureSpamIndexes, because there is still no
+ * migration runner in this repo. The upsert is correct without it; the index is
+ * what stops two simultaneous submissions of the same address racing into two
+ * rows.
+ */
+let newsletterIndexesReady: Promise<void> | null = null;
+export function ensureNewsletterIndexes(): Promise<void> {
+  if (newsletterIndexesReady) return newsletterIndexesReady;
+  newsletterIndexesReady = (async () => {
+    const db = await getDb();
+    if (!db) return;
+    await Promise.allSettled([
+      db.collection("subscribers").createIndex({ email: 1 }, { unique: true }),
+      db.collection("subscribers").createIndex({ createdAt: -1 }),
+    ]);
+  })().catch(() => {});
+  return newsletterIndexesReady;
 }
 
 /**

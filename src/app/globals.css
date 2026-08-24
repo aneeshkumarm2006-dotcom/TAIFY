@@ -42,6 +42,23 @@
   --shadow-lg: 0 2px 6px rgba(0, 0, 0, 0.5), 0 30px 70px -28px rgba(0, 0, 0, 0.7);
 }
 
+/* ------------------------------------------------------------------
+   Terminal surface. Deliberately NOT theme-flipped.
+
+   Everything else in this file inverts between light and dark, which is
+   why the ticker turns into a pale bar at night. The newsletter modal is
+   a console panel and has to read as one in both themes, so its five
+   colours are absolute rather than derived from --ink / --ground.
+   ------------------------------------------------------------------ */
+:root {
+  --term-bg: #15120e;
+  --term-panel: #1f1b15;
+  --term-ink: #f3ede1;
+  --term-ink-soft: #a49b8b;
+  --term-line: #332e26;
+  --term-accent: #ff6a3d;
+}
+
 @theme inline {
   --color-ground: var(--ground);
   --color-card: var(--card);
@@ -56,6 +73,13 @@
   --color-verified-wash: var(--verified-wash);
   --color-paid: var(--paid);
   --color-paid-wash: var(--paid-wash);
+
+  --color-term-bg: var(--term-bg);
+  --color-term-panel: var(--term-panel);
+  --color-term-ink: var(--term-ink);
+  --color-term-ink-soft: var(--term-ink-soft);
+  --color-term-line: var(--term-line);
+  --color-term-accent: var(--term-accent);
 
   --color-background: var(--ground);
   --color-foreground: var(--ink);
@@ -238,4 +262,18 @@ body {
    page for zero text. */
 .border-verified-soft {
   border-color: color-mix(in srgb, var(--verified) 34%, transparent);
+}
+
+/* Newsletter modal: the blinking block caret on the prompt line. Held still
+   for anyone who has asked for reduced motion (the global rule below already
+   clamps the duration, so this only removes the residual flicker). */
+@keyframes term-caret {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+.term-caret {
+  animation: term-caret 1.05s steps(1, end) infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .term-caret { animation: none; opacity: 1; }
 }

@@ -187,7 +187,7 @@ export async function rateOnly(
 export async function noteAttempt(
   ctx: Pick<GuardContext, "ipHash" | "netHash" | "fingerprint">,
   fields: {
-    form: "contact" | "submit" | "match";
+    form: "contact" | "submit" | "match" | "newsletter";
     email: string;
     urlKey?: string;
     outcome: string;

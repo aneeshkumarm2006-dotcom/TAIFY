@@ -5,6 +5,7 @@ import { TopNav } from "@/components/top-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { ChromeGate } from "@/components/chrome-gate";
 import { Ticker } from "@/components/ticker";
+import { NewsletterModal } from "@/components/newsletter/newsletter-modal";
 import { getSiteSettings } from "@/lib/settings";
 import { countTools } from "@/lib/data";
 import {
@@ -96,6 +97,10 @@ export default async function RootLayout({
         >
           {children}
         </ChromeGate>
+        {/* Renders nothing until one of its triggers fires. The rules live in
+            lib/newsletter/triggers.ts and match no dashboard path, so it can
+            sit outside ChromeGate without ever appearing over /admin. */}
+        <NewsletterModal />
       </body>
     </html>
   );
