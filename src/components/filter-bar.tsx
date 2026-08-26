@@ -51,7 +51,7 @@ export function FilterBar({
 
   const categoryOpts = [
     { value: "", label: `All categories · ${total}` },
-    ...categories.map((c) => ({ value: c.slug, label: `${c.name} · ${counts[c.slug] ?? 0}` })),
+    ...categories.map((c) => ({ value: c.slug, label: `${c.name} · ${counts[c.id] ?? 0}` })),
   ];
 
   return (

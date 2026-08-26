@@ -62,6 +62,60 @@ export async function pagesCollection(): Promise<Collection<Page> | null> {
 }
 
 /**
+ * Per-category overrides of the code-defined taxonomy.
+ *
+ * Only a category an admin has actually renamed gets a document here; the rest
+ * resolve straight from CATEGORIES. `id` is the immutable identity from that
+ * constant - it is what `tools.category`, `submissions.category` and the
+ * `category:<id>` page key store, and it never changes. `slug` is the editable
+ * public URL segment, and `formerSlugs` is what keeps every URL the category has
+ * ever answered to redirecting to the current one.
+ */
+export interface CategoryOverride {
+  id: string;
+  /** Live public URL segment. Unique across categories. */
+  slug: string;
+  /** Display name, when an editor has overridden the one in CATEGORIES. */
+  name?: string;
+  /** Every slug this category previously answered to. Never contains `slug`. */
+  formerSlugs: string[];
+  updatedAt: string;
+}
+
+export async function categoriesCollection(): Promise<Collection<CategoryOverride> | null> {
+  const db = await getDb();
+  return db ? db.collection<CategoryOverride>("categories") : null;
+}
+
+/**
+ * Indexes behind editable slugs, once per process.
+ *
+ * Same lazy, idempotent, swallow-every-failure shape as ensureSpamIndexes,
+ * because there is still no migration runner here. Called from the rename route,
+ * which is the only writer.
+ *
+ * The unique index on `pages.key` was missing outright and has nothing to do
+ * with renaming: the upsert in api/admin/pages/[key] and the create path in
+ * api/admin/pages both check-then-write, so two concurrent first-saves of the
+ * same page can insert two documents, and findOne({ key }) then picks between
+ * them non-deterministically.
+ */
+let categoryIndexesReady: Promise<void> | null = null;
+export function ensureCategoryIndexes(): Promise<void> {
+  if (categoryIndexesReady) return categoryIndexesReady;
+  categoryIndexesReady = (async () => {
+    const db = await getDb();
+    if (!db) return;
+    await Promise.allSettled([
+      db.collection("categories").createIndex({ id: 1 }, { unique: true }),
+      db.collection("categories").createIndex({ slug: 1 }, { unique: true }),
+      db.collection("pages").createIndex({ key: 1 }, { unique: true }),
+    ]);
+  })().catch(() => {});
+  return categoryIndexesReady;
+}
+
+/**
  * Where a submission sits in review. Nothing is ever deleted on a decision:
  * "approved" keeps the record next to the slug it produced, "rejected" keeps
  * the reason we turned it down so the same tool coming back a third time is

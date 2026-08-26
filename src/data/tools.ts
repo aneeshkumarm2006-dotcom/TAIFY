@@ -1,29 +1,29 @@
-import type { Category, Tool } from "@/lib/types";
+import type { CategorySeed, Tool } from "@/lib/types";
 import { SCREENSHOTS } from "./screenshots";
 
-export const CATEGORIES: Category[] = [
-  { slug: "chatbot", name: "AI Assistants", emoji: "🤖" },
-  { slug: "coding", name: "Coding", emoji: "💻" },
-  { slug: "image", name: "Image", emoji: "🎨" },
-  { slug: "video", name: "Video", emoji: "🎬" },
-  { slug: "audio", name: "Audio & Voice", emoji: "🎙️" },
-  { slug: "research", name: "Research", emoji: "🔬" },
-  { slug: "design", name: "Design & Slides", emoji: "🖌️" },
-  { slug: "education", name: "Study & Maths", emoji: "📚" },
-  { slug: "productivity", name: "Productivity", emoji: "⚡" },
-  { slug: "data", name: "Data & Analytics", emoji: "📊" },
-  { slug: "writing", name: "Writing", emoji: "✍️" },
-  { slug: "marketing", name: "Marketing", emoji: "📣" },
-  { slug: "real-estate", name: "Real Estate", emoji: "🏡" },
-  { slug: "ecommerce", name: "E-Commerce", emoji: "🛒" },
-  { slug: "fashion", name: "Fashion & Apparel", emoji: "👗" },
-  { slug: "health", name: "Healthcare & Medicine", emoji: "🩺" },
-  { slug: "sales", name: "Sales & CRM", emoji: "📈" },
-  { slug: "support", name: "Customer Support", emoji: "🎧" },
-  { slug: "legal", name: "Legal", emoji: "⚖️" },
-  { slug: "finance", name: "Finance", emoji: "🏦" },
-  { slug: "hr", name: "HR & Recruiting", emoji: "🧑‍💼" },
-  { slug: "social", name: "Social Media", emoji: "📱" },
+export const CATEGORIES: CategorySeed[] = [
+  { id: "chatbot", name: "AI Assistants", emoji: "🤖" },
+  { id: "coding", name: "Coding", emoji: "💻" },
+  { id: "image", name: "Image", emoji: "🎨" },
+  { id: "video", name: "Video", emoji: "🎬" },
+  { id: "audio", name: "Audio & Voice", emoji: "🎙️" },
+  { id: "research", name: "Research", emoji: "🔬" },
+  { id: "design", name: "Design & Slides", emoji: "🖌️" },
+  { id: "education", name: "Study & Maths", emoji: "📚" },
+  { id: "productivity", name: "Productivity", emoji: "⚡" },
+  { id: "data", name: "Data & Analytics", emoji: "📊" },
+  { id: "writing", name: "Writing", emoji: "✍️" },
+  { id: "marketing", name: "Marketing", emoji: "📣" },
+  { id: "real-estate", name: "Real Estate", emoji: "🏡" },
+  { id: "ecommerce", name: "E-Commerce", emoji: "🛒" },
+  { id: "fashion", name: "Fashion & Apparel", emoji: "👗" },
+  { id: "health", name: "Healthcare & Medicine", emoji: "🩺" },
+  { id: "sales", name: "Sales & CRM", emoji: "📈" },
+  { id: "support", name: "Customer Support", emoji: "🎧" },
+  { id: "legal", name: "Legal", emoji: "⚖️" },
+  { id: "finance", name: "Finance", emoji: "🏦" },
+  { id: "hr", name: "HR & Recruiting", emoji: "🧑‍💼" },
+  { id: "social", name: "Social Media", emoji: "📱" },
 ];
 
 // Google's favicon service - reliable, returns each brand's logo mark.

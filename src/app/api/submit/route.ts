@@ -24,7 +24,7 @@ const MAX_PER_EMAIL = 3;
 const MAX_PER_DOMAIN = 5;
 
 /** The only values the category dropdown can emit. Anything else is a script. */
-const CATEGORY_SLUGS = CATEGORIES.map((c) => c.slug);
+const CATEGORY_IDS = CATEGORIES.map((c) => c.id);
 
 /**
  * Shared inboxes. The per-domain cap skips these: four people submitting from
@@ -97,7 +97,7 @@ export async function POST(req: Request) {
       // Never scored as a link: on this form the URL is the submission.
       url,
       category,
-      allowedCategories: CATEGORY_SLUGS,
+      allowedCategories: CATEGORY_IDS,
       honeypot: trap,
       elapsedMs,
     },

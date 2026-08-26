@@ -25,6 +25,10 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
+/**
+ * Keyed by category **id**, not by public slug, so renaming a category for SEO
+ * can never silently drop its icon back to the generic sparkle.
+ */
 const MAP: Record<string, LucideIcon> = {
   chatbot: Bot,
   coding: Code2,
@@ -50,6 +54,6 @@ const MAP: Record<string, LucideIcon> = {
   social: Share2,
 };
 
-export function categoryIcon(slug: string): LucideIcon {
-  return MAP[slug] ?? Sparkles;
+export function categoryIcon(id: string): LucideIcon {
+  return MAP[id] ?? Sparkles;
 }

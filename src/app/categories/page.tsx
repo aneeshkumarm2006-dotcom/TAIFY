@@ -108,7 +108,7 @@ export default async function CategoriesPage() {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {categories.map((c, i) => {
-          const Icon = categoryIcon(c.slug);
+          const Icon = categoryIcon(c.id);
           return (
             <Reveal key={c.slug} delay={Math.min(i * 0.04, 0.3)}>
               <Link
@@ -124,7 +124,7 @@ export default async function CategoriesPage() {
                     <ArrowRight className="h-4 w-4 text-ink-soft transition-transform group-hover:translate-x-0.5 group-hover:text-accent" />
                   </div>
                   <div className="mono mt-0.5 text-[12px] text-ink-soft">
-                    {counts[c.slug] ?? 0} tools
+                    {counts[c.id] ?? 0} tools
                   </div>
                 </div>
               </Link>

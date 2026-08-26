@@ -77,9 +77,15 @@ export type PageType = "category" | "custom";
 export type PageStatus = "draft" | "published";
 
 export interface Page {
-  key: string; // "category:<slug>" or "page:<slug>"
+  /** "category:<category id>" or "page:<slug>". Never changes for a category. */
+  key: string;
   type: PageType;
-  slug: string; // category slug or custom-page slug
+  /** The public path segment. Editable, and for a category it is an override
+   *  resolved from lib/categories/data.ts rather than read from this document. */
+  slug: string;
+  /** Every slug this custom page previously answered to. Never contains `slug`.
+   *  Categories keep theirs on the category override document instead. */
+  formerSlugs?: string[];
   title: string; // the single H1
   metaTitle: string;
   excerpt: string; // meta description
@@ -90,6 +96,16 @@ export interface Page {
   createdAt: string;
   updatedAt: string;
 }
+
+/**
+ * A category page as the admin sees it: the page plus the taxonomy fields the
+ * editor needs to address the category by its permanent id and show its icon.
+ * `Page` itself stays free of them - nothing public needs either.
+ *
+ * Lives here rather than in pages/data.ts so the client-side admin components
+ * can import the type without reaching into a "server-only" module.
+ */
+export type AdminCategoryPage = Page & { categoryId: string; name: string };
 
 export function emptyBlock(type: BlockType, id: string): Block {
   switch (type) {

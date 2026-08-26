@@ -13,7 +13,7 @@ import { MongoClient } from "mongodb";
 import { classify, type Assessment } from "../src/lib/spam/classify";
 import { CATEGORIES } from "../src/data/tools";
 
-const CATEGORY_SLUGS = CATEGORIES.map((c) => c.slug);
+const CATEGORY_IDS = CATEGORIES.map((c) => c.id);
 
 const uri = process.env.MONGODB_URI;
 if (!uri) {
@@ -53,7 +53,7 @@ for (const s of subs) {
     message: [s.tagline, s.description].filter(Boolean).join("\n"),
     url: s.url,
     category: s.category,
-    allowedCategories: CATEGORY_SLUGS,
+    allowedCategories: CATEGORY_IDS,
     elapsedMs: undefined,
   });
   if (a.verdict === "allow") allowed++;

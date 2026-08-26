@@ -1,9 +1,9 @@
 import "server-only";
 import { pagesCollection } from "@/lib/db/mongo";
-import { CATEGORIES } from "@/data/tools";
+import { getCategories, getCategoryById } from "@/lib/categories/data";
 import type { Category } from "@/lib/types";
 import { CATEGORY_SEO } from "./category-seo";
-import type { Page } from "./types";
+import type { AdminCategoryPage, Page } from "./types";
 
 function strip(p: Page & { _id?: unknown }): Page {
   const { _id, ...rest } = p;
@@ -68,10 +68,15 @@ function defaultCategoryBlocks(cat: Category): Page["blocks"] {
  *  otherwise they're generated from the category name. */
 function defaultCategoryPage(cat: Category): Page {
   const now = new Date().toISOString();
-  const seo = CATEGORY_SEO[cat.slug];
+  // Both keyed by the permanent id: the storage key must survive a slug change,
+  // and the hand-written SEO copy must not fall back to the generated default
+  // the moment someone renames the URL.
+  const seo = CATEGORY_SEO[cat.id];
   return {
-    key: `category:${cat.slug}`,
+    key: `category:${cat.id}`,
     type: "category",
+    // `slug` means "the public path segment" for both page types, which is what
+    // the admin list and editor already assume when they build a preview URL.
     slug: cat.slug,
     title: `Best ${cat.name} AI Tools`,
     metaTitle: seo?.metaTitle ?? `Best ${cat.name} AI Tools (2026) | TAIFY`,
@@ -89,16 +94,28 @@ function defaultCategoryPage(cat: Category): Page {
   };
 }
 
-/** Category page: stored fields layered over the derived default so a cleared
- *  title/intro never renders an empty H1 — it falls back to the default. */
-export async function getCategoryPage(slug: string): Promise<Page | null> {
-  const cat = CATEGORIES.find((c) => c.slug === slug);
+/**
+ * Category page: stored fields layered over the derived default so a cleared
+ * title/intro never renders an empty H1 — it falls back to the default.
+ *
+ * Takes a category **id**, since that is what the page document is keyed by.
+ * Callers holding a URL segment resolve it through resolveCategorySlug first.
+ */
+export async function getCategoryPage(id: string): Promise<Page | null> {
+  const cat = await getCategoryById(id);
   if (!cat) return null;
+  return categoryPageFor(cat);
+}
+
+async function categoryPageFor(cat: Category): Promise<Page> {
   const base = defaultCategoryPage(cat);
   const col = await pagesCollection();
-  const doc = col ? await col.findOne({ key: `category:${slug}` }) : null;
+  const doc = col ? await col.findOne({ key: base.key }) : null;
   if (!doc) return base;
-  const s = strip(doc);
+  return mergeCategoryPage(base, strip(doc));
+}
+
+function mergeCategoryPage(base: Page, s: Page): Page {
   return {
     ...base,
     ...s,
@@ -109,6 +126,10 @@ export async function getCategoryPage(slug: string): Promise<Page | null> {
     // A stored page that has never had blocks added keeps the default body copy
     // rather than rendering as an H1 over a bare card grid.
     blocks: s.blocks?.length ? s.blocks : base.blocks,
+    // Re-pinned after the spread, like `status`. Stored documents were written
+    // with `slug` equal to the id, so without this the spread would shadow the
+    // live slug and every admin preview link would point at the pre-rename URL.
+    slug: base.slug,
     status: "published",
   };
 }
@@ -119,6 +140,23 @@ export async function getCustomPage(slug: string): Promise<Page | null> {
   if (!col) return null;
   const doc = await col.findOne({ key: `page:${slug}`, status: "published" });
   return doc ? strip(doc) : null;
+}
+
+/**
+ * The live slug of a published page that used to live at `slug`, if any.
+ *
+ * Only consulted after getCustomPage misses, so a live page can never be
+ * shadowed by some other page's retired slug.
+ */
+export async function movedCustomPage(slug: string): Promise<string | null> {
+  const col = await pagesCollection();
+  if (!col) return null;
+  const doc = await col.findOne({
+    type: "custom",
+    formerSlugs: slug,
+    status: "published",
+  });
+  return doc?.slug ?? null;
 }
 
 /** All published custom-page slugs (for sitemap / static params). */
@@ -142,16 +180,19 @@ export async function getPageByKey(key: string): Promise<Page | null> {
 
 /** Admin list: all category pages (default or edited) + all custom pages. */
 export async function listAllPages(): Promise<{
-  categories: Page[];
+  categories: AdminCategoryPage[];
   custom: Page[];
 }> {
   const col = await pagesCollection();
   const stored = col ? await col.find({}).toArray() : [];
   const byKey = new Map(stored.map((d) => [d.key, strip(d)]));
 
-  const categories = CATEGORIES.map(
-    (c) => byKey.get(`category:${c.slug}`) ?? defaultCategoryPage(c),
-  );
+  const categories = (await getCategories()).map((c) => {
+    const base = defaultCategoryPage(c);
+    const doc = byKey.get(base.key);
+    const page = doc ? mergeCategoryPage(base, doc) : base;
+    return { ...page, categoryId: c.id, name: c.name };
+  });
   const custom = stored.filter((d) => d.type === "custom").map(strip);
   return { categories, custom };
 }

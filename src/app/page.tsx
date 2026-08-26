@@ -144,7 +144,7 @@ export default async function HomePage() {
             </h3>
             <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
               {categories.map((c) => {
-                const Icon = categoryIcon(c.slug);
+                const Icon = categoryIcon(c.id);
                 return (
                   <Link
                     key={c.slug}

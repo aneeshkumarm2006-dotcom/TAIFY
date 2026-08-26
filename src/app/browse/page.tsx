@@ -7,10 +7,10 @@ import {
   filterTools,
   getCategories,
   categoryCounts,
-  getCategory,
   countTools,
   toCardTools,
 } from "@/lib/data";
+import { resolveCategorySlug } from "@/lib/categories/data";
 import { absoluteUrl, OG_IMAGE, OG_IMAGE_CARD, SITE_NAME } from "@/lib/site";
 import { breadcrumbNode, itemListNode, toolListEntry, webPageNode } from "@/lib/schema/nodes";
 import { listId, ref } from "@/lib/schema/ids";
@@ -72,6 +72,20 @@ function readParams(sp: SP) {
 }
 
 /**
+ * `?category=` carries a public slug, and goes through the same resolver as
+ * /category/<slug> so a retired slug still filters correctly rather than
+ * silently returning the unfiltered catalog. Retired slugs include each
+ * category's id, which the first rename pushes into `formerSlugs`, so links
+ * predating this feature keep working too.
+ */
+async function activeCategory(slug: string) {
+  const r = await resolveCategorySlug(slug);
+  if (r.kind === "live") return r.category;
+  if (r.kind === "moved") return (await getCategories()).find((c) => c.slug === r.to);
+  return undefined;
+}
+
+/**
  * /browse is one page behind many filter permutations. Semrush found ?sort=
  * variants competing with the clean URL on identical titles, descriptions and
  * body copy, so each variant now gets its own title/description *and* points
@@ -85,7 +99,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const sp = await searchParams;
   const { category, sort } = readParams(sp);
-  const cat = category ? await getCategory(category) : undefined;
+  const cat = category ? await activeCategory(category) : undefined;
 
   const canonical = cat ? absoluteUrl(`/category/${cat.slug}`) : absoluteUrl("/browse");
   const s = SORTS[sort];
@@ -122,11 +136,21 @@ export default async function BrowsePage({
   const { category, sort, pricing, verifiedOnly, hasFreeTier, nativeOnly } =
     readParams(sp);
 
-  const [tools, categories, counts, activeCat, total] = await Promise.all([
-    filterTools({ category, pricing, verifiedOnly, hasFreeTier, nativeOnly, sort }),
+  // Resolved first because filterTools matches on the category *id*, and the
+  // URL only carries a slug.
+  const activeCat = category ? await activeCategory(category) : undefined;
+
+  const [tools, categories, counts, total] = await Promise.all([
+    filterTools({
+      categoryId: activeCat?.id,
+      pricing,
+      verifiedOnly,
+      hasFreeTier,
+      nativeOnly,
+      sort,
+    }),
     getCategories(),
     categoryCounts(),
-    category ? getCategory(category) : Promise.resolve(undefined),
     countTools(),
   ]);
 
@@ -256,7 +280,7 @@ export default async function BrowsePage({
             >
               {c.name}{" "}
               <span className="mono text-[11px] text-ink-soft">
-                {counts[c.slug] ?? 0}
+                {counts[c.id] ?? 0}
               </span>
             </Link>
           ))}

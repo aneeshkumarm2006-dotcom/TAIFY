@@ -2,16 +2,16 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { Loader2, Plus, Pencil, Trash2, FileStack } from "lucide-react";
-import type { Page } from "@/lib/pages/types";
+import type { AdminCategoryPage, Page } from "@/lib/pages/types";
 import { categoryIcon } from "@/lib/category-icons";
 import { PageEditor } from "./page-editor";
 import { cn } from "@/lib/utils";
 
 export function PagesManager() {
-  const [categories, setCategories] = useState<Page[]>([]);
+  const [categories, setCategories] = useState<AdminCategoryPage[]>([]);
   const [custom, setCustom] = useState<Page[]>([]);
   const [loading, setLoading] = useState(true);
-  const [editing, setEditing] = useState<Page | null>(null);
+  const [editing, setEditing] = useState<Page | AdminCategoryPage | null>(null);
   const [creating, setCreating] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [err, setErr] = useState<string | null>(null);
@@ -23,7 +23,7 @@ export function PagesManager() {
     setCategories(data.categories ?? []);
     setCustom(data.custom ?? []);
     setLoading(false);
-    return data as { categories: Page[]; custom: Page[] };
+    return data as { categories: AdminCategoryPage[]; custom: Page[] };
   }, []);
   useEffect(() => {
     load();
@@ -77,7 +77,8 @@ export function PagesManager() {
             <h2 className="mb-3 text-[16px] font-bold">Category pages</h2>
             <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
               {categories.map((p) => {
-                const Icon = categoryIcon(p.slug);
+                // Keyed by the permanent id: a renamed category keeps its icon.
+                const Icon = categoryIcon(p.categoryId);
                 return (
                   <button
                     key={p.key}

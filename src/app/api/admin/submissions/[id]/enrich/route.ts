@@ -169,7 +169,7 @@ async function draftWithClaude(
       tagline: { type: "string" },
       description: { type: "string" },
       company: { type: "string" },
-      category: { type: "string", enum: CATEGORIES.map((c) => c.slug) },
+      category: { type: "string", enum: CATEGORIES.map((c) => c.id) },
       tags: { type: "array", items: { type: "string" } },
       pricing: { type: "string", enum: PRICINGS },
       costPerMonth: { type: "number" },
@@ -220,7 +220,7 @@ async function draftWithClaude(
     tagline: str(parsed.tagline),
     description: str(parsed.description),
     company: str(parsed.company),
-    category: CATEGORIES.some((c) => c.slug === parsed.category)
+    category: CATEGORIES.some((c) => c.id === parsed.category)
       ? parsed.category
       : undefined,
     tags: list(parsed.tags).slice(0, 6),

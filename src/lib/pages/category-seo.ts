@@ -1,12 +1,16 @@
 /**
- * Hand-written meta title / description per category, keyed by category slug.
+ * Hand-written meta title / description per category, keyed by category **id**.
  *
  * These feed the category page's default `metaTitle` / `excerpt`
  * (see `defaultCategoryPage` in ./data.ts), so they render as the <title> and
  * <meta name="description"> on /category/<slug>. A category edited in the admin
  * still wins — stored fields layer on top of these defaults.
  *
- * Slugs not listed here fall back to the generated "Best <Name> AI Tools" copy.
+ * Keying by id rather than by the public slug is deliberate: an editor renaming
+ * a category's URL for SEO must not lose that category's hand-written SEO copy,
+ * which is the one thing the rename exists to improve.
+ *
+ * Ids not listed here fall back to the generated "Best <Name> AI Tools" copy.
  */
 export interface CategorySeo {
   metaTitle: string;

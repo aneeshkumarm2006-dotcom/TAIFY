@@ -1,9 +1,8 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { ObjectId } from "mongodb";
-import { CATEGORIES } from "@/data/tools";
 import { ToolDetail, buildFaqs } from "@/components/tool-detail";
-import { getRelated } from "@/lib/data";
+import { getRelated, getCategoryById } from "@/lib/data";
 import { submissionsCollection } from "@/lib/db/mongo";
 import {
   draftFromSubmission,
@@ -51,8 +50,8 @@ export default async function SubmissionPreviewPage({
     normalizeDraft(sub.draft ?? draftFromSubmission(sub)),
   );
   const related = await getRelated(tool, 3);
-  const categoryName =
-    CATEGORIES.find((c) => c.slug === tool.category)?.name ?? tool.category;
+  const category = await getCategoryById(tool.category);
+  const categoryName = category?.name ?? tool.category;
   const faqs = buildFaqs(tool, categoryName, related.map((r) => r.name));
 
   return (
@@ -62,7 +61,7 @@ export default async function SubmissionPreviewPage({
           Draft preview · not published · /tool/{tool.slug}
         </p>
       </div>
-      <ToolDetail tool={tool} related={related} faqs={faqs} />
+      <ToolDetail tool={tool} category={category} related={related} faqs={faqs} />
     </>
   );
 }

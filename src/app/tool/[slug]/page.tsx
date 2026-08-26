@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getTool, getRelated } from "@/lib/data";
-import { TOOLS, CATEGORIES } from "@/data/tools";
+import { getTool, getRelated, getCategoryById } from "@/lib/data";
+import { TOOLS } from "@/data/tools";
 import { ToolDetail, buildFaqs } from "@/components/tool-detail";
 import {
   OG_IMAGE,
@@ -89,8 +89,9 @@ export default async function ToolPage({
   if (!tool) notFound();
 
   const related = await getRelated(tool, 3);
-  const categoryName =
-    CATEGORIES.find((c) => c.slug === tool.category)?.name ?? tool.category;
+  const category = await getCategoryById(tool.category);
+  const categoryName = category?.name ?? tool.category;
+  const categoryPath = `/category/${category?.slug ?? tool.category}`;
   const faqs = buildFaqs(tool, categoryName, related.map((r) => r.name));
   const path = `/tool/${tool.slug}`;
   const shot = tool.images?.[0];
@@ -110,7 +111,7 @@ export default async function ToolPage({
     breadcrumbNode(path, [
       { name: "Home", url: absoluteUrl("/") },
       { name: "Categories", url: absoluteUrl("/categories") },
-      { name: categoryName, url: absoluteUrl(`/category/${tool.category}`) },
+      { name: categoryName, url: absoluteUrl(categoryPath) },
       { name: tool.name, url: absoluteUrl(path) },
     ]),
     toolNode(tool, categoryName),
@@ -120,6 +121,7 @@ export default async function ToolPage({
   return (
     <ToolDetail
       tool={tool}
+      category={category}
       related={related}
       faqs={faqs}
       jsonLd={<JsonLd graph={graph} />}

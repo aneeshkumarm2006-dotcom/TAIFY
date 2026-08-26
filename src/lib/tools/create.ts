@@ -77,7 +77,7 @@ export async function findToolByUrl(
 export function buildToolDoc(slug: string, body: Partial<Tool>): ToolDoc {
   const name = (body.name ?? "").trim();
   const url = (body.url ?? "").trim();
-  const category = CATEGORIES.some((c) => c.slug === body.category)
+  const category = CATEGORIES.some((c) => c.id === body.category)
     ? (body.category as string)
     : "productivity";
   const pricing = PRICINGS.includes(body.pricing as Pricing)

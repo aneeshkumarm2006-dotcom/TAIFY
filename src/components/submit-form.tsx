@@ -113,7 +113,7 @@ export function SubmitForm() {
         <Select
           value={f.category}
           onChange={(v) => set("category", v)}
-          options={CATEGORIES.map((c) => ({ value: c.slug, label: c.name }))}
+          options={CATEGORIES.map((c) => ({ value: c.id, label: c.name }))}
           placeholder="Pick a category…"
           className="w-full sm:w-64"
         />

@@ -87,10 +87,24 @@ export type CardTool = Pick<
 /** Even smaller: what a bare logo tile needs. */
 export type LogoTool = Pick<Tool, "slug" | "name" | "mark" | "color" | "logo">;
 
-export interface Category {
-  slug: string;
+/**
+ * A category's fixed identity.
+ *
+ * `id` is permanent and is what every tool, submission and category page
+ * document stores. It is deliberately *not* the URL: the public slug is an
+ * editable alias resolved at read time (see lib/categories.ts), so renaming a
+ * category for SEO never has to touch stored data, and the slug-keyed icon and
+ * hand-written SEO copy can't silently fall back to their generic defaults.
+ */
+export interface CategorySeed {
+  id: string;
   name: string;
   emoji?: string;
+}
+
+/** A category resolved against its DB override. `slug` is the live public URL. */
+export interface Category extends CategorySeed {
+  slug: string;
 }
 
 // ---------- Blog / SEO ----------

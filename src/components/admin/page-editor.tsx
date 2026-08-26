@@ -3,9 +3,10 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Loader2, Plus, ExternalLink, Check } from "lucide-react";
-import type { Block, BlockType, Page } from "@/lib/pages/types";
+import type { AdminCategoryPage, Block, BlockType, Page } from "@/lib/pages/types";
 import { emptyBlock } from "@/lib/pages/types";
 import { BlockEditor } from "./block-editor";
+import { SlugField } from "./slug-field";
 
 const BLOCK_TYPES: { type: BlockType; label: string }[] = [
   { type: "richtext", label: "Rich text" },
@@ -29,17 +30,21 @@ export function PageEditor({
   initial,
   onBack,
 }: {
-  initial: Page;
+  initial: Page | AdminCategoryPage;
   onBack: () => void;
 }) {
-  const [page, setPage] = useState<Page>(initial);
+  const [page, setPage] = useState(initial);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
   const isCustom = page.type === "custom";
   const set = <K extends keyof Page>(k: K, v: Page[K]) => setPage((p) => ({ ...p, [k]: v }));
 
-  const publicUrl = isCustom ? `/${page.slug}` : `/category/${page.slug}`;
+  // A category is addressed by its permanent id, which is also what its page key
+  // carries - so the id survives however many times the URL changes.
+  const categoryId = "categoryId" in page ? page.categoryId : page.key.slice("category:".length);
+  const prefix = isCustom ? "/" : "/category/";
+  const publicUrl = `${prefix}${page.slug}`;
 
   async function save() {
     setSaving(true);
@@ -153,12 +158,27 @@ export function PageEditor({
         <aside className="flex flex-col gap-4">
           <div className="rounded-card border border-line bg-card p-4">
             <h3 className="eyebrow mb-3">SEO</h3>
-            {isCustom && (
-              <div className="mb-3">
-                <label className="eyebrow">URL</label>
-                <div className="mono mt-1 rounded-lg border border-line bg-ground px-3 py-2 text-[13px] text-ink-soft">/{page.slug}</div>
-              </div>
-            )}
+            <SlugField
+              // Remounts on a change so the input tracks the new slug rather
+              // than holding the value the editor was opened with.
+              key={page.slug}
+              prefix={prefix}
+              slug={page.slug}
+              endpoint={
+                isCustom
+                  ? {
+                      url: `/api/admin/pages/${encodeURIComponent(page.key)}/slug`,
+                      method: "POST",
+                    }
+                  : { url: `/api/admin/categories/${encodeURIComponent(categoryId)}`, method: "PUT" }
+              }
+              onChanged={({ slug, key }) =>
+                // A custom-page rename rekeys the document, so the editor has to
+                // adopt the new key before any further save addresses a document
+                // that no longer exists.
+                setPage((prev) => ({ ...prev, slug, key: key ?? prev.key }))
+              }
+            />
             <label className="eyebrow">Meta title</label>
             <input className={`${inp} mt-1.5`} value={page.metaTitle} onChange={(e) => set("metaTitle", e.target.value)} placeholder="Defaults to page title" />
             <label className="eyebrow mt-3 block">Meta description</label>

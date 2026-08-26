@@ -1,27 +1,36 @@
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { pagesCollection } from "@/lib/db/mongo";
+import { categoryPath } from "@/lib/categories/data";
 import { getPageByKey } from "@/lib/pages/data";
 import type { Block } from "@/lib/pages/types";
 
 export const runtime = "nodejs";
 
-function parseKey(key: string): { type: "category" | "custom"; slug: string } | null {
+/**
+ * `ref` is the category **id** for a category page and the public slug for a
+ * custom one - the two halves of the key have meant different things since
+ * category slugs became editable.
+ */
+function parseKey(key: string): { type: "category" | "custom"; ref: string } | null {
   const idx = key.indexOf(":");
   if (idx < 0) return null;
   const prefix = key.slice(0, idx);
-  const slug = key.slice(idx + 1);
-  if (!slug) return null;
-  return { type: prefix === "category" ? "category" : "custom", slug };
+  const ref = key.slice(idx + 1);
+  if (!ref) return null;
+  return { type: prefix === "category" ? "category" : "custom", ref };
 }
 
 // Push edits live immediately instead of waiting for the ISR window.
-function revalidatePage(type: "category" | "custom", slug: string) {
+async function revalidatePage(type: "category" | "custom", ref: string) {
   if (type === "category") {
-    revalidatePath(`/category/${slug}`);
+    // Resolved, not interpolated: `ref` is the id, and after a rename that is no
+    // longer the live path - purging /category/<id> would leave every content
+    // save invisible on the page it edited until the ISR window expired.
+    revalidatePath(await categoryPath(ref));
     revalidatePath("/categories");
   } else {
-    revalidatePath(`/${slug}`);
+    revalidatePath(`/${ref}`);
   }
 }
 
@@ -65,14 +74,14 @@ export async function PUT(
       $setOnInsert: {
         key,
         type: parsed.type,
-        slug: parsed.slug,
+        slug: parsed.ref,
         status: parsed.type === "category" ? "published" : "draft",
         createdAt: now,
       },
     },
     { upsert: true },
   );
-  revalidatePage(parsed.type, parsed.slug);
+  await revalidatePage(parsed.type, parsed.ref);
   return NextResponse.json({ ok: true });
 }
 
@@ -91,7 +100,7 @@ export async function PATCH(
   const res = await col.updateOne({ key }, { $set: { status, updatedAt: new Date().toISOString() } });
   if (res.matchedCount === 0) return NextResponse.json({ error: "Not found." }, { status: 404 });
   const parsed = parseKey(key);
-  if (parsed) revalidatePage(parsed.type, parsed.slug);
+  if (parsed) await revalidatePage(parsed.type, parsed.ref);
   return NextResponse.json({ ok: true });
 }
 

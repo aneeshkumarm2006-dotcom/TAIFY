@@ -19,7 +19,7 @@ export function draftFromSubmission(sub: Submission): Partial<Tool> {
     name: sub.name,
     tagline: sub.tagline,
     description: sub.description,
-    category: CATEGORIES.some((c) => c.slug === sub.category)
+    category: CATEGORIES.some((c) => c.id === sub.category)
       ? sub.category
       : "productivity",
     images: sub.images ?? [],
@@ -135,7 +135,7 @@ export function checkDraft(draft: Partial<Tool>): DraftIssue[] {
   if (!draft.url?.trim()) block("url", "Website URL is empty");
   if (!draft.tagline?.trim()) block("tagline", "Tagline is empty");
   if (!draft.description?.trim()) block("description", "Description is empty");
-  if (!CATEGORIES.some((c) => c.slug === draft.category))
+  if (!CATEGORIES.some((c) => c.id === draft.category))
     block("category", "Pick a category");
   if (!draft.bestFor?.trim())
     block("bestFor", "\"Best for\" is empty - it carries the verdict section");

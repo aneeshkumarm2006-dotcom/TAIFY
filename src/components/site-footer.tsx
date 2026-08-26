@@ -1,6 +1,16 @@
 import Link from "next/link";
+import { categoryPath } from "@/lib/categories/data";
 
-export function SiteFooter() {
+export async function SiteFooter() {
+  // Resolved by id, not hardcoded. The footer renders inside the root layout, so
+  // a stale /category/<old> here would be three redirecting internal links on
+  // every page of the site - the exact link-equity leak an editable slug exists
+  // to avoid.
+  const [students, coding, writing] = await Promise.all([
+    categoryPath("education"),
+    categoryPath("coding"),
+    categoryPath("writing"),
+  ]);
   return (
     <footer className="mt-8 border-t border-line">
       <div className="mx-auto max-w-[1440px] px-6 py-12 lg:px-10">
@@ -28,9 +38,9 @@ export function SiteFooter() {
               title="Read"
               links={[
                 ["Guides & comparisons", "/blog"],
-                ["Best AI tools for students", "/category/education"],
-                ["Best AI coding tools", "/category/coding"],
-                ["Best AI writing tools", "/category/writing"],
+                ["Best AI tools for students", students],
+                ["Best AI coding tools", coding],
+                ["Best AI writing tools", writing],
               ]}
             />
             <FooterCol

@@ -1,6 +1,6 @@
 import "server-only";
-import { TOOLS, CATEGORIES, toolBySlug } from "@/data/tools";
-import type { CardTool, Category, LogoTool, Pricing, Tool } from "@/lib/types";
+import { TOOLS, toolBySlug } from "@/data/tools";
+import type { CardTool, LogoTool, Pricing, Tool } from "@/lib/types";
 import { toolsCollection, isDbEnabled, docToTool } from "@/lib/db/mongo";
 
 /**
@@ -10,7 +10,8 @@ import { toolsCollection, isDbEnabled, docToTool } from "@/lib/db/mongo";
  */
 
 export interface ToolFilters {
-  category?: string;
+  /** A category *id*, never a public slug - it is matched against `t.category`. */
+  categoryId?: string;
   pricing?: Pricing[];
   verifiedOnly?: boolean;
   hasFreeTier?: boolean;
@@ -22,13 +23,21 @@ export interface ToolFilters {
 
 // ---------- reads ----------
 
-export async function getCategories(): Promise<Category[]> {
-  return CATEGORIES;
-}
-
-export async function getCategory(slug: string): Promise<Category | undefined> {
-  return CATEGORIES.find((c) => c.slug === slug);
-}
+/**
+ * The taxonomy lives in lib/categories/data.ts now, because a category's public
+ * slug is an editable override rather than the constant. Re-exported here so the
+ * dozen existing `@/lib/data` importers don't have to churn.
+ *
+ * `getCategory(slug)` is deliberately *not* re-exported: it was ambiguous once id
+ * and slug came apart, so every caller has to pick getCategoryById or
+ * getCategoryBySlug and say which one it holds.
+ */
+export {
+  getCategories,
+  getCategoryById,
+  getCategoryBySlug,
+  categoryPath,
+} from "@/lib/categories/data";
 
 export async function getTool(slug: string): Promise<Tool | undefined> {
   if (isDbEnabled) {
@@ -79,7 +88,8 @@ export async function countTools(): Promise<number> {
 export async function filterTools(filters: ToolFilters): Promise<Tool[]> {
   let out = await allTools();
 
-  if (filters.category) out = out.filter((t) => t.category === filters.category);
+  if (filters.categoryId)
+    out = out.filter((t) => t.category === filters.categoryId);
   if (filters.pricing?.length)
     out = out.filter((t) => filters.pricing!.includes(t.pricing));
   if (filters.hasFreeTier)
@@ -118,6 +128,7 @@ export async function searchTools(query: string, limit = 12): Promise<Tool[]> {
     .slice(0, limit);
 }
 
+/** Tool counts keyed by category **id**, matching `t.category`. */
 export async function categoryCounts(): Promise<Record<string, number>> {
   const all = await allTools();
   const counts: Record<string, number> = {};

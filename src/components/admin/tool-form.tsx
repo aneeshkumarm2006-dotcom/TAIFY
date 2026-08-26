@@ -98,7 +98,7 @@ export function ToolFields({
         <Field label="Category">
           <select className={inp} value={(f.category as string) ?? ""} onChange={(e) => set("category", e.target.value)}>
             {CATEGORIES.map((c) => (
-              <option key={c.slug} value={c.slug}>{c.name}</option>
+              <option key={c.id} value={c.id}>{c.name}</option>
             ))}
           </select>
         </Field>

@@ -1,6 +1,6 @@
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import type { Metadata } from "next";
-import { getCustomPage } from "@/lib/pages/data";
+import { getCustomPage, movedCustomPage } from "@/lib/pages/data";
 import { getTool } from "@/lib/data";
 import { buildPageSchema } from "@/lib/pages/schema";
 import { JsonLd } from "@/lib/schema/json-ld";
@@ -59,7 +59,14 @@ export default async function CustomPage({
   if (role) return <RolePageView role={role} />;
   if (RESERVED.has(slug)) notFound();
   const page = await getCustomPage(slug);
-  if (!page) notFound();
+  if (!page) {
+    // Kept after the role and RESERVED checks so a retired slug can never
+    // shadow a real route. `formerSlugs` always points at the current slug, so
+    // a page renamed twice still redirects in one hop.
+    const moved = await movedCustomPage(slug);
+    if (moved) permanentRedirect(`/${moved}`);
+    notFound();
+  }
 
   const extraSlugs = page.blocks.flatMap((b) => (b.type === "toollist" ? b.slugs : []));
   const extra = (await Promise.all(extraSlugs.map((s) => getTool(s)))).filter(Boolean) as Tool[];

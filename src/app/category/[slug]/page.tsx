@@ -1,9 +1,9 @@
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getCategoryPage } from "@/lib/pages/data";
 import { filterTools, getTool, toCardTools } from "@/lib/data";
-import { CATEGORIES } from "@/data/tools";
+import { getCategories, resolveCategorySlug } from "@/lib/categories/data";
 import { buildPageSchema } from "@/lib/pages/schema";
 import { JsonLd } from "@/lib/schema/json-ld";
 import { Blocks } from "@/components/pages/block-render";
@@ -14,8 +14,13 @@ import type { Tool } from "@/lib/types";
 
 export const revalidate = 300;
 
-export function generateStaticParams() {
-  return CATEGORIES.map((c) => ({ slug: c.slug }));
+/**
+ * Only *live* slugs are prerendered. A retired one isn't in this list, so with
+ * `dynamicParams` at its default it falls through to an on-demand render, hits
+ * resolveCategorySlug below, and 308s - no middleware and no redirects() entry.
+ */
+export async function generateStaticParams() {
+  return (await getCategories()).map((c) => ({ slug: c.slug }));
 }
 
 export async function generateMetadata({
@@ -24,7 +29,13 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const page = await getCategoryPage(slug);
+  const r = await resolveCategorySlug(slug);
+  // A moved slug gets its 308 from the page body; metadata just declines to
+  // hand a crawler an indexable title for a URL that is about to redirect.
+  if (r.kind !== "live") {
+    return { title: `Not found | ${SITE_NAME}`, robots: { index: false, follow: true } };
+  }
+  const page = await getCategoryPage(r.category.id);
   if (!page) {
     return { title: `Not found | ${SITE_NAME}`, robots: { index: false, follow: true } };
   }
@@ -34,7 +45,7 @@ export async function generateMetadata({
   const stored = page.metaTitle?.trim();
   const title =
     stored && stored.length <= TITLE_MAX ? stored : withBrand(page.title, TITLE_MAX);
-  const url = absoluteUrl(`/category/${slug}`);
+  const url = absoluteUrl(`/category/${r.category.slug}`);
   return {
     title,
     description: page.excerpt,
@@ -65,11 +76,18 @@ export default async function CategoryPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const page = await getCategoryPage(slug);
-  const cat = CATEGORIES.find((c) => c.slug === slug);
-  if (!page || !cat) notFound();
+  const r = await resolveCategorySlug(slug);
+  // `to` is always the current slug, so a category renamed twice still redirects
+  // in a single hop from every URL it has ever had.
+  if (r.kind === "moved") permanentRedirect(`/category/${r.to}`);
+  if (r.kind === "none") notFound();
 
-  const tools = await filterTools({ category: slug, sort: "editors" });
+  const cat = r.category;
+  const page = await getCategoryPage(cat.id);
+  if (!page) notFound();
+
+  // The id, not the URL segment: tool documents store the permanent value.
+  const tools = await filterTools({ categoryId: cat.id, sort: "editors" });
 
   // Tool map for any tool-list blocks.
   const extraSlugs = page.blocks.flatMap((b) => (b.type === "toollist" ? b.slugs : []));
@@ -77,7 +95,7 @@ export default async function CategoryPage({
   const toolMap: Record<string, Tool> = {};
   for (const t of [...tools, ...extra]) toolMap[t.slug] = t;
 
-  const path = `/category/${slug}`;
+  const path = `/category/${cat.slug}`;
   const graph = buildPageSchema({
     page,
     path,

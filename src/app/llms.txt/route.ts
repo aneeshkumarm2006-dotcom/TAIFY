@@ -40,7 +40,7 @@ export async function GET(): Promise<Response> {
       "Categories",
       categories.map(
         (c) =>
-          `- [${c.name}](${absoluteUrl(`/category/${c.slug}`)}): best ${c.name.toLowerCase()} AI tools (${counts[c.slug] ?? 0} listed).`,
+          `- [${c.name}](${absoluteUrl(`/category/${c.slug}`)}): best ${c.name.toLowerCase()} AI tools (${counts[c.id] ?? 0} listed).`,
       ),
     ),
     section(

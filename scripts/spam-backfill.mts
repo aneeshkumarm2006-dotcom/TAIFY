@@ -25,7 +25,7 @@ import { MongoClient, type Document } from "mongodb";
 import { classify, type Assessment } from "../src/lib/spam/classify";
 import { CATEGORIES } from "../src/data/tools";
 
-const CATEGORY_SLUGS = CATEGORIES.map((c) => c.slug);
+const CATEGORY_IDS = CATEGORIES.map((c) => c.id);
 
 const APPLY = process.argv.includes("--apply");
 const MOVE = process.argv.includes("--move");
@@ -99,7 +99,7 @@ for (const s of subs) {
     message: [s.tagline, s.description].filter(Boolean).join("\n"),
     url: s.url,
     category: s.category,
-    allowedCategories: CATEGORY_SLUGS,
+    allowedCategories: CATEGORY_IDS,
     // Nothing stored predates the timing stamp, so every historical record
     // looks like a browser that sent none. That is the honest replay.
     elapsedMs: undefined,

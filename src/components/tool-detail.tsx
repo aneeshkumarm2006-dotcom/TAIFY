@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { ArrowUpRight, Check, X } from "lucide-react";
 import { toCardTools } from "@/lib/data";
-import { CATEGORIES } from "@/data/tools";
 import { ToolBackLink } from "@/components/tool-back-link";
 import { ToolGallery } from "@/components/tool-gallery";
 import { BrandLogo } from "@/components/brand-logo";
@@ -9,7 +8,7 @@ import { AiDepthBadge, PricingBadge, VerifiedBadge } from "@/components/ui/badge
 import { ButtonLink } from "@/components/ui/button";
 import { ToolGrid } from "@/components/tool-rail";
 import { embedUrl, sameEntity, timeAgo } from "@/lib/utils";
-import type { Tool } from "@/lib/types";
+import type { Category, Tool } from "@/lib/types";
 
 /**
  * Everything a visitor sees on /tool/<slug>.
@@ -24,20 +23,26 @@ import type { Tool } from "@/lib/types";
  * `faqs` is passed in rather than built here because the page also feeds it to
  * faqNode(). Google drops a rich result when the structured data and the words
  * on the page disagree, so both must come from one call to buildFaqs.
+ *
+ * `category` is passed in for the same reason `faqs` is: `tool.category` holds
+ * an id, and turning that into a public URL is an async read this sync component
+ * cannot do. Both parents already resolve it to name the breadcrumb.
  */
 export function ToolDetail({
   tool,
+  category,
   related,
   faqs,
   jsonLd,
 }: {
   tool: Tool;
+  /** Resolved from `tool.category`; undefined only if the id is unknown. */
+  category?: Category;
   related: Tool[];
   faqs: { q: string; a: string }[];
   /** Rendered as the first child, where the page used to inline <JsonLd />. */
   jsonLd?: React.ReactNode;
 }) {
-  const category = CATEGORIES.find((c) => c.slug === tool.category);
   const categoryName = category?.name ?? tool.category;
   // A licence bought outright, not a subscription: "$42 / mo" would be false.
   const once = tool.billing === "one-time";
