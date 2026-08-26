@@ -210,5 +210,11 @@ export const SCREENSHOTS: Record<string, string> = {
   "qure-ai": "/shots/qure-ai.jpg",
   "annalise-ai": "/shots/annalise-ai.jpg",
   "hippocratic-ai": "/shots/hippocratic-ai.jpg",
-  "suki": "/shots/suki.jpg"
+  "suki": "/shots/suki.jpg",
+  "notebooklm": "/shots/notebooklm.jpg",
+  "beautiful-ai": "/shots/beautiful-ai.jpg",
+  "quizlet": "/shots/quizlet.jpg",
+  "epique": "/shots/epique.jpg",
+  "cocounsel": "/shots/cocounsel.jpg",
+  "mistral": "/shots/mistral.jpg"
 };

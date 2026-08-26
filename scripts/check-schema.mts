@@ -155,7 +155,11 @@ async function checkRoute(route: string) {
   const raw = JSON.stringify(nodes);
   if (/"[^"]*":\s*(null)/.test(raw)) fail(route, "a property serialised as null");
   if (raw.includes('""')) fail(route, "a property serialised as an empty string");
-  if (raw.includes("vercel.app")) fail(route, "a preview host leaked into the graph");
+  // Images are exempt from the host check: a submitted listing is entitled to
+  // host its own screenshot wherever it likes, including on vercel.app, and
+  // that says nothing about which domain this page claims to be.
+  const hosts = JSON.stringify(nodes, (k, v) => (k === "image" ? undefined : v));
+  if (hosts.includes("vercel.app")) fail(route, "a preview host leaked into the graph");
 
   walk(nodes, (n) => {
     const types = typeOf(n);
@@ -174,6 +178,24 @@ async function checkRoute(route: string) {
       const offers = n.offers as Node | undefined;
       if (offers?.price === undefined) fail(route, "Product missing offers.price");
       if (offers && !offers.priceCurrency) fail(route, "Product offer missing priceCurrency");
+
+      // The 2026-08-16 merchant-listing failure, as a test. A Product carrying
+      // `offers` is a merchant listing, and one without `image` is invalid -
+      // 205 items across the category pages were, silently, for weeks.
+      const images = (Array.isArray(n.image) ? n.image : n.image ? [n.image] : []).map(
+        String,
+      );
+      if (!images.length) fail(route, `Product "${n.name}" has no image`);
+      for (const src of images) {
+        if (!/^https?:\/\//.test(src)) {
+          fail(route, `Product image is not an absolute URL: ${src}`);
+        }
+        // Uncrawlable by Google's own robots.txt, so it can never be a valid
+        // product image however well the markup validates.
+        if (src.includes("google.com/s2/")) {
+          fail(route, `Product image is a favicon lookup: ${src}`);
+        }
+      }
     }
 
     if (types.includes("ItemList")) {

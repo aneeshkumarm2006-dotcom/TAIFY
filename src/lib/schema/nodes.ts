@@ -193,21 +193,65 @@ export function itemListNode({
   };
 }
 
+/* ── product images ────────────────────────────────────────────────────── */
+
+/**
+ * Every image a tool's Product node can offer, absolute, best first.
+ *
+ * A Product that carries `offers` is a merchant listing to Google, and a
+ * merchant listing without `image` is invalid — not "missing an enhancement",
+ * but excluded from every product experience in Search. That is what happened
+ * here: on 2026-08-16 Search Console failed 205 items across the category pages
+ * on `Missing field "image"`, because list entries had never carried one and
+ * detail pages only carried one when a screenshot happened to exist.
+ *
+ * Order of preference, which is really "how real is the picture":
+ *  - the homepage capture under /shots, which is what /tool/<slug> renders and
+ *    is served from our own domain, so Googlebot is free to fetch it;
+ *  - a submitter's own screenshot on the tool's host, for listings that came in
+ *    through /submit before anything was captured for them;
+ *  - the card drawn at /tool/<slug>/card from the listing itself.
+ *
+ * The last branch is why this never returns an empty array. `images` is empty
+ * for a tool whose site won't render under headless Chrome, and for any
+ * submission approved with a logo and no screenshot — which draft.ts allows —
+ * and a tool with no image is a tool with an invalid Product node.
+ *
+ * The logo is deliberately not a candidate. Every one is a
+ * google.com/s2/favicons lookup and Google's own robots.txt is `Disallow: /s2`,
+ * so putting one in `image` names a URL Googlebot is forbidden to fetch: an
+ * invalid item that looks fixed.
+ */
+export function productImages(tool: Pick<Tool, "slug" | "images">): string[] {
+  const images = (tool.images ?? [])
+    .map((src) => src.trim())
+    .filter(Boolean)
+    .map((src) => (src.startsWith("http") ? src : absoluteUrl(src)));
+  return images.length ? images : [absoluteUrl(`/tool/${tool.slug}/card`)];
+}
+
+/** The single lead image, for the shapes that take one. */
+export function productImage(tool: Pick<Tool, "slug" | "images">): string {
+  return productImages(tool)[0];
+}
+
 /**
  * A tool as it appears in a listing.
  *
- * Only what the card itself renders: name, tagline and the real monthly cost.
- * No screenshot — the card shows the brand mark, not the shot, and marking up
- * content that isn't on the page is the first thing Google's policies rule out.
- * No `review` or rating either: review markup has to describe "a specific item,
- * not about a category or a list of items", so pros and cons belong on
- * /tool/<slug> alone.
+ * What the card renders — name, tagline, the real monthly cost — plus the lead
+ * image, which the card itself doesn't show. That is the one deliberate step
+ * past "mark up what's on the page": Google requires `image` on a merchant
+ * listing, its summary-page guidance asks list items to carry the same
+ * properties as the pages they link to, and the image named here is the one
+ * /tool/<slug> shows. No `review` or rating: review markup has to describe "a
+ * specific item, not about a category or a list of items", so pros and cons
+ * belong on /tool/<slug> alone.
  *
  * The `@id` is the same one the detail page mints, so a tool listed on six
  * category pages stays one entity rather than six.
  */
 export function toolListEntry(
-  tool: Pick<Tool, "slug" | "name" | "tagline" | "costPerMonth">,
+  tool: Pick<Tool, "slug" | "name" | "tagline" | "costPerMonth" | "images">,
 ): ListEntry {
   const url = absoluteUrl(`/tool/${tool.slug}`);
   return {
@@ -219,6 +263,7 @@ export function toolListEntry(
       name: tool.name,
       url,
       description: tool.tagline,
+      image: productImage(tool),
       offers: {
         "@type": "Offer",
         price: tool.costPerMonth,
@@ -291,21 +336,22 @@ function reviewNode(tool: Tool) {
  * and it tells an AI answer engine this is software rather than a physical good,
  * which is the audience this site is built for.
  *
- * Three absences are deliberate:
+ * Two absences are deliberate:
  * - `availability`, the strongest merchant-listing signal. A merchant listing
  *   asserts we are the seller, and Google bars the experience outright for
  *   "pages with links to other sites that sell the product".
  * - `priceValidUntil`. A date in the past suppresses the snippet, and nothing
  *   here would keep it rolling forward.
- * - the logo in `image`. Logos are google.com/s2/favicons lookups and Google's own
- *   robots.txt is `Disallow: /s2`, so they are uncrawlable. `image` is not
- *   required for a product snippet, so it is emitted only for real screenshots.
+ *
+ * `image` used to be a third, on the grounds that the only picture some tools
+ * had was an uncrawlable favicon. That reasoning still holds for logos and is
+ * why productImages() won't touch them — but it left tools with no screenshot
+ * emitting a Product with no image at all, which Search Console fails outright.
+ * The resolver guarantees one now.
  */
 export function toolNode(tool: Tool, categoryName: string) {
   const url = absoluteUrl(`/tool/${tool.slug}`);
-  const images = (tool.images ?? []).map((p) =>
-    p.startsWith("http") ? p : absoluteUrl(p),
-  );
+  const images = productImages(tool);
   return {
     "@type": "Product",
     "@id": toolId(tool.slug),
@@ -316,7 +362,7 @@ export function toolNode(tool: Tool, categoryName: string) {
     url,
     sameAs: tool.url,
     category: categoryName,
-    ...(images.length ? { image: images } : {}),
+    image: images,
     brand: {
       "@type": "Organization",
       name: tool.company,
