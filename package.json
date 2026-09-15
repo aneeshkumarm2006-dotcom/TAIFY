@@ -13,6 +13,7 @@
     "blog:seed": "tsx scripts/seed-blog.ts",
     "pages:seed": "tsx scripts/seed-pages.ts",
     "schema:check": "tsx scripts/check-schema.mts",
+    "indexnow:ping": "tsx scripts/indexnow-ping.ts",
     "spam:verify": "tsx --env-file=.env.local scripts/spam-verify-corpus.mts",
     "spam:backfill": "tsx --env-file=.env.local scripts/spam-backfill.mts"
   },

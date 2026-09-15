@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { toolsCollection, docToTool } from "@/lib/db/mongo";
+import { categoryPath } from "@/lib/categories/data";
+import { pingIndexNow } from "@/lib/indexnow";
 import { TOOLS } from "@/data/tools";
 import type { Pricing, Tool } from "@/lib/types";
 import { slugify } from "@/lib/utils";
@@ -74,5 +76,10 @@ export async function POST(req: Request) {
   };
 
   await col.insertOne(doc);
+  // The listing plus the two indexes that just gained a row. categoryPath is
+  // awaited - `doc.category` is an id, and a renamed category's id only 308s -
+  // but it is one memoised read against a 22-document collection, and the ping
+  // itself is scheduled after the response either way.
+  pingIndexNow([`/tool/${slug}`, "/browse", await categoryPath(doc.category)]);
   return NextResponse.json({ ok: true, slug });
 }

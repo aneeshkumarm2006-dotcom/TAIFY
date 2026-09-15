@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { ensureCategoryIndexes, pagesCollection } from "@/lib/db/mongo";
+import { pingIndexNow } from "@/lib/indexnow";
 import { RESERVED } from "@/lib/pages/reserved";
 import { slugify } from "@/lib/utils";
 
@@ -85,5 +86,9 @@ export async function POST(
   revalidatePath(`/${oldSlug}`);
   revalidatePath(`/${slug}`);
   revalidatePath("/sitemap.xml");
+  // Both URLs: the new one so it gets indexed, the old one so the crawler comes
+  // back for the 308 and moves the ranking across instead of leaving a stale
+  // entry that resolves to a redirect for months.
+  pingIndexNow([`/${slug}`, `/${oldSlug}`]);
   return NextResponse.json({ ok: true, key: newKey, slug });
 }

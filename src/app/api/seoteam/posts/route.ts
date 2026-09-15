@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { postsCollection } from "@/lib/db/mongo";
 import { getAllPosts } from "@/lib/blog/data";
+import { pingIndexNow } from "@/lib/indexnow";
 import { slugify } from "@/lib/utils";
 import type { Post } from "@/lib/types";
 
@@ -54,5 +55,8 @@ export async function POST(req: Request) {
   };
 
   await col.insertOne(post);
+  // A draft has no public URL yet, so there is nothing to submit until it is
+  // published - the PATCH in [slug]/route.ts pings then.
+  if (publish) pingIndexNow([`/blog/${slug}`, "/blog"]);
   return NextResponse.json({ ok: true, slug });
 }

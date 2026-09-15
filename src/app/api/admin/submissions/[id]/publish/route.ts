@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { ObjectId } from "mongodb";
 import { submissionsCollection, toolsCollection } from "@/lib/db/mongo";
+import { categoryPath } from "@/lib/categories/data";
 import { sendSubmitterEmail } from "@/lib/email";
+import { pingIndexNow } from "@/lib/indexnow";
 import {
   canPublish,
   checkDraft,
@@ -80,7 +82,14 @@ export async function POST(
   if (!slug)
     return NextResponse.json({ error: "Could not derive a slug." }, { status: 400 });
 
-  await tools.insertOne(buildToolDoc(slug, draft));
+  const doc = buildToolDoc(slug, draft);
+  await tools.insertOne(doc);
+
+  // The point of the whole IndexNow wiring: an approved tool is in front of Bing
+  // (and so ChatGPT Search and Copilot) in minutes rather than whenever the
+  // crawler next gets round to the sitemap. Submitted before the email is sent,
+  // because sendSubmitterEmail talks to an SMTP host and can take seconds.
+  pingIndexNow([`/tool/${slug}`, "/browse", await categoryPath(doc.category)]);
 
   const now = new Date().toISOString();
   await subs.updateOne(

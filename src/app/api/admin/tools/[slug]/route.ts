@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { toolsCollection } from "@/lib/db/mongo";
+import { categoryPath } from "@/lib/categories/data";
+import { pingIndexNow } from "@/lib/indexnow";
 import type { Pricing, Tool } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -46,9 +48,26 @@ export async function PUT(
     set.billing = body.billing === "one-time" ? "one-time" : undefined;
   if (body.featured !== undefined) set.featured = Boolean(body.featured);
 
-  const res = await col.updateOne({ slug }, { $set: set });
-  if (res.matchedCount === 0)
+  // "before" so a category move can submit the index it left as well as the one
+  // it joined - the old category page still lists the tool until it is recrawled.
+  const before = await col.findOneAndUpdate(
+    { slug },
+    { $set: set },
+    { returnDocument: "before" },
+  );
+  if (!before)
     return NextResponse.json({ error: "Tool not found." }, { status: 404 });
+
+  const paths = [`/tool/${slug}`];
+  const moved = typeof set.category === "string" ? set.category : null;
+  if (moved && moved !== before.category) {
+    paths.push(
+      "/browse",
+      await categoryPath(before.category),
+      await categoryPath(moved),
+    );
+  }
+  pingIndexNow(paths);
   return NextResponse.json({ ok: true });
 }
 
@@ -72,6 +91,9 @@ export async function PATCH(
   const res = await col.updateOne({ slug }, { $set: set });
   if (res.matchedCount === 0)
     return NextResponse.json({ error: "Tool not found." }, { status: 404 });
+  // A verify re-stamps the sitemap's lastmod and the "verified Nd ago" line;
+  // featuring reorders /browse. Both are worth a recrawl of the page itself.
+  pingIndexNow(action === "verify" ? `/tool/${slug}` : [`/tool/${slug}`, "/browse"]);
   return NextResponse.json({ ok: true });
 }
 
@@ -84,8 +106,13 @@ export async function DELETE(
   const col = await toolsCollection();
   if (!col)
     return NextResponse.json({ error: "Database not connected." }, { status: 503 });
-  const res = await col.deleteOne({ slug });
-  if (res.deletedCount === 0)
+  // findOneAndDelete so the category page the listing was on can be submitted
+  // too - the document is gone by the time a ping would otherwise look it up.
+  const deleted = await col.findOneAndDelete({ slug });
+  if (!deleted)
     return NextResponse.json({ error: "Tool not found." }, { status: 404 });
+  // The dead URL is submitted on purpose: that is what gets the crawler back to
+  // see the 404 and drop it, rather than serving a stale listing for weeks.
+  pingIndexNow([`/tool/${slug}`, "/browse", await categoryPath(deleted.category)]);
   return NextResponse.json({ ok: true });
 }

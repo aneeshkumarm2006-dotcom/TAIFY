@@ -47,5 +47,7 @@ export async function POST(req: Request) {
   };
   await col.insertOne(page);
   revalidatePath(`/${slug}`);
+  // No IndexNow ping: a new page starts as a draft and /<slug> still 404s.
+  // The PATCH in [key]/route.ts submits it the moment it is published.
   return NextResponse.json({ ok: true, key: page.key });
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { postsCollection } from "@/lib/db/mongo";
 import { getPostForEdit } from "@/lib/blog/data";
+import { pingIndexNow } from "@/lib/indexnow";
 import type { Post } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -34,9 +35,16 @@ export async function PUT(
   for (const f of fields) if (body[f] !== undefined) set[f] = body[f];
   if (!set.metaTitle && body.title) set.metaTitle = body.title;
 
-  const res = await col.updateOne({ slug }, { $set: set });
-  if (res.matchedCount === 0)
-    return NextResponse.json({ error: "Not found." }, { status: 404 });
+  // findOneAndUpdate rather than updateOne so the ping below can tell whether
+  // the post it just edited is actually live: submitting a draft's URL earns a
+  // crawl of a 404 and teaches Bing the URL is dead.
+  const updated = await col.findOneAndUpdate(
+    { slug },
+    { $set: set },
+    { returnDocument: "after" },
+  );
+  if (!updated) return NextResponse.json({ error: "Not found." }, { status: 404 });
+  if (updated.status === "published") pingIndexNow(`/blog/${slug}`);
   return NextResponse.json({ ok: true });
 }
 
@@ -66,6 +74,9 @@ export async function PATCH(
   }
 
   await col.updateOne({ slug }, { $set: set });
+  // Both directions are worth submitting: an unpublish wants the crawler back
+  // to see the 404 and drop the URL, and /blog itself gained or lost an entry.
+  pingIndexNow([`/blog/${slug}`, "/blog"]);
   return NextResponse.json({ ok: true });
 }
 
@@ -80,5 +91,6 @@ export async function DELETE(
   const res = await col.deleteOne({ slug });
   if (res.deletedCount === 0)
     return NextResponse.json({ error: "Not found." }, { status: 404 });
+  pingIndexNow([`/blog/${slug}`, "/blog"]);
   return NextResponse.json({ ok: true });
 }

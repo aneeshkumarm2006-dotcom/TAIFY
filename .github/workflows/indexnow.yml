@@ -1,0 +1,232 @@
+# Submit changed URLs to IndexNow after a production deploy.
+#
+# The API routes already ping on every publish, which covers everything an editor
+# does through /admin and /seoteam. This is the safety net for the rest: a page
+# that ships as code (a new role page, a route added in src/app), a ping that came
+# back 5xx, and the backlog from before IndexNow was switched on.
+#
+# It works by diffing the production sitemap against the previous run's snapshot,
+# so it never submits the whole catalog twice and needs no database access.
+#
+# Requires the INDEXNOW_KEY repo secret (Settings -> Secrets and variables ->
+# Actions), matching the committed public/<key>.txt. Optional SITE_URL repo
+# variable overrides the domain; by default it is read out of src/lib/site.ts so
+# the workflow and the app can never disagree about what the canonical host is.
+name: IndexNow
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      all:
+        description: "Submit every sitemap URL instead of only the changed ones"
+        type: boolean
+        default: false
+
+# One at a time, and never cancelled: a cancelled run would save no snapshot and
+# the next one would re-submit everything it had already sent.
+concurrency:
+  group: indexnow
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  deployments: read
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Resolve the production origin
+        run: |
+          set -euo pipefail
+          origin='${{ vars.SITE_URL }}'
+          if [ -z "$origin" ]; then
+            # Single source of truth: the same constant src/lib/site.ts exports
+            # as SITE_URL and src/app/sitemap.ts builds every <loc> from.
+            origin=$(node -e '
+              const src = require("fs").readFileSync("src/lib/site.ts", "utf8");
+              const m = /PRODUCTION_URL\s*=\s*"([^"]+)"/.exec(src);
+              if (!m) { console.error("PRODUCTION_URL not found in src/lib/site.ts"); process.exit(1); }
+              process.stdout.write(m[1].replace(/\/$/, ""));
+            ')
+          fi
+          echo "Origin: $origin"
+          echo "SITE_ORIGIN=${origin%/}" >> "$GITHUB_ENV"
+
+      - name: Wait for the production deploy to go live
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -uo pipefail
+          # Vercel creates a GitHub Deployment per push and marks it "success"
+          # once the build is serving. Polling that is the only signal here that
+          # actually means "the new sitemap is what the origin will return".
+          live() {
+            local urls u
+            urls=$(gh api "repos/$GITHUB_REPOSITORY/deployments?sha=$GITHUB_SHA&per_page=100" \
+              --jq '.[] | select(.environment | test("prod";"i")) | .statuses_url' 2>/dev/null) || return 1
+            [ -n "$urls" ] || return 1
+            for u in $urls; do
+              gh api "$u?per_page=100" --jq '.[].state' 2>/dev/null | grep -qx success && return 0
+            done
+            return 1
+          }
+          for i in $(seq 1 60); do
+            if live; then echo "Production deploy is live."; exit 0; fi
+            sleep 20
+          done
+          # Not fatal. The diff below either sees the new state or it does not,
+          # and the next push picks up whatever this run missed.
+          echo "::warning::No successful production deployment for $GITHUB_SHA after 20m; diffing anyway."
+
+      - name: Restore the previous sitemap snapshot
+        uses: actions/cache/restore@v4
+        with:
+          path: .indexnow-cache
+          key: indexnow-sitemap-${{ github.run_id }}
+          restore-keys: |
+            indexnow-sitemap-
+
+      - name: Fetch the production sitemap
+        run: |
+          set -euo pipefail
+          curl -sS --fail --retry 5 --retry-delay 10 --retry-all-errors \
+            -H 'cache-control: no-cache' \
+            -o sitemap.xml "$SITE_ORIGIN/sitemap.xml"
+          echo "Fetched $(grep -c '<loc>' sitemap.xml) <loc> entries."
+
+      - name: Diff against the snapshot
+        id: diff
+        env:
+          SUBMIT_ALL: ${{ github.event_name == 'workflow_dispatch' && inputs.all || false }}
+        run: |
+          set -euo pipefail
+          mkdir -p .indexnow-cache
+          node <<'JS'
+          const fs = require("node:fs");
+
+          const MAX_PER_REQUEST = 10_000;
+          const SNAPSHOT = ".indexnow-cache/sitemap.txt";
+          const all = process.env.SUBMIT_ALL === "true";
+          const xml = fs.readFileSync("sitemap.xml", "utf8");
+
+          // <lastmod> is compared at date granularity on purpose. The static and
+          // role routes in src/app/sitemap.ts are stamped `new Date()` on every
+          // request, so a full-timestamp comparison would report all ~30 of them
+          // as changed on every single run and drown the real changes.
+          const entries = new Map();
+          for (const [, block] of xml.matchAll(/<url>([\s\S]*?)<\/url>/g)) {
+            const loc = /<loc>\s*([^<\s]+)\s*<\/loc>/.exec(block)?.[1];
+            if (!loc) continue;
+            const lastmod = /<lastmod>\s*([^<\s]+)\s*<\/lastmod>/.exec(block)?.[1] ?? "";
+            entries.set(loc, lastmod.slice(0, 10));
+          }
+          if (entries.size === 0) {
+            console.error("No <url> entries parsed from sitemap.xml - refusing to touch the snapshot.");
+            process.exit(1);
+          }
+
+          const previous = new Map();
+          if (fs.existsSync(SNAPSHOT)) {
+            for (const line of fs.readFileSync(SNAPSHOT, "utf8").split("\n")) {
+              if (!line.trim()) continue;
+              const [loc, lastmod = ""] = line.split("\t");
+              previous.set(loc, lastmod);
+            }
+          }
+
+          // A first run with no snapshot submits nothing: the whole sitemap is
+          // "new", and dumping 348 URLs into IndexNow on a workflow's first ever
+          // run is a backfill decision, not something a push should trigger.
+          // `pnpm indexnow:ping --all`, or a manual run with all=true, does that.
+          const baseline = previous.size === 0 && !all;
+          const changed = all
+            ? [...entries.keys()]
+            : baseline
+              ? []
+              : [...entries].filter(([loc, lastmod]) => previous.get(loc) !== lastmod).map(([loc]) => loc);
+
+          // Removed URLs are submitted too: that is what brings the crawler back
+          // to the 404 so it drops the page, instead of serving it for weeks.
+          if (!all && !baseline) {
+            for (const loc of previous.keys()) if (!entries.has(loc)) changed.push(loc);
+          }
+
+          fs.writeFileSync(SNAPSHOT, [...entries].map(([l, m]) => `${l}\t${m}`).join("\n") + "\n");
+
+          const unique = [...new Set(changed)];
+          for (let i = 0; i < unique.length; i += MAX_PER_REQUEST) {
+            fs.writeFileSync(
+              `payload-${i / MAX_PER_REQUEST}.json`,
+              JSON.stringify({ urlList: unique.slice(i, i + MAX_PER_REQUEST) }),
+            );
+          }
+
+          if (baseline) console.log("No previous snapshot - stored a baseline, submitted nothing.");
+          console.log(`${entries.size} sitemap URL(s), ${unique.length} to submit.`);
+          for (const u of unique.slice(0, 50)) console.log(`  ${u}`);
+          if (unique.length > 50) console.log(`  ... and ${unique.length - 50} more`);
+
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `count=${unique.length}\n`);
+          JS
+
+      - name: Submit to IndexNow
+        if: steps.diff.outputs.count != '0'
+        env:
+          INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "${INDEXNOW_KEY:-}" ]; then
+            echo "::warning::INDEXNOW_KEY secret is not set - skipping submission."
+            exit 0
+          fi
+          host="${SITE_ORIGIN#*://}"
+          failed=0
+          for payload in payload-*.json; do
+            # Written to a file rather than passed as an argument: a full batch of
+            # 10,000 URLs is a ~500KB request body, which is argument-list
+            # territory on some runners.
+            node -e '
+              const fs = require("node:fs");
+              const { urlList } = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+              const key = process.env.INDEXNOW_KEY.trim();
+              fs.writeFileSync("request.json", JSON.stringify({
+                host: process.argv[2],
+                key,
+                keyLocation: `${process.argv[3]}/${key}.txt`,
+                urlList,
+              }));
+            ' "$payload" "$host" "$SITE_ORIGIN"
+            status=$(curl -sS -o /dev/null -w '%{http_code}' \
+              -X POST https://api.indexnow.org/indexnow \
+              -H 'content-type: application/json; charset=utf-8' \
+              --data-binary @request.json || echo 000)
+            case "$status" in
+              # 200 accepted, 202 accepted but the key is not verified yet.
+              200|202) echo "✓ $payload -> $status" ;;
+              # 403 = public/<key>.txt missing or its contents do not match the
+              # key. 422 = a URL is not on this host, or the key fails the
+              # schema. Both mean the setup is wrong, not the request.
+              403|422) echo "::error::IndexNow $status - check that $SITE_ORIGIN/\$INDEXNOW_KEY.txt exists and contains exactly the key."; failed=1 ;;
+              *) echo "::warning::IndexNow $status for $payload."; failed=1 ;;
+            esac
+          done
+          rm -f request.json
+          [ "$failed" -eq 0 ]
+
+      - name: Save the sitemap snapshot
+        # Saved even when submission failed, but not when the diff itself did:
+        # a snapshot written from a half-parsed sitemap would make the next run
+        # think everything changed.
+        if: always() && steps.diff.outcome == 'success'
+        uses: actions/cache/save@v4
+        with:
+          path: .indexnow-cache
+          key: indexnow-sitemap-${{ github.run_id }}

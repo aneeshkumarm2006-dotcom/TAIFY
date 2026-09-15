@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { pagesCollection } from "@/lib/db/mongo";
 import { categoryPath } from "@/lib/categories/data";
+import { pingIndexNow } from "@/lib/indexnow";
 import { getPageByKey } from "@/lib/pages/data";
 import type { Block } from "@/lib/pages/types";
 
@@ -21,17 +22,15 @@ function parseKey(key: string): { type: "category" | "custom"; ref: string } | n
   return { type: prefix === "category" ? "category" : "custom", ref };
 }
 
-// Push edits live immediately instead of waiting for the ISR window.
-async function revalidatePage(type: "category" | "custom", ref: string) {
-  if (type === "category") {
-    // Resolved, not interpolated: `ref` is the id, and after a rename that is no
-    // longer the live path - purging /category/<id> would leave every content
-    // save invisible on the page it edited until the ISR window expired.
-    revalidatePath(await categoryPath(ref));
-    revalidatePath("/categories");
-  } else {
-    revalidatePath(`/${ref}`);
-  }
+/**
+ * The public path(s) this page owns, most specific first.
+ *
+ * Resolved, not interpolated: for a category `ref` is the id, and after a rename
+ * that is no longer the live path - purging or submitting /category/<id> would
+ * hit a URL that only 308s.
+ */
+async function pagePaths(type: "category" | "custom", ref: string): Promise<string[]> {
+  return type === "category" ? [await categoryPath(ref), "/categories"] : [`/${ref}`];
 }
 
 export async function GET(
@@ -67,7 +66,10 @@ export async function PUT(
   if (typeof b.customSchema === "string") set.customSchema = b.customSchema;
   if (Array.isArray(b.blocks)) set.blocks = b.blocks as Block[];
 
-  await col.updateOne(
+  // findOneAndUpdate rather than updateOne so the ping below can see the
+  // resulting status: a custom page saved while still a draft has no live URL,
+  // and submitting it would earn a crawl of a 404.
+  const saved = await col.findOneAndUpdate(
     { key },
     {
       $set: set,
@@ -79,9 +81,11 @@ export async function PUT(
         createdAt: now,
       },
     },
-    { upsert: true },
+    { upsert: true, returnDocument: "after" },
   );
-  await revalidatePage(parsed.type, parsed.ref);
+  const paths = await pagePaths(parsed.type, parsed.ref);
+  for (const p of paths) revalidatePath(p);
+  if (saved?.status === "published") pingIndexNow(paths);
   return NextResponse.json({ ok: true });
 }
 
@@ -100,7 +104,13 @@ export async function PATCH(
   const res = await col.updateOne({ key }, { $set: { status, updatedAt: new Date().toISOString() } });
   if (res.matchedCount === 0) return NextResponse.json({ error: "Not found." }, { status: 404 });
   const parsed = parseKey(key);
-  if (parsed) await revalidatePage(parsed.type, parsed.ref);
+  if (parsed) {
+    const paths = await pagePaths(parsed.type, parsed.ref);
+    for (const p of paths) revalidatePath(p);
+    // Submitted in both directions: an unpublish wants the crawler back to see
+    // the 404 and drop the URL, not left holding a page that no longer exists.
+    pingIndexNow(paths);
+  }
   return NextResponse.json({ ok: true });
 }
 
@@ -116,6 +126,8 @@ export async function DELETE(
   if (!col)
     return NextResponse.json({ error: "Database not connected." }, { status: 503 });
   await col.deleteOne({ key });
-  revalidatePath(`/${key.slice("page:".length)}`);
+  const path = `/${key.slice("page:".length)}`;
+  revalidatePath(path);
+  pingIndexNow(path);
   return NextResponse.json({ ok: true });
 }

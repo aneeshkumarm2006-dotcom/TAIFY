@@ -102,6 +102,12 @@ function ownedHost(host: string): boolean {
  */
 function logoHostAllowed(host: string): boolean {
   return (
+    // Callers pass a urlHost(), which strips "www." - so the Google favicon
+    // service arrives here as "google.com", never "www.google.com". Matching
+    // only the www form rejected every default logo faviconFor() produces,
+    // which is every submission: the check meant to catch an unconfigured host
+    // was blocking the one host next.config.ts explicitly allows.
+    host === "google.com" ||
     host === "www.google.com" ||
     host === "picsum.photos" ||
     host === "images.unsplash.com" ||
